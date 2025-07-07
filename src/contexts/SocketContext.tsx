@@ -20,6 +20,7 @@ import {
 import { addIssue } from "@/hooks/useIssues";
 import { formatTanggalLocal } from "@/utils/formatDate";
 import SearchableSelect from "@/components/input/SearchableSelect";
+import { validateLicensePlate } from "@/utils/validationNumberPlat";
 
 interface SocketContextType {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,8 +42,8 @@ const SocketContext = createContext<
   connectionStatus: "Disconnected",
   activeCall: null,
   userNumber: null,
-  setUserNumber: () => {},
-  endCallFunction: () => {},
+  setUserNumber: () => { },
+  endCallFunction: () => { },
   muteRingtone: undefined,
   unmuteRingtone: undefined,
 });
@@ -225,6 +226,10 @@ export function GlobalCallPopup() {
   // const [categories, setCategories] = useState<Category[]>([]);
   const [callInTime] = useState<Date>(new Date());
   const [dataIssue, setDataIssue] = useState<DataIssue>({});
+  const [editablePlateNumber, setEditablePlateNumber] = useState("");
+  const [isPlateNumberValid, setIsPlateNumberValid] = useState(true);
+  const [isEditingPlateNumber, setIsEditingPlateNumber] = useState(false);
+  const [originalPlateNumber, setOriginalPlateNumber] = useState("");
   const [imageErrors, setImageErrors] = useState({
     photoIn: false,
     photoOut: false,
@@ -354,6 +359,11 @@ export function GlobalCallPopup() {
       // Reset pagination states
       setCategoryPagination({ page: 1, hasMore: true, isLoadingMore: false });
       setDataIssue({});
+      const detailGate = activeCall?.detailGate.data || {};
+      const numberPlate = detailGate?.plateNumber?.toUpperCase() || "-";
+      setEditablePlateNumber(numberPlate);
+      setOriginalPlateNumber(numberPlate);
+      setIsEditingPlateNumber(false);
       setImageErrors({
         photoIn: false,
         photoOut: false,
@@ -420,6 +430,10 @@ export function GlobalCallPopup() {
     }
   }, [selectedCategory]);
 
+  useEffect(() => {
+    setIsPlateNumberValid(validateLicensePlate(editablePlateNumber));
+  }, [editablePlateNumber]);
+
   const handleOpenGate = async () => {
     if (!activeCall || !selectedCategory) return;
 
@@ -460,7 +474,7 @@ export function GlobalCallPopup() {
     isOpeningGate ||
     isLoadingCategories ||
     isLoadingDescriptions ||
-    dataIssue.action !== "OPEN_GATE";
+    dataIssue.action !== "OPEN_GATE" || !isPlateNumberValid;
 
   const isSubmitDisabled =
     !selectedCategory ||
@@ -469,7 +483,7 @@ export function GlobalCallPopup() {
     isCreateIssue ||
     isAddingDescription ||
     isLoadingCategories ||
-    isLoadingDescriptions;
+    isLoadingDescriptions || !isPlateNumberValid;
 
   if (!activeCall) return null;
   // const imageUrl = (path: string) => {
@@ -534,7 +548,7 @@ export function GlobalCallPopup() {
         idGate: parseInt(activeCall.gateId),
         description: finalDescription,
         action: dataIssue.action || "",
-        number_plate: numberPlate,
+        number_plate: editablePlateNumber,
         TrxNo: ticketNo,
       };
 
@@ -562,6 +576,21 @@ export function GlobalCallPopup() {
     }
   };
 
+  const handleSavePlateNumber = () => {
+    if (isPlateNumberValid) {
+      setIsEditingPlateNumber(false);
+      setOriginalPlateNumber(editablePlateNumber); // Update original to new saved value
+    } else {
+      toast.error("Format plat nomor tidak valid untuk disimpan.");
+    }
+  };
+
+  const handleCancelEditPlateNumber = () => {
+    setEditablePlateNumber(originalPlateNumber);
+    setIsPlateNumberValid(true);
+    setIsEditingPlateNumber(false);
+  };
+
   return (
     <div className="modal fixed inset-0 backdrop-blur-md flex items-center justify-center z-100 p-4">
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative">
@@ -570,11 +599,10 @@ export function GlobalCallPopup() {
           {/* Mute Ringtone Button */}
           <button
             onClick={handleMuteRingtone}
-            className={`cursor-pointer w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
-              isMuted
-                ? "bg-red-200 hover:bg-red-300 dark:bg-red-600 dark:hover:bg-red-500 text-red-600 dark:text-red-200"
-                : "bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300"
-            } hover:text-gray-800 dark:hover:text-white`}
+            className={`cursor-pointer w-8 h-8 flex items-center justify-center rounded-full transition-colors ${isMuted
+              ? "bg-red-200 hover:bg-red-300 dark:bg-red-600 dark:hover:bg-red-500 text-red-600 dark:text-red-200"
+              : "bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300"
+              } hover:text-gray-800 dark:hover:text-white`}
             title={
               isMuted ? "Nyalakan suara ringtone" : "Matikan suara ringtone"
             }
@@ -681,7 +709,7 @@ export function GlobalCallPopup() {
             <h3 className="text-base font-semibold border-b pb-1">Informasi</h3>
 
             <div className="space-y-2">
-              <div className="flex justify-between items-center text-sm">
+              <div className="flex justify-between items-start py-1">
                 <span className="font-medium">Lokasi</span>
                 <span>:</span>
                 <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
@@ -689,7 +717,7 @@ export function GlobalCallPopup() {
                 </span>
               </div>
 
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-start py-1">
                 <span className="font-medium">Gate</span>
                 <span>:</span>
                 <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
@@ -705,7 +733,7 @@ export function GlobalCallPopup() {
                 </span>
               </div> */}
               {!isPMGate && (
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center py-1">
                   <span className="font-medium">Nomor Transaksi</span>
                   <span>:</span>
                   <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
@@ -714,15 +742,107 @@ export function GlobalCallPopup() {
                 </div>
               )}
 
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Plat Nomor Kendaraan</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {numberPlate || "-"}
-                </span>
+              <div className="flex items-center justify-between">
+                {/* Label dan titik dua */}
+                <div className="flex items-center gap-1 min-w-[180px]">
+                  <span className="font-medium">Plat Nomor Kendaraan</span>
+                  <span>:</span>
+                </div>
+
+                {/* Konten kanan */}
+                <div className="flex items-center justify-end flex-1 text-right">
+                  {isEditingPlateNumber ? (
+                    <>
+                      <div className="flex justify-end items-center gap-2">
+                        <div className="relative inline-block w-full max-w-[200px]">
+                          <input
+                            type="text"
+                            value={editablePlateNumber}
+                            onChange={(e) =>
+                              setEditablePlateNumber(
+                                e.target.value.toUpperCase().replace(/\s/g, "")
+                              )
+                            }
+                            className={`w-5/6 pr-3 py-2 rounded-lg border-2 bg-gray-50 dark:bg-gray-700 text-right shadow-sm focus:outline-none focus:ring-1 transition ${isPlateNumberValid
+                              ? "border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500"
+                              : "border-red-500 dark:border-red-500 focus:border-red-500 focus:ring-red-500"
+                              }`}
+                            placeholder="e.g. B1234XYZ"
+                            autoFocus
+                          />
+                        </div>
+                        <button
+                          onClick={handleSavePlateNumber}
+                          className="p-1.5 text-green-600 hover:bg-green-100 dark:hover:bg-gray-600 rounded-full"
+                          title="Simpan"
+                        >
+                          <svg
+                            className="w-5 h-5"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={handleCancelEditPlateNumber}
+                          className="p-1.5 text-red-600 hover:bg-red-100 dark:hover:bg-gray-600 rounded-full"
+                          title="Batal"
+                        >
+                          <svg
+                            className="w-5 h-5"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                      {!isPlateNumberValid && (
+                        <p className="text-xs text-red-500 mt-1 pr-1">
+                          Format plat nomor tidak valid.
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    // View mode
+                    <div className="flex items-center justify-end gap-2">
+                      <span className="font-mono text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900/50 px-3 py-1 rounded-md">
+                        {editablePlateNumber || "-"}
+                      </span>
+                      <button
+                        onClick={() => setIsEditingPlateNumber(true)}
+                        className="p-1.5 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full"
+                        title="Edit Plat Nomor"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                          <path
+                            fillRule="evenodd"
+                            d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <div className="flex justify-between items-center">
+
+              <div className="flex justify-between items-center py-1">
                 <span className="font-medium">Waktu Masuk</span>
                 <span>:</span>
                 <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
@@ -732,14 +852,14 @@ export function GlobalCallPopup() {
 
               {!isPMGate && (
                 <>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center py-1">
                     <span className="font-medium">Waktu Keluar</span>
                     <span>:</span>
                     <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
                       -
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center py-1">
                     <span className="font-medium">Status Pembayaran</span>
                     <span>:</span>
                     <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
@@ -748,7 +868,7 @@ export function GlobalCallPopup() {
                   </div>
                   {detailGate.payment_status === "PAID" && (
                     <>
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center py-1">
                         <span className="font-medium">Waktu Pembayaran</span>
                         <span>:</span>
                         <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
@@ -757,29 +877,36 @@ export function GlobalCallPopup() {
                             : "-"}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center py-1">
                         <span className="font-medium">Metode Pembayaran</span>
                         <span>:</span>
                         <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
                           {detailGate.payment_method || "-"}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center py-1">
                         <span className="font-medium">Issuer Name</span>
                         <span>:</span>
                         <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
                           {detailGate.issuer_name || "-"}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">Konfirmasi Pembayaran</span>
-                        <span>:</span>
-                        <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                          {detailGate.payment_confirmation || "-"}
-                        </span>
-                      </div>
                     </>
                   )}
+                  <div className="flex justify-between items-center py-1">
+                    <span className="font-medium">Konfirmasi Pembayaran</span>
+                    <span>:</span>
+                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                      {detailGate?.payment_confirmation || "-"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="font-medium">Durasi Pembayaran</span>
+                    <span>:</span>
+                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                      {detailGate?.payment_confirmation || "-"}
+                    </span>
+                  </div>
                   {/* <div className="flex justify-between items-center">
                     <span className="font-medium">Tariff</span>
                     <span>:</span>
@@ -845,10 +972,10 @@ export function GlobalCallPopup() {
                     isLoadingDescriptions
                       ? "Memuat data deskripsi..."
                       : !selectedCategory
-                      ? "-- Pilih kategori terlebih dahulu --"
-                      : descriptionOptions.length === 0
-                      ? "-- Tidak ada deskripsi tersedia --"
-                      : "-- Pilih Deskripsi --"
+                        ? "-- Pilih kategori terlebih dahulu --"
+                        : descriptionOptions.length === 0
+                          ? "-- Tidak ada deskripsi tersedia --"
+                          : "-- Pilih Deskripsi --"
                   }
                   disabled={isLoadingDescriptions || !selectedCategory}
                   className="text-sm"
@@ -1178,3 +1305,4 @@ export function GlobalCallPopup() {
 //     );
 //   }
 // }
+

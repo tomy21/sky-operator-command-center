@@ -245,3 +245,6 @@ input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 30px rgb(17 24 39) inset !important;
   -webkit-text-fill-color: #fff !important;
 }
+.apexcharts-toolbar-icon {
+  fill: var(--text-secondary);
+}
