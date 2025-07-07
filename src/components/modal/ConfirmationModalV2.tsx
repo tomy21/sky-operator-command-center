@@ -13,7 +13,6 @@ interface ConfirmationModalProps {
   type: "open" | "close";
 }
 
-// Confirmation Modal Component
 export function ConfirmationModal({
   isOpen,
   onClose,

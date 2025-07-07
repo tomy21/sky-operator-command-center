@@ -62,7 +62,6 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("resize", checkDesktop);
   }, []);
 
-  // Panggil semua hooks di sini, JANGAN return dulu!
   const socket = useSocket();
   const [connectionStatus, setConnectionStatus] = useState("Connecting...");
   const [activeCall, setActiveCall] = useState<GateStatusUpdate | null>(null);
@@ -70,14 +69,12 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [, setCallInTime] = useState<Date | null>(null);
 
-  // Load user number from localStorage on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedUserNumber = localStorage.getItem("admin_user_number");
       if (savedUserNumber) {
         setUserNumberState(parseInt(savedUserNumber));
       }
-      // Hanya load audio jika desktop
       if (isDesktop) {
         setAudio(new Audio("/sound/sound-effect-old-phone-191761.mp3"));
       }
@@ -88,7 +85,6 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     setUserNumberState(num);
     localStorage.setItem("admin_user_number", num.toString());
 
-    // Hanya register socket jika desktop
     if (socket && isDesktop) {
       socket.emit("register", num);
     }
@@ -112,7 +108,6 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     const userId = Number(localStorage.getItem("admin_user_number"));
     if (!userId) return;
 
-    // Stop the ringtone immediately when ending call
     if (audio) {
       audio.pause();
       audio.currentTime = 0;
@@ -134,7 +129,6 @@ export function SocketProvider({ children }: { children: ReactNode }) {
 
     socket.on("connect", () => {
       setConnectionStatus("Connected");
-      // Auto-register hanya jika desktop dan user number exists
       if (userNumber && isDesktop) {
         socket.emit("register", userNumber);
       }
@@ -144,21 +138,18 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       setConnectionStatus("Disconnected");
       setActiveCall(null);
       setCallInTime(null);
-      // Stop audio when disconnected
       if (audio) {
         audio.pause();
         audio.currentTime = 0;
       }
     });
 
-    // Hanya listen gate-status-update jika desktop
     if (isDesktop) {
       socket.on("gate-status-update", (data: GateStatusUpdate) => {
         console.log("📡 Gate Update:", data);
         setActiveCall(data);
         setCallInTime(new Date());
 
-        // Play notification
         if (audio) {
           audio.currentTime = 0;
           audio.play().catch(console.error);
@@ -182,7 +173,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       value={{
         socket,
         connectionStatus: isDesktop ? connectionStatus : "Disabled (Mobile)",
-        activeCall: isDesktop ? activeCall : null, // Selalu null jika mobile
+        activeCall: isDesktop ? activeCall : null,
         userNumber,
         setUserNumber,
         endCallFunction,
@@ -207,7 +198,6 @@ interface DataIssue {
   TrxNo?: string;
 }
 
-// Updated GlobalCallPopup Component with base64 image support
 export function GlobalCallPopup() {
   const { activeCall, endCallFunction, muteRingtone, unmuteRingtone } =
     useGlobalSocket();
@@ -239,7 +229,6 @@ export function GlobalCallPopup() {
 
   // console.log(callInTime, "callInTime in GlobalCallPopup");
 
-  // Add mute state
   const [isMuted, setIsMuted] = useState(false);
 
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
@@ -254,7 +243,6 @@ export function GlobalCallPopup() {
   const [manualDescription, setManualDescription] = useState("");
   const [isAddingDescription, setIsAddingDescription] = useState(false);
 
-  // 2. Tambahkan function handleAddDescription
   const handleAddDescription = async (
     categoryId: number,
     descriptionName: string
@@ -264,7 +252,6 @@ export function GlobalCallPopup() {
         name: descriptionName,
         idDescription: categoryId,
       });
-      // Refresh descriptions after adding
     } catch (error) {
       console.error("Gagal menambahkan deskripsi:", error);
       throw error;
@@ -277,10 +264,8 @@ export function GlobalCallPopup() {
   //   isLoadingMore: false,
   // });
 
-  // Check if gate is PM type
   const isPMGate = activeCall?.gate?.toUpperCase().includes("PM") || false;
 
-  // Function to handle ringtone mute/unmute
   const handleMuteRingtone = () => {
     if (isMuted) {
       unmuteRingtone?.();
@@ -290,16 +275,13 @@ export function GlobalCallPopup() {
     setIsMuted(!isMuted);
   };
 
-  // Function to handle modal close and stop audio
   const handleCloseModal = () => {
-    // Stop any playing audio (you may need to adjust this based on your audio implementation)
     const audioElements = document.querySelectorAll("audio");
     audioElements.forEach((audio) => {
       audio.pause();
       audio.currentTime = 0;
     });
 
-    // End the call
     endCallFunction();
   };
 
@@ -322,7 +304,6 @@ export function GlobalCallPopup() {
         }));
         setCategoryOptions(options);
       } else {
-        // Append new categories
         // setCategories((prev) => [...prev, ...newCategories]);
         setCategoryOptions((prev) => [
           ...prev,
@@ -356,7 +337,6 @@ export function GlobalCallPopup() {
       setManualDescription("");
       setCategoryOptions([]);
       setDescriptionOptions([]);
-      // Reset pagination states
       setCategoryPagination({ page: 1, hasMore: true, isLoadingMore: false });
       setDataIssue({});
       const detailGate = activeCall?.detailGate.data || {};
@@ -387,7 +367,6 @@ export function GlobalCallPopup() {
     }
   };
 
-  // Fetch descriptions when category changes
   useEffect(() => {
     const fetchDescriptionsDataByCategoryId = async (categoryId: number) => {
       setIsLoadingDescriptions(true);
@@ -395,13 +374,11 @@ export function GlobalCallPopup() {
         const response = await fetchDescriptionByCategoryId(categoryId);
         const descriptions = Array.isArray(response) ? response : [response];
 
-        // Tambahkan opsi "Other (Input Manual)" di akhir list
         const options = descriptions.map((desc) => ({
           value: desc.object,
           label: desc.object,
         }));
 
-        // Tambahkan opsi Other di akhir
         options.push({
           value: "OTHER_MANUAL",
           label: "Other (Input Manual)",
@@ -421,11 +398,11 @@ export function GlobalCallPopup() {
       const categoryId = parseInt(selectedCategory);
       if (!isNaN(categoryId)) {
         fetchDescriptionsDataByCategoryId(categoryId);
-        setSelectedDescription(""); // Reset description
+        setSelectedDescription("");
       }
     } else {
       // setDescription([]);
-      setDescriptionOptions([]); // Reset options
+      setDescriptionOptions([]);
       setSelectedDescription("");
     }
   }, [selectedCategory]);
@@ -466,7 +443,6 @@ export function GlobalCallPopup() {
   //   });
   // };
 
-  // Check if all required fields are filled for Open Gate button
   const isOpenGateDisabled =
     !selectedCategory ||
     !selectedDescription ||
@@ -491,19 +467,16 @@ export function GlobalCallPopup() {
   //   return `/api/proxy/image?path=${encodeURIComponent(path)}`;
   // };
 
-  // Mapping for detailGate
   const detailGate = activeCall?.detailGate.data || {};
   const locationName = activeCall?.location?.Name || "Unknown Location";
   const gateName = activeCall?.gate || detailGate.gate || "-";
   // const gateId = activeCall?.gateId || detailGate.id || "-";
   const ticketNo = detailGate?.ticket || "-";
 
-  // Foto In
   const fotoInUrl = detailGate.foto_in
     ? `https://devtest09.skyparking.online/uploads/${detailGate.foto_in}`
     : "/images/Plat-Nomor-Motor-875.png";
 
-  // Foto Capture
   const photoCaptureUrl = activeCall?.imageFile?.filename
     ? `https://devtest09.skyparking.online/uploads/${activeCall.imageFile.filename}`
     : "/images/Plat-Nomor-Motor-875.png";
@@ -523,7 +496,6 @@ export function GlobalCallPopup() {
     try {
       let finalDescription = selectedDescription;
 
-      // If "Other (Input Manual)" is selected, add the new description first
       if (selectedDescription === "OTHER_MANUAL" && manualDescription.trim()) {
         try {
           setIsAddingDescription(true);
@@ -578,7 +550,7 @@ export function GlobalCallPopup() {
   const handleSavePlateNumber = () => {
     if (isPlateNumberValid) {
       setIsEditingPlateNumber(false);
-      setOriginalPlateNumber(editablePlateNumber); // Update original to new saved value
+      setOriginalPlateNumber(editablePlateNumber);
     } else {
       toast.error("Format plat nomor tidak valid untuk disimpan.");
     }
@@ -607,7 +579,6 @@ export function GlobalCallPopup() {
             }
           >
             {isMuted ? (
-              // Muted icon
               <svg
                 className="w-5 h-5"
                 fill="none"
@@ -629,7 +600,6 @@ export function GlobalCallPopup() {
                 />
               </svg>
             ) : (
-              // Unmuted icon
               <svg
                 className="w-5 h-5"
                 fill="none"

@@ -584,7 +584,6 @@ export default function ReportsPage() {
           })) || [],
         required: true,
         onChange: (value) => handleFieldValueChange("idLocation", value),
-        // Tambahkan props ini:
         hasMore: locationPagination.hasMore,
         loading: locationPagination.isLoading,
         onLoadMore: handleLoadMoreLocations,

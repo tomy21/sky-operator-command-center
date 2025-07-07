@@ -25,6 +25,5 @@ export default async function LoginLayout({
   //   }
   // }
 
-  // ❌ token tidak ada atau tidak valid
   return <div>{children}</div>;
 }

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "react-toastify";
-import SearchableSelect from "@/components/input/SearchableSelect"; // Tambahkan import ini
+import SearchableSelect from "@/components/input/SearchableSelect";
 
 interface FieldOption {
   value: string;
@@ -64,7 +64,6 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
   const [licenseValidationTimeout, setLicenseValidationTimeout] =
     useState<NodeJS.Timeout | null>(null);
 
-  // Memoize validation function untuk menghindari re-creation
   const validateLicensePlate = useCallback(
     (value: string, fieldId: string) => {
       const field = fields.find((f) => f.id === fieldId);
@@ -87,7 +86,7 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
 
       const timeout = setTimeout(() => {
         validateLicensePlate(value, fieldId);
-      }, 300); // 300ms delay
+      }, 300);
 
       setLicenseValidationTimeout(timeout);
     },
@@ -102,7 +101,6 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
     };
   }, [licenseValidationTimeout]);
 
-  // Initialize form values when modal opens or fields change
   useEffect(() => {
     if (isOpen) {
       const initialValues: Record<string, string> = {};
@@ -114,7 +112,6 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
     }
   }, [isOpen, fields]);
 
-  // Update form values when field values change externally
   useEffect(() => {
     if (isOpen) {
       const updatedValues: Record<string, string> = { ...formValues };
@@ -161,7 +158,7 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
               placeholder={field.placeholder}
               disabled={isDisabled || isReadonly}
               error={validationErrors[field.id]}
-              onLoadMore={field.onLoadMore ? () => handleLoadMore(field.id) : undefined} // Ubah ini
+              onLoadMore={field.onLoadMore ? () => handleLoadMore(field.id) : undefined}
               hasMoreData={field.hasMore || false}
               isLoadingMore={field.loading || false}
               showLoadMoreInfo={true}
@@ -195,10 +192,8 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
               onChange={(e) => {
                 let newValue = e.target.value;
 
-                // Handle license plate specific logic
                 if (field.id === "number_plate") {
                   newValue = newValue.toUpperCase();
-                  // Limit length immediately in UI
                   if (newValue.length > 11) {
                     newValue = newValue.substring(0, 11);
                   }
@@ -207,7 +202,6 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
                 handleInputChange(field.id, newValue);
               }}
               onBlur={() => {
-                // Only validate on blur for non-license plate fields
                 if (field.id !== "number_plate") {
                   validateLicensePlate(value, field.id);
                 }
@@ -217,7 +211,6 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
               readOnly={isReadonly}
               disabled={isDisabled}
               required={field.required}
-              // Remove pattern and maxLength from here - handle in onChange
               autoComplete="off"
               spellCheck="false"
             />
@@ -300,21 +293,17 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
 
   const handleInputChange = useCallback(
     (fieldId: string, value: string) => {
-      // Update form values immediately for smooth typing
       setFormValues((prev) => ({
         ...prev,
         [fieldId]: value,
       }));
 
-      // Call field onChange immediately
       const field = fields.find((f) => f.id === fieldId);
       field?.onChange?.(value);
 
-      // For license plate, use debounced validation
       if (fieldId === "number_plate") {
         debouncedLicenseValidation(value, fieldId);
       } else {
-        // For other fields, validate immediately
         if (field?.validation) {
           const result = field.validation(value);
           setValidationErrors((prev) => ({
@@ -365,7 +354,6 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
         isValid = false;
       }
 
-      // Custom field validation
       else if (field.validation) {
         const validationResult = field.validation(value);
         newValidationStates[field.id] = validationResult;

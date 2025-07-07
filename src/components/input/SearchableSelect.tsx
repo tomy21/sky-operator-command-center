@@ -19,7 +19,6 @@ interface SearchableSelectProps {
   isLoadingMore?: boolean;
   showLoadMoreInfo?: boolean;
   loadMoreText?: string;
-  // New props for infinite scroll
   onSearch?: (searchTerm: string) => void;
   isSearching?: boolean;
   searchDebounceMs?: number;
@@ -54,7 +53,6 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   const optionsContainerRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
-  // Debounced search handler
   const debouncedSearch = useCallback(
     (searchTerm: string) => {
       if (searchTimeoutRef.current) {
@@ -70,9 +68,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     [onSearch, searchDebounceMs]
   );
 
-  // Filter options locally if no search handler provided
   const filteredOptions = onSearch
-    ? options // When using server-side search, show all provided options
+    ? options
     : options.filter((opt) =>
         opt.label.toLowerCase().includes(search.toLowerCase())
       );
@@ -84,7 +81,6 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
       const element = e.currentTarget;
       const { scrollTop, scrollHeight, clientHeight } = element;
 
-      // Check if scrolled near bottom
       const isNearBottom =
         scrollHeight - scrollTop <= clientHeight + loadMoreThreshold;
 
@@ -108,25 +104,22 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     ]
   );
 
-  // Reset load more trigger when new data is loaded
   useEffect(() => {
     if (!isLoadingMore) {
       setHasTriggeredLoadMore(false);
     }
   }, [isLoadingMore]);
 
-  // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchTerm = e.target.value;
     setSearch(searchTerm);
-    setHasTriggeredLoadMore(false); // Reset load more when searching
+    setHasTriggeredLoadMore(false);
 
     if (onSearch) {
       debouncedSearch(searchTerm);
     }
   };
 
-  // Clear search when closed
   useEffect(() => {
     if (!isOpen) {
       setSearch("");
@@ -137,7 +130,6 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     }
   }, [isOpen]);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (ref.current && !ref.current.contains(event.target as Node)) {
@@ -152,14 +144,12 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     };
   }, [isOpen]);
 
-  // Auto scroll to selected option when dropdown opens
   useEffect(() => {
     if (isOpen && selectedRef.current) {
       selectedRef.current.scrollIntoView({ block: "nearest" });
     }
   }, [isOpen]);
 
-  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (searchTimeoutRef.current) {
@@ -190,7 +180,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   );
 
   const renderLoadMoreInfo = () => {
-    if (search) return null; // Don't show load more info when searching
+    if (search) return null;
 
     if (hasMoreData) {
       return (

@@ -9,7 +9,7 @@ export const changeStatusGate = async (gateId: string | number, status: "OPEN" |
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                status // status dinamis: "OPEN" atau "CLOSE"
+                status
             })
         });
 

@@ -18,13 +18,11 @@ export default function Sidebar() {
     { href: "/reports", label: "Laporan", icon: ReportsIcon },
   ];
 
-  // Check if device is mobile and set initial sidebar state
   useEffect(() => {
     const checkScreenSize = () => {
       const isMobileView = window.innerWidth < 768; // md breakpoint
       setIsMobile(isMobileView);
 
-      // Set sidebar closed by default on mobile (showing only icons)
       if (isMobileView) {
         setIsOpen(false);
       } else {
@@ -32,13 +30,10 @@ export default function Sidebar() {
       }
     };
 
-    // Check on initial load
     checkScreenSize();
 
-    // Add event listener for resize
     window.addEventListener('resize', checkScreenSize);
 
-    // Cleanup
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
@@ -47,21 +42,14 @@ export default function Sidebar() {
   };
 
   const handleLogout = () => {
-    // Lakukan proses logout di sini, misal clear token dan redirect
-    // Contoh:
-    // localStorage.removeItem("token");
     window.location.href = "/login";
   };
 
-  // Alternative: Logika isActive yang lebih strict
   const isActiveStrict = (href: string) => {
     if (href === "/") {
-      // Dashboard hanya aktif jika benar-benar di root
       return pathname === "/";
     }
 
-    // Untuk route lainnya, cek apakah pathname dimulai dengan href
-    // dan pastikan karakter setelah href adalah "/" atau akhir string
     if (pathname.startsWith(href)) {
       const nextChar = pathname[href.length];
       return nextChar === "/" || nextChar === undefined;
@@ -72,7 +60,6 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile overlay when sidebar is open */}
       {isMobile && isOpen && (
         <div
           className="fixed inset-0 backdrop-blur-2xl bg-opacity-50 z-50 md:hidden"

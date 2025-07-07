@@ -38,7 +38,6 @@ export function useCheckTicket(): UseCheckTicketReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Dummy data for fallback
   const dummyTicketData: TicketData = {
     id: 538327,
     TransactionNo: "6032982869966018",
@@ -72,14 +71,12 @@ export function useCheckTicket(): UseCheckTicketReturn {
     setError(null);
 
     try {
-      // Build query parameters
       const params = new URLSearchParams({
         keyword: keyword,
         locationCode: locationCode,
         date: date,
       });
 
-      // Attempt to call the real API with new parameters
       const response = await fetch(
         `/api/transaction/find-transaction?${params.toString()}`,
         {
@@ -105,10 +102,8 @@ export function useCheckTicket(): UseCheckTicketReturn {
       console.warn("API call failed, using dummy data:", apiError);
       setError("Menggunakan data contoh (API tidak tersedia)");
 
-      // Return dummy data with modified fields to match search parameters
       const modifiedDummyData = { ...dummyTicketData };
 
-      // Simple check if keyword looks like a plate number (contains letters and numbers)
       const plateNumberPattern = /^[A-Za-z]\s*\d+\s*[A-Za-z]+$/;
       const transactionPattern = /^TRX-/i;
 
@@ -118,7 +113,6 @@ export function useCheckTicket(): UseCheckTicketReturn {
         modifiedDummyData.TransactionNo = keyword.toUpperCase();
       }
 
-      // Update location based on locationCode (you can expand this mapping)
       const locationMapping: { [key: string]: string } = {
         LOC001: "Mall Central Park",
         LOC002: "Mall Taman Anggrek",
@@ -131,7 +125,6 @@ export function useCheckTicket(): UseCheckTicketReturn {
         modifiedDummyData.locationInfo.Name = locationMapping[locationCode];
       }
 
-      // Update date-related fields
       modifiedDummyData.InTime = `${date}T08:30:00Z`;
       modifiedDummyData.OutTime = `${date}T11:00:00Z`;
       return modifiedDummyData;

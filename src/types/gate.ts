@@ -1,6 +1,5 @@
 export interface Location {
   Name: string;
-  // tambahkan properti location lainnya sesuai kebutuhan
 }
 
 export interface GateStatusUpdate {
@@ -27,7 +26,7 @@ export interface GateStatusUpdate {
   };
   detailGate: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    data: any
+    data: any;
     id: number;
     ticket: string;
     gate: string;

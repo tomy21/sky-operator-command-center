@@ -1,4 +1,3 @@
-// Validation function for Indonesian license plates
 export function validateIndonesianLicensePlate(value: string): {
   isValid: boolean;
   message: string;

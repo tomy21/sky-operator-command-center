@@ -66,7 +66,6 @@ export const fetchCategoryDetail = async (id: number) => {
 
 export const addCategory = async (category: any) => {
   try {
-    // Dapatkan signature terlebih dahulu
     // const { timestamp, signature } = await getSignature();
 
     // const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1] || '';

@@ -35,7 +35,6 @@ const ActivateLocationModal: React.FC<ActivateLocationModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      // Reset state when modal opens
       setLocations([]);
       setCurrentLimit(5);
       setHasMoreData(true);
@@ -63,7 +62,6 @@ const ActivateLocationModal: React.FC<ActivateLocationModalProps> = ({
         if (isInitial) {
           setLocations(locationData.data);
         } else {
-          // Only add new items that aren't already in the list
           setLocations((prev) => {
             const existingIds = new Set(prev.map((loc) => loc.id));
             const newItems = locationData.data.filter(
@@ -73,12 +71,9 @@ const ActivateLocationModal: React.FC<ActivateLocationModalProps> = ({
           });
         }
 
-        // Update total items and check if there's more data
         const total = locationData.meta?.totalItems || locationData.data.length;
         setTotalItems(total);
 
-        // Check if there's more data available
-        // hasMoreData is true if current data length equals the limit and we haven't reached total
         setHasMoreData(
           locationData.data.length === limit && locationData.data.length < total
         );

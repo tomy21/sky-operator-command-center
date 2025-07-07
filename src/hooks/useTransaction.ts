@@ -1,5 +1,3 @@
-// Ganti tipe dan response agar sesuai dengan response baru
-
 export interface LocationInfo {
   Code: string;
   Name: string;
@@ -43,10 +41,9 @@ export interface TransactionResponse {
 export const fetchTransaction = async (
   keyword: string,
   locationCode: string,
-  date: string // tambahkan parameter date
+  date: string
 ) => {
   try {
-    // Gunakan date dari parameter, tidak mengambil date now
     const formattedDate = date;
 
     const response = await fetch(

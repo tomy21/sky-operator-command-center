@@ -67,7 +67,6 @@ export const fetchDescriptionByCategoryId = async (id: number) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const addDescription = async (category: any) => {
     try {
-        // Dapatkan signature terlebih dahulu
         // const { timestamp, signature } = await getSignature();
 
         // const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1] || '';

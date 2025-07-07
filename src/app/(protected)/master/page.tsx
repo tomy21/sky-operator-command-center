@@ -184,7 +184,6 @@ export default function MasterPage() {
     }));
 
     try {
-      // Adjust this API call based on your backend
       const response = await fetchCategories(page, 5);
 
       const newOptions = response.data.map((category: Category) => ({
@@ -245,7 +244,6 @@ export default function MasterPage() {
     }
   };
 
-  // Add this useEffect to load initial category options when modal opens
   useEffect(() => {
     if (showAddModal && activeTab === "description") {
       if (categorySelectOptions.length === 0) {
@@ -569,7 +567,6 @@ export default function MasterPage() {
     setDeleteId(null);
     setIsEditing(false);
 
-    // Reset category select options
     setCategorySelectOptions([]);
     setCategorySelectPagination({
       currentPage: 1,

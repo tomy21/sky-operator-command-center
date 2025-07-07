@@ -30,7 +30,6 @@ export default function DynamicInputModal({
   const [values, setValues] = React.useState<Record<string, string>>({});
 
   React.useEffect(() => {
-    // Initialize values when fields change
     const initialValues = fields.reduce((acc, field) => {
       acc[field.id] = field.value || '';
       return acc;

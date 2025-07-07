@@ -20,7 +20,6 @@ interface Location {
 }
 
 interface TransactionResponse {
-  // Sesuaikan dengan struktur data tiket kamu
   TransactionNo: string;
   [key: string]: any;
 }
@@ -51,12 +50,11 @@ export default function CheckTicketModal({
   const [plateError, setPlateError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // State untuk hasil pencarian tiket
   const [ticketData, setTicketData] = useState<TransactionResponse | null>(
     null
   );
   const [notFound, setNotFound] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false); // New state to track if search has been performed
+  const [hasSearched, setHasSearched] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -67,12 +65,11 @@ export default function CheckTicketModal({
       setPlateError("");
       setTicketData(null);
       setNotFound(false);
-      setHasSearched(false); // Reset search state when modal opens
+      setHasSearched(false);
       fetchAllLocations();
     }
   }, [isOpen]);
 
-  // Sinkronisasi date string dan dateObj
   useEffect(() => {
     if (dateObj) {
       const yyyy = dateObj.getFullYear();
@@ -101,11 +98,10 @@ export default function CheckTicketModal({
     return plate.replace(/\s/g, "");
   };
 
-  // Function to clear ticket data when inputs change
   const clearTicketData = () => {
     setTicketData(null);
     setNotFound(false);
-    setHasSearched(false); // Reset search state when inputs change
+    setHasSearched(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -138,7 +134,7 @@ export default function CheckTicketModal({
     setLoading(true);
     setTicketData(null);
     setNotFound(false);
-    setHasSearched(true); // Mark that search has been performed
+    setHasSearched(true);
 
     try {
       const normalizedPlate = normalizeLicensePlate(trimmedKeyword);
@@ -202,7 +198,7 @@ export default function CheckTicketModal({
     setPlateError("");
     setTicketData(null);
     setNotFound(false);
-    setHasSearched(false); // Reset search state when closing
+    setHasSearched(false);
     onClose();
   };
 
@@ -227,7 +223,6 @@ export default function CheckTicketModal({
     ticketData?.PaymentStatus
   );
 
-  // Determine what to show in the results section
   const shouldShowResults = hasSearched || loading;
 
   if (!isOpen) return null;
