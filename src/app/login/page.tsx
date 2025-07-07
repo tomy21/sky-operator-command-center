@@ -3,14 +3,13 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { LoginAuth } from "@/hooks/useAuth";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
 import { Eye, EyeOff } from "lucide-react";
 // import Link from "next/link";
 
 export default function Login() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -21,33 +20,36 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const { setUser } = useUser();
 
-  // Handle success messages from URL params
+  // Handle success messages from URL params menggunakan window.location
   useEffect(() => {
-    const registerSuccess = searchParams.get("registerSuccess");
-    const loginSuccess = searchParams.get("loginSuccess");
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const registerSuccess = urlParams.get("registerSuccess");
+      const loginSuccess = urlParams.get("loginSuccess");
 
-    if (registerSuccess === "1") {
-      setSuccessMessage("Registrasi berhasil! Silakan login dengan akun baru Anda.");
-      // Clear the URL parameter after showing the message
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
-    }
+      if (registerSuccess === "1") {
+        setSuccessMessage("Registrasi berhasil! Silakan login dengan akun baru Anda.");
+        // Clear the URL parameter after showing the message
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      }
 
-    if (loginSuccess === "1") {
-      setSuccessMessage("Login berhasil! Anda akan diarahkan ke dashboard.");
-      // Clear the URL parameter after showing the message
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
-    }
+      if (loginSuccess === "1") {
+        setSuccessMessage("Login berhasil! Anda akan diarahkan ke dashboard.");
+        // Clear the URL parameter after showing the message
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      }
 
-    // Clear success message after 5 seconds
-    if (registerSuccess === "1" || loginSuccess === "1") {
-      const timer = setTimeout(() => {
-        setSuccessMessage("");
-      }, 5000);
-      return () => clearTimeout(timer);
+      // Clear success message after 5 seconds
+      if (registerSuccess === "1" || loginSuccess === "1") {
+        const timer = setTimeout(() => {
+          setSuccessMessage("");
+        }, 5000);
+        return () => clearTimeout(timer);
+      }
     }
-  }, [searchParams]);
+  }, []);
 
   const handleSubmit = async () => {
     try {
