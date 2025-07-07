@@ -497,7 +497,6 @@ export function GlobalCallPopup() {
   const gateName = activeCall?.gate || detailGate.gate || "-";
   // const gateId = activeCall?.gateId || detailGate.id || "-";
   const ticketNo = detailGate?.ticket || "-";
-  const numberPlate = detailGate?.plateNumber?.toUpperCase() || "-";
 
   // Foto In
   const fotoInUrl = detailGate.foto_in
