@@ -1,87 +1,58 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import { LoginAuth } from "@/hooks/useAuth";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useUser } from "@/contexts/UserContext";
+import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
-// import Link from "next/link";
+import Link from "next/link";
 
-export default function Login() {
+export default function Register() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
+    credentialCode: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { setUser } = useUser();
-
-  // Handle success messages from URL params
-  useEffect(() => {
-    const registerSuccess = searchParams.get("registerSuccess");
-    const loginSuccess = searchParams.get("loginSuccess");
-
-    if (registerSuccess === "1") {
-      setSuccessMessage("Registrasi berhasil! Silakan login dengan akun baru Anda.");
-      // Clear the URL parameter after showing the message
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
-    }
-
-    if (loginSuccess === "1") {
-      setSuccessMessage("Login berhasil! Anda akan diarahkan ke dashboard.");
-      // Clear the URL parameter after showing the message
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
-    }
-
-    // Clear success message after 5 seconds
-    if (registerSuccess === "1" || loginSuccess === "1") {
-      const timer = setTimeout(() => {
-        setSuccessMessage("");
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [searchParams]);
 
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
-      setError(""); // Clear any previous errors
-      setSuccessMessage(""); // Clear any previous success messages
+      setError("");
 
-      const response = await LoginAuth({
-        identifier: formData.username,
-        password: formData.password,
-        remember: true,
-      });
-
-      setUser({ username: response.user.username });
-      localStorage.setItem("username", response.user.username);
-      localStorage.setItem("id", response.user.id);
-      if (response.user.id) {
-        localStorage.setItem("admin_user_number", response.user.id.toString());
-      }
-      if (response.token) {
-        localStorage.setItem("token", response.token);
+      // Validasi form
+      if (!formData.username || !formData.password || !formData.credentialCode) {
+        setError("Semua field harus diisi");
+        setIsLoading(false);
+        return;
       }
 
-      router.push("/?loginSuccess=1");
-      window.dispatchEvent(new Event("loginSuccess"));
+      // TODO: Implementasikan RegisterAuth function
+      // const response = await RegisterAuth({
+      //   username: formData.username,
+      //   password: formData.password,
+      //   credentialCode: formData.credentialCode,
+      // });
+
+      // Sementara simulasi sukses
+      console.log("Register data:", formData);
+      
+      // Redirect ke login setelah berhasil register
+      router.push("/login?registerSuccess=1");
+      
     } catch (error) {
-      console.error("Login error:", error);
-      let errorMessage = "Terjadi kesalahan saat login";
+      console.error("Register error:", error);
+      let errorMessage = "Terjadi kesalahan saat registrasi";
 
       if (error instanceof Error) {
         const message = error.message.toLowerCase();
 
-        if (message.includes("credential")) {
-          errorMessage = "Username atau kata sandi salah";
+        if (message.includes("username")) {
+          errorMessage = "Username sudah digunakan";
+        } else if (message.includes("credential")) {
+          errorMessage = "Kode kredensial tidak valid";
         } else if (message.includes("server")) {
           errorMessage = "Terjadi kesalahan saat menghubungi server";
         } else {
@@ -93,7 +64,6 @@ export default function Login() {
 
       setError(errorMessage);
       setIsLoading(false);
-    } finally {
     }
   };
 
@@ -107,12 +77,12 @@ export default function Login() {
             <div className="three-body__dot"></div>
           </div>
           <p className="text-gray-600 dark:text-gray-300 blink-smooth mt-4">
-            Memuat data login...
+            Memproses registrasi...
           </p>
         </div>
       ) : (
         <div
-          id="card-login"
+          id="card-register"
           className="max-w-md w-full space-y-8 p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg"
         >
           <div className="text-center">
@@ -124,23 +94,15 @@ export default function Login() {
               className="mx-auto w-auto dark:invert"
             />
             <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
-              Command Center Login
+              Command Center Register
             </h2>
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Masuk ke Dashboard OCC
+              Daftar sebagai user baru OCC
             </p>
           </div>
-
-          {/* Success Message */}
-          {successMessage && (
-            <div className="rounded-lg bg-green-500/10 p-3 text-sm text-green-600 dark:text-green-400 border border-green-500/20">
-              {successMessage}
-            </div>
-          )}
-
-          {/* Error Message */}
+          
           {error && (
-            <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-500 border border-red-500/20">
+            <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-500">
               {error}
             </div>
           )}
@@ -164,6 +126,7 @@ export default function Login() {
                   }
                 />
               </div>
+              
               <div className="relative">
                 <label htmlFor="password" className="sr-only">
                   Password
@@ -173,7 +136,7 @@ export default function Login() {
                   name="password"
                   type={showPassword ? "text" : "password"}
                   required
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   className="appearance-none rounded-lg relative block w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm transition-colors duration-200"
                   placeholder="Password"
                   value={formData.password}
@@ -197,9 +160,28 @@ export default function Login() {
                   )}
                 </button>
               </div>
-              {/* <Link href={"/register"} className="text-sm text-blue-500 underline hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
-                Register / Tambahkan user baru
-              </Link> */}
+
+              <div>
+                <label htmlFor="credentialCode" className="sr-only">
+                  Credential Number
+                </label>
+                <input
+                  id="credentialCode"
+                  name="credentialCode"
+                  type="text"
+                  required
+                  className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                  placeholder="Credential Number"
+                  value={formData.credentialCode}
+                  onChange={(e) =>
+                    setFormData({ ...formData, credentialCode: e.target.value })
+                  }
+                />
+              </div>
+              
+              <Link href={"/login"} className="text-sm text-blue-500 underline">
+                Sudah punya akun? Login di sini
+              </Link>
             </div>
 
             <div>
@@ -209,7 +191,7 @@ export default function Login() {
                 onClick={handleSubmit}
                 className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors duration-200 cursor-pointer"
               >
-                Login
+                Register
               </button>
             </div>
           </div>
