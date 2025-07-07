@@ -36,10 +36,8 @@ export default function Register() {
       //   credentialCode: formData.credentialCode,
       // });
 
-      // Sementara simulasi sukses
       console.log("Register data:", formData);
       
-      // Redirect ke login setelah berhasil register
       router.push("/login?registerSuccess=1");
       
     } catch (error) {

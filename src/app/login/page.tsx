@@ -20,7 +20,6 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const { setUser } = useUser();
 
-  // Handle success messages from URL params menggunakan window.location
   useEffect(() => {
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
@@ -29,19 +28,16 @@ export default function Login() {
 
       if (registerSuccess === "1") {
         setSuccessMessage("Registrasi berhasil! Silakan login dengan akun baru Anda.");
-        // Clear the URL parameter after showing the message
         const newUrl = window.location.pathname;
         window.history.replaceState({}, document.title, newUrl);
       }
 
       if (loginSuccess === "1") {
         setSuccessMessage("Login berhasil! Anda akan diarahkan ke dashboard.");
-        // Clear the URL parameter after showing the message
         const newUrl = window.location.pathname;
         window.history.replaceState({}, document.title, newUrl);
       }
 
-      // Clear success message after 5 seconds
       if (registerSuccess === "1" || loginSuccess === "1") {
         const timer = setTimeout(() => {
           setSuccessMessage("");
@@ -54,8 +50,8 @@ export default function Login() {
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
-      setError(""); // Clear any previous errors
-      setSuccessMessage(""); // Clear any previous success messages
+      setError("");
+      setSuccessMessage("");
 
       const response = await LoginAuth({
         identifier: formData.username,
