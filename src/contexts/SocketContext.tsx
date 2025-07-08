@@ -475,12 +475,12 @@ export function GlobalCallPopup() {
   // const gateId = activeCall?.gateId || detailGate.id || "-";
   const ticketNo = detailGate?.ticket || "-";
 
-  const fotoInUrl = activeCall.imageFileIn
-    ? `https://devtest09.skyparking.online/uploads/${activeCall.imageFileIn}`
+  const fotoInUrl = activeCall?.imageFileIn
+    ? `https://devtest09.skyparking.online/uploads/${activeCall?.imageFileIn}`
     : "/images/Plat-Nomor-Motor-875.png";
 
   const photoCaptureUrl = activeCall?.imageFile?.filename
-    ? `https://devtest09.skyparking.online/uploads/${activeCall.imageFile.filename}`
+    ? `https://devtest09.skyparking.online/uploads/${activeCall?.imageFile?.filename}`
     : "/images/Plat-Nomor-Motor-875.png";
 
   const handleCreateIssue = async () => {
