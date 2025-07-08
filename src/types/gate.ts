@@ -14,6 +14,7 @@ export interface GateStatusUpdate {
     Name: string;
     Code: string;
   };
+  imageFileIn: string;
   imageFile: {
     fieldname: string;
     originalname: string;

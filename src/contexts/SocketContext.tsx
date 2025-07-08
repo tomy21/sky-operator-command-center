@@ -42,8 +42,8 @@ const SocketContext = createContext<
   connectionStatus: "Disconnected",
   activeCall: null,
   userNumber: null,
-  setUserNumber: () => { },
-  endCallFunction: () => { },
+  setUserNumber: () => {},
+  endCallFunction: () => {},
   muteRingtone: undefined,
   unmuteRingtone: undefined,
 });
@@ -450,7 +450,8 @@ export function GlobalCallPopup() {
     isOpeningGate ||
     isLoadingCategories ||
     isLoadingDescriptions ||
-    dataIssue.action !== "OPEN_GATE" || !isPlateNumberValid;
+    dataIssue.action !== "OPEN_GATE" ||
+    !isPlateNumberValid;
 
   const isSubmitDisabled =
     !selectedCategory ||
@@ -459,7 +460,8 @@ export function GlobalCallPopup() {
     isCreateIssue ||
     isAddingDescription ||
     isLoadingCategories ||
-    isLoadingDescriptions || !isPlateNumberValid;
+    isLoadingDescriptions ||
+    !isPlateNumberValid;
 
   if (!activeCall) return null;
   // const imageUrl = (path: string) => {
@@ -473,8 +475,8 @@ export function GlobalCallPopup() {
   // const gateId = activeCall?.gateId || detailGate.id || "-";
   const ticketNo = detailGate?.ticket || "-";
 
-  const fotoInUrl = detailGate.foto_in
-    ? `https://devtest09.skyparking.online/uploads/${detailGate.foto_in}`
+  const fotoInUrl = activeCall.imageFileIn
+    ? `https://devtest09.skyparking.online/uploads/${activeCall.imageFileIn}`
     : "/images/Plat-Nomor-Motor-875.png";
 
   const photoCaptureUrl = activeCall?.imageFile?.filename
@@ -570,10 +572,11 @@ export function GlobalCallPopup() {
           {/* Mute Ringtone Button */}
           <button
             onClick={handleMuteRingtone}
-            className={`cursor-pointer w-8 h-8 flex items-center justify-center rounded-full transition-colors ${isMuted
-              ? "bg-red-200 hover:bg-red-300 dark:bg-red-600 dark:hover:bg-red-500 text-red-600 dark:text-red-200"
-              : "bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300"
-              } hover:text-gray-800 dark:hover:text-white`}
+            className={`cursor-pointer w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
+              isMuted
+                ? "bg-red-200 hover:bg-red-300 dark:bg-red-600 dark:hover:bg-red-500 text-red-600 dark:text-red-200"
+                : "bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300"
+            } hover:text-gray-800 dark:hover:text-white`}
             title={
               isMuted ? "Nyalakan suara ringtone" : "Matikan suara ringtone"
             }
@@ -674,153 +677,152 @@ export function GlobalCallPopup() {
         {/* Main Content - Two Column Layout */}
         <div className="grid grid-cols-2 gap-6 mb-4">
           {/* Left Column - Information */}
-          <div className="space-y-3">
-            <h3 className="text-base font-semibold border-b pb-1">Informasi</h3>
-
-            <div className="space-y-2">
-              <div className="flex justify-between items-start py-1">
-                <span className="font-medium">Lokasi</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {locationName || "-"}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-start py-1">
-                <span className="font-medium">Gate</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {gateName}
-                </span>
-              </div>
-
-              {/* <div className="flex justify-between items-center">
-                <span className="font-medium">Gate ID</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {gateId}
-                </span>
-              </div> */}
-              {!isPMGate && (
-                <div className="flex justify-between items-center py-1">
-                  <span className="font-medium">Nomor Transaksi</span>
+          <div className="space-y-4">
+            {/* Informasi Transaksi Section */}
+            <div className="space-y-3">
+              <h3 className="text-base font-semibold border-b pb-1">
+                Informasi Transaksi
+              </h3>
+              <div className="space-y-2 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
+                <div className="flex justify-between items-start py-1">
+                  <span className="font-medium">Lokasi</span>
                   <span>:</span>
                   <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                    {ticketNo || "-"}
+                    {locationName || "-"}
                   </span>
                 </div>
-              )}
 
-              <div className="flex items-center justify-between">
-                {/* Label dan titik dua */}
-                <div className="flex items-center gap-1 min-w-[180px]">
-                  <span className="font-medium">Plat Nomor Kendaraan</span>
+                <div className="flex justify-between items-start py-1">
+                  <span className="font-medium">Gate</span>
                   <span>:</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                    {gateName}
+                  </span>
                 </div>
 
-                {/* Konten kanan */}
-                <div className="flex items-center justify-end flex-1 text-right">
-                  {isEditingPlateNumber ? (
-                    <>
-                      <div className="flex justify-end items-center gap-2">
-                        <div className="relative inline-block w-full max-w-[200px]">
-                          <input
-                            type="text"
-                            value={editablePlateNumber}
-                            onChange={(e) =>
-                              setEditablePlateNumber(
-                                e.target.value.toUpperCase().replace(/\s/g, "")
-                              )
-                            }
-                            className={`w-5/6 pr-3 py-2 rounded-lg border-2 bg-gray-50 dark:bg-gray-700 text-right shadow-sm focus:outline-none focus:ring-1 transition ${isPlateNumberValid
-                              ? "border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500"
-                              : "border-red-500 dark:border-red-500 focus:border-red-500 focus:ring-red-500"
+                {!isPMGate && (
+                  <div className="flex justify-between items-center py-1">
+                    <span className="font-medium">Nomor Transaksi</span>
+                    <span>:</span>
+                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                      {ticketNo || "-"}
+                    </span>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between">
+                  {/* Label dan titik dua */}
+                  <div className="flex items-center gap-1 min-w-[180px]">
+                    <span className="font-medium">Plat Nomor Kendaraan</span>
+                    <span>:</span>
+                  </div>
+
+                  {/* Konten kanan */}
+                  <div className="flex items-center justify-end flex-1 text-right">
+                    {isEditingPlateNumber ? (
+                      <>
+                        <div className="flex justify-end items-center gap-2">
+                          <div className="relative inline-block w-full max-w-[200px]">
+                            <input
+                              type="text"
+                              value={editablePlateNumber}
+                              onChange={(e) =>
+                                setEditablePlateNumber(
+                                  e.target.value
+                                    .toUpperCase()
+                                    .replace(/\s/g, "")
+                                )
+                              }
+                              className={`w-5/6 pr-3 py-2 rounded-lg border-2 bg-gray-50 dark:bg-gray-700 text-right shadow-sm focus:outline-none focus:ring-1 transition ${
+                                isPlateNumberValid
+                                  ? "border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500"
+                                  : "border-red-500 dark:border-red-500 focus:border-red-500 focus:ring-red-500"
                               }`}
-                            placeholder="e.g. B1234XYZ"
-                            autoFocus
-                          />
-                        </div>
-                        <button
-                          onClick={handleSavePlateNumber}
-                          className="p-1.5 text-green-600 hover:bg-green-100 dark:hover:bg-gray-600 rounded-full"
-                          title="Simpan"
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
+                              placeholder="e.g. B1234XYZ"
+                              autoFocus
                             />
-                          </svg>
-                        </button>
+                          </div>
+                          <button
+                            onClick={handleSavePlateNumber}
+                            className="p-1.5 text-green-600 hover:bg-green-100 dark:hover:bg-gray-600 rounded-full"
+                            title="Simpan"
+                          >
+                            <svg
+                              className="w-5 h-5"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={handleCancelEditPlateNumber}
+                            className="p-1.5 text-red-600 hover:bg-red-100 dark:hover:bg-gray-600 rounded-full"
+                            title="Batal"
+                          >
+                            <svg
+                              className="w-5 h-5"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                        {!isPlateNumberValid && (
+                          <p className="text-xs text-red-500 mt-1 pr-1">
+                            Format plat nomor tidak valid.
+                          </p>
+                        )}
+                      </>
+                    ) : (
+                      // View mode
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="font-mono text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900/50 px-3 py-1 rounded-md">
+                          {editablePlateNumber || "-"}
+                        </span>
                         <button
-                          onClick={handleCancelEditPlateNumber}
-                          className="p-1.5 text-red-600 hover:bg-red-100 dark:hover:bg-gray-600 rounded-full"
-                          title="Batal"
+                          onClick={() => setIsEditingPlateNumber(true)}
+                          className="p-1.5 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full"
+                          title="Edit Plat Nomor"
                         >
                           <svg
                             className="w-5 h-5"
                             fill="currentColor"
                             viewBox="0 0 20 20"
                           >
+                            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
                             <path
                               fillRule="evenodd"
-                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                              d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
                               clipRule="evenodd"
                             />
                           </svg>
                         </button>
                       </div>
-                      {!isPlateNumberValid && (
-                        <p className="text-xs text-red-500 mt-1 pr-1">
-                          Format plat nomor tidak valid.
-                        </p>
-                      )}
-                    </>
-                  ) : (
-                    // View mode
-                    <div className="flex items-center justify-end gap-2">
-                      <span className="font-mono text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900/50 px-3 py-1 rounded-md">
-                        {editablePlateNumber || "-"}
-                      </span>
-                      <button
-                        onClick={() => setIsEditingPlateNumber(true)}
-                        className="p-1.5 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full"
-                        title="Edit Plat Nomor"
-                      >
-                        <svg
-                          className="w-5 h-5"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
-                          <path
-                            fillRule="evenodd"
-                            d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
 
+                <div className="flex justify-between items-center py-1">
+                  <span className="font-medium">Waktu Masuk</span>
+                  <span>:</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                    {callInTime
+                      ? formatTanggalLocal(callInTime.toString())
+                      : "-"}
+                  </span>
+                </div>
 
-              <div className="flex justify-between items-center py-1">
-                <span className="font-medium">Waktu Masuk</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {callInTime ? formatTanggalLocal(callInTime.toString()) : "-"}
-                </span>
-              </div>
-
-              {!isPMGate && (
-                <>
+                {!isPMGate && (
                   <div className="flex justify-between items-center py-1">
                     <span className="font-medium">Waktu Keluar</span>
                     <span>:</span>
@@ -828,13 +830,77 @@ export function GlobalCallPopup() {
                       -
                     </span>
                   </div>
+                )}
+              </div>
+            </div>
+
+            {/* Informasi Pembayaran Section - Hanya untuk non-PM Gate */}
+            {!isPMGate && (
+              <div className="space-y-3">
+                <h3 className="text-base font-semibold border-b pb-1 text-green-600">
+                  <span className="flex items-center gap-2">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+                      />
+                    </svg>
+                    Informasi Pembayaran
+                  </span>
+                </h3>
+
+                <div className="space-y-2 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
                   <div className="flex justify-between items-center py-1">
                     <span className="font-medium">Status Pembayaran</span>
                     <span>:</span>
-                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                      {detailGate.payment_status === "PAID" ? "Paid" : "Unpaid"}
+                    <span
+                      className={`flex-1 text-right font-semibold ${
+                        detailGate.payment_status === "PAID"
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
+                      }`}
+                    >
+                      {detailGate.payment_status === "PAID" ? (
+                        <span className="flex items-center justify-end gap-1">
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          Paid
+                        </span>
+                      ) : (
+                        <span className="flex items-center justify-end gap-1">
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          Unpaid
+                        </span>
+                      )}
                     </span>
                   </div>
+
                   {detailGate.payment_status === "PAID" && (
                     <>
                       <div className="flex justify-between items-center py-1">
@@ -850,7 +916,9 @@ export function GlobalCallPopup() {
                         <span className="font-medium">Metode Pembayaran</span>
                         <span>:</span>
                         <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                          {detailGate.payment_method || "-"}
+                          <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full text-xs font-medium">
+                            {detailGate.payment_method || "-"}
+                          </span>
                         </span>
                       </div>
                       <div className="flex justify-between items-center py-1">
@@ -862,6 +930,7 @@ export function GlobalCallPopup() {
                       </div>
                     </>
                   )}
+
                   <div className="flex justify-between items-center py-1">
                     <span className="font-medium">Konfirmasi Pembayaran</span>
                     <span>:</span>
@@ -869,23 +938,17 @@ export function GlobalCallPopup() {
                       {detailGate?.payment_confirmation || "-"}
                     </span>
                   </div>
+
                   <div className="flex justify-between items-center py-1">
                     <span className="font-medium">Durasi Pembayaran</span>
                     <span>:</span>
                     <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                      {detailGate?.payment_confirmation || "-"}
+                      {detailGate?.payment_duration || "-"}
                     </span>
                   </div>
-                  {/* <div className="flex justify-between items-center">
-                    <span className="font-medium">Tariff</span>
-                    <span>:</span>
-                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                      -
-                    </span>
-                  </div> */}
-                </>
-              )}
-            </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Column - Input Issue */}
@@ -941,10 +1004,10 @@ export function GlobalCallPopup() {
                     isLoadingDescriptions
                       ? "Memuat data deskripsi..."
                       : !selectedCategory
-                        ? "-- Pilih kategori terlebih dahulu --"
-                        : descriptionOptions.length === 0
-                          ? "-- Tidak ada deskripsi tersedia --"
-                          : "-- Pilih Deskripsi --"
+                      ? "-- Pilih kategori terlebih dahulu --"
+                      : descriptionOptions.length === 0
+                      ? "-- Tidak ada deskripsi tersedia --"
+                      : "-- Pilih Deskripsi --"
                   }
                   disabled={isLoadingDescriptions || !selectedCategory}
                   className="text-sm"
@@ -1274,4 +1337,3 @@ export function GlobalCallPopup() {
 //     );
 //   }
 // }
-
