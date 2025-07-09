@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -119,7 +120,6 @@ export default function LocationPage() {
           )}`
         );
       } catch (error) {
-        console.error("Error navigating to detail:", error);
         toast.error("Gagal membuka detail lokasi");
       }
     },
@@ -175,7 +175,6 @@ export default function LocationPage() {
         setLocations(mappedLocation);
       }
     } catch (error) {
-      console.error("Error fetching categories:", error);
       toast.error("Gagal memuat data lokasi aktif");
     } finally {
       setIsDataLoading(false);
@@ -195,7 +194,6 @@ export default function LocationPage() {
         );
       } catch (error) {
         setIsAddModalOpen(false);
-        console.error("Gagal menambahkan gate baru:", error);
         toast.error("gate baru gagal ditambahkan!");
       }
     },
@@ -218,7 +216,6 @@ export default function LocationPage() {
   //     const locationsData = await fetchLocation(page, limit);
   //     console.log("DATA LOCATION : ", locationsData);
   //   } catch (error) {
-  //     console.error("Error fetching categories:", error);
   //     toast.error("Gagal memuat data lokasi");
   //   } finally {
   //     setIsDataLoading(false);

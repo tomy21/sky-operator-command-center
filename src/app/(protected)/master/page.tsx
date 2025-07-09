@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -167,7 +168,7 @@ export default function MasterPage() {
 
       markTabAsLoaded("category");
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      setIsDataLoading(false);
     } finally {
       setIsDataLoading(false);
       markTabAsLoaded("category");
@@ -527,7 +528,6 @@ export default function MasterPage() {
       fetchCategoriesData();
     } catch (error) {
       setIsConfirmationOpen(false);
-      console.error("Error deleting category:", error);
       toast.error("Gagal menghapus data kategori");
     }
   };
@@ -540,7 +540,6 @@ export default function MasterPage() {
       fetchDescriptionData();
     } catch (error) {
       setIsConfirmationOpen(false);
-      console.error("Error deleting deskripsi:", error);
       toast.error("Gagal menghapus data deskripsi");
     }
   };

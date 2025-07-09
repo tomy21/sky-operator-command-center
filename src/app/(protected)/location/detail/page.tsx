@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
@@ -94,7 +95,6 @@ function LocationDetailContent() {
         });
       }
     } catch (error) {
-      console.error("Error fetching gates:", error);
       toast.error("Gagal memuat data gate");
     } finally {
       setIsDataLoading(false);
@@ -127,7 +127,6 @@ function LocationDetailContent() {
       setShowConfirmModal(false);
       setSelectedGate(null);
     } catch (error) {
-      console.error("Error performing gate action:", error);
       toast.error("Gagal melakukan aksi pada gate");
     } finally {
       setIsActionLoading(false);
@@ -174,7 +173,6 @@ function LocationDetailContent() {
       setShowAddGateModal(false);
       setGateName("");
     } catch (error) {
-      console.error("Error adding gate:", error);
       toast.error(error instanceof Error ? error.message : "Gagal menambahkan gate");
     } finally {
       setIsAddingGate(false);

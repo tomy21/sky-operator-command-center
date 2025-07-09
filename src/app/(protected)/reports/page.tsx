@@ -739,7 +739,7 @@ export default function ReportsPage() {
             {/* Wrap DatePicker with Suspense */}
             <div className="flex flex-col space-y-4 mb-4">
               {/* Filter Section */}
-              <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4 items-end">
                 <div className="relative z-30 flex-1 min-w-[200px] max-w-xs">
                   <DatePicker
                     selected={searchDate}
@@ -858,10 +858,8 @@ export default function ReportsPage() {
                     ✕ Clear
                   </button>
                 )}
-              </div>
 
-              {/* Action Buttons - Pisahkan ke baris terpisah */}
-              <div className="flex justify-end">
+                {/* Tambah Laporan Button - Sejajar dengan input */}
                 <button
                   onClick={handleModalOpen}
                   className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full flex items-center justify-center space-x-2 whitespace-nowrap"

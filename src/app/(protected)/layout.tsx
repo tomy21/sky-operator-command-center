@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import LayoutWrapper from "@/components/main/LayoutWrapper";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
@@ -25,8 +26,6 @@ export default async function ProtectedLayout({
   try {
     jwt.verify(token, process.env.JWT_SECRET!);
   } catch (err) {
-    console.error("Invalid token:", err);
-    // Token tidak valid atau expired
     redirect("/login");
 
   }

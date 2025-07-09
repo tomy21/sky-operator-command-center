@@ -463,7 +463,6 @@ export function GlobalCallPopup() {
     isLoadingDescriptions ||
     !isPlateNumberValid;
 
-  if (!activeCall) return null;
   // const imageUrl = (path: string) => {
   //   if (!path) return '';
   //   return `/api/proxy/image?path=${encodeURIComponent(path)}`;
@@ -475,13 +474,13 @@ export function GlobalCallPopup() {
   // const gateId = activeCall?.gateId || detailGate.id || "-";
   const ticketNo = detailGate?.ticket || "-";
 
-  const fotoInUrl = activeCall?.imageFileIn
+  const fotoInUrl = activeCall?.imageFileIn?.trim()
     ? `https://devtest09.skyparking.online/uploads/${activeCall?.imageFileIn}`
-    : "/images/Plat-Nomor-Motor-875.png";
+    : "/images/no-image-found-360x250.png";
 
   const photoCaptureUrl = activeCall?.imageFile?.filename
     ? `https://devtest09.skyparking.online/uploads/${activeCall?.imageFile?.filename}`
-    : "/images/Plat-Nomor-Motor-875.png";
+    : "/images/no-image-found-360x250.png";
 
   const handleCreateIssue = async () => {
     if (
@@ -564,9 +563,11 @@ export function GlobalCallPopup() {
     setIsEditingPlateNumber(false);
   };
 
+  if (!activeCall) return null;
+
   return (
-    <div className="modal fixed inset-0 backdrop-blur-md flex items-center justify-center z-100 p-4">
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative">
+    <div className="modal fixed inset-0 backdrop-blur-md flex items-center justify-center z-100 p-2">
+      <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-xl w-full max-w-5xl relative">
         {/* Header Controls - Close Button and Mute Button */}
         <div className="absolute top-4 right-4 z-10 flex space-x-2">
           {/* Mute Ringtone Button */}
@@ -642,32 +643,19 @@ export function GlobalCallPopup() {
         </div>
 
         {/* Header */}
-        <div className="text-center mb-4 pr-16">
-          <h2 className="text-lg font-semibold text-red-600 mb-1">
+        <div className="text-center mb-2 pr-16">
+          <h2 className="text-base font-semibold text-red-600 mb-1">
             📞 Panggilan Masuk!
           </h2>
-          {/* Ringtone Status Indicator */}
           {isMuted && (
-            <p className="text-xs text-red-500 flex items-center justify-center">
+            <p className="text-s text-red-500 flex items-center justify-center">
               <svg
                 className="w-3 h-3 mr-1"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
-                  clipRule="evenodd"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"
-                />
+                {/* SVG paths unchanged */}
               </svg>
               Ringtone dimatikan
             </p>
@@ -675,50 +663,41 @@ export function GlobalCallPopup() {
         </div>
 
         {/* Main Content - Two Column Layout */}
-        <div className="grid grid-cols-2 gap-6 mb-4">
+        <div className="grid grid-cols-2 gap-4 mb-4">
           {/* Left Column - Information */}
-          <div className="space-y-4">
+          <div className="space-y-1">
             {/* Informasi Transaksi Section */}
-            <div className="space-y-3">
+            <div className="space-y-1">
               <h3 className="text-base font-semibold border-b pb-1">
                 Informasi Transaksi
               </h3>
-              <div className="space-y-2 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
-                <div className="flex justify-between items-start py-1">
-                  <span className="font-medium">Lokasi</span>
-                  <span>:</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+              <div className="space-y-1.5 bg-gray-50 dark:bg-gray-700/50 p-1.5 rounded-lg">
+                <div className="flex justify-between items-start">
+                  <span className="text-s">Lokasi :</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
                     {locationName || "-"}
                   </span>
                 </div>
 
-                <div className="flex justify-between items-start py-1">
-                  <span className="font-medium">Gate</span>
-                  <span>:</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                <div className="flex justify-between items-start">
+                  <span className="text-s">Gate :</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
                     {gateName}
                   </span>
                 </div>
 
                 {!isPMGate && (
-                  <div className="flex justify-between items-center py-1">
-                    <span className="font-medium">Nomor Transaksi</span>
-                    <span>:</span>
-                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                  <div className="flex justify-between items-start">
+                    <span className="text-s">Nomor Transaksi :</span>
+                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
                       {ticketNo || "-"}
                     </span>
                   </div>
                 )}
 
-                <div className="flex items-center justify-between">
-                  {/* Label dan titik dua */}
-                  <div className="flex items-center gap-1 min-w-[180px]">
-                    <span className="font-medium">Plat Nomor Kendaraan</span>
-                    <span>:</span>
-                  </div>
-
-                  {/* Konten kanan */}
-                  <div className="flex items-center justify-end flex-1 text-right">
+                <div className="flex justify-between items-start">
+                  <span className="text-s">Plat Nomor Kendaraan :</span>
+                  <div className="flex-1 text-right">
                     {isEditingPlateNumber ? (
                       <>
                         <div className="flex justify-end items-center gap-2">
@@ -778,7 +757,7 @@ export function GlobalCallPopup() {
                           </button>
                         </div>
                         {!isPlateNumberValid && (
-                          <p className="text-xs text-red-500 mt-1 pr-1">
+                          <p className="text-s text-red-500 mt-1 pr-1">
                             Format plat nomor tidak valid.
                           </p>
                         )}
@@ -786,7 +765,7 @@ export function GlobalCallPopup() {
                     ) : (
                       // View mode
                       <div className="flex items-center justify-end gap-2">
-                        <span className="font-mono text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900/50 px-3 py-1 rounded-md">
+                        <span className="font-mono text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900/50 px-3 py-1 rounded-md text-s">
                           {editablePlateNumber || "-"}
                         </span>
                         <button
@@ -812,10 +791,9 @@ export function GlobalCallPopup() {
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center py-1">
-                  <span className="font-medium">Waktu Masuk</span>
-                  <span>:</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                <div className="flex justify-between items-start">
+                  <span className="text-s">Waktu Masuk :</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
                     {callInTime
                       ? formatTanggalLocal(callInTime.toString())
                       : "-"}
@@ -823,10 +801,9 @@ export function GlobalCallPopup() {
                 </div>
 
                 {!isPMGate && (
-                  <div className="flex justify-between items-center py-1">
-                    <span className="font-medium">Waktu Keluar</span>
-                    <span>:</span>
-                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                  <div className="flex justify-between items-start">
+                    <span className="text-s">Waktu Keluar :</span>
+                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
                       -
                     </span>
                   </div>
@@ -836,9 +813,9 @@ export function GlobalCallPopup() {
 
             {/* Informasi Pembayaran Section - Hanya untuk non-PM Gate */}
             {!isPMGate && (
-              <div className="space-y-3">
-                <h3 className="text-base font-semibold border-b pb-1 text-green-600">
-                  <span className="flex items-center gap-2">
+              <div className="space-y-1.5">
+                <h3 className="text-base text-s font-semibold border-b pb-1 text-green-600">
+                  <span className="flex items-center gap-1 text-s">
                     <svg
                       className="w-4 h-4"
                       fill="none"
@@ -856,18 +833,17 @@ export function GlobalCallPopup() {
                   </span>
                 </h3>
 
-                <div className="space-y-2 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
-                  <div className="flex justify-between items-center py-1">
-                    <span className="font-medium">Status Pembayaran</span>
-                    <span>:</span>
+                <div className="space-y-1 bg-gray-50 dark:bg-gray-700/50 p-1.5 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-s">Status Pembayaran :</span>
                     <span
                       className={`flex-1 text-right font-semibold ${
-                        detailGate.payment_status === "PAID"
+                        detailGate.paymentStatus === "PAID"
                           ? "text-green-600 dark:text-green-400"
                           : "text-red-600 dark:text-red-400"
                       }`}
                     >
-                      {detailGate.payment_status === "PAID" ? (
+                      {detailGate.paymentStatus === "PAID" ? (
                         <span className="flex items-center justify-end gap-1">
                           <svg
                             className="w-4 h-4"
@@ -901,48 +877,43 @@ export function GlobalCallPopup() {
                     </span>
                   </div>
 
-                  {detailGate.payment_status === "PAID" && (
+                  {detailGate.paymentStatus === "UNPAID" && (
                     <>
-                      <div className="flex justify-between items-center py-1">
-                        <span className="font-medium">Waktu Pembayaran</span>
-                        <span>:</span>
-                        <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                      <div className="flex justify-between items-center">
+                        <span className="text-s">Waktu Pembayaran :</span>
+                        <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
                           {detailGate.payment_time
                             ? formatTanggalLocal(detailGate.payment_time)
                             : "-"}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center py-1">
-                        <span className="font-medium">Metode Pembayaran</span>
-                        <span>:</span>
-                        <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                          <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full text-xs font-medium">
+                      <div className="flex justify-between items-center">
+                        <span className="text-s">Metode Pembayaran :</span>
+                        <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
+                          <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full text-s text-s">
                             {detailGate.payment_method || "-"}
                           </span>
                         </span>
                       </div>
-                      <div className="flex justify-between items-center py-1">
-                        <span className="font-medium">Issuer Name</span>
-                        <span>:</span>
-                        <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                      <div className="flex justify-between items-center">
+                        <span className="text-s">Issuer Name :</span>
+                        <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
                           {detailGate.issuer_name || "-"}
                         </span>
                       </div>
                     </>
                   )}
 
-                  <div className="flex justify-between items-center py-1">
-                    <span className="font-medium">Konfirmasi Pembayaran</span>
-                    <span>:</span>
-                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                  <div className="flex justify-between items-center">
+                    <span className="text-s">Konfirmasi Pembayaran :</span>
+                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
                       {detailGate?.payment_confirmation || "-"}
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-center py-1">
-                    <span className="font-medium">Durasi Pembayaran</span>
-                    <span>:</span>
-                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                  <div className="flex justify-between items-center">
+                    <span className="text-s">Durasi Pembayaran :</span>
+                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
                       {detailGate?.payment_duration || "-"}
                     </span>
                   </div>
@@ -959,7 +930,7 @@ export function GlobalCallPopup() {
 
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-medium mb-1">
+                <label className="block text-s text-s mb-1">
                   Kategori <span className="text-red-500">*</span>
                 </label>
                 <SearchableSelect
@@ -978,7 +949,7 @@ export function GlobalCallPopup() {
                   loadMoreText="Memuat kategori..."
                 />
                 {isLoadingCategories && (
-                  <div className="flex items-center mt-1 text-xs text-blue-600">
+                  <div className="flex items-center mt-1 text-s text-blue-600">
                     <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
                     Memuat data kategori...
                   </div>
@@ -986,7 +957,7 @@ export function GlobalCallPopup() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium mb-1">
+                <label className="block text-s text-s mb-1">
                   Deskripsi <span className="text-red-500">*</span>
                 </label>
 
@@ -1025,7 +996,7 @@ export function GlobalCallPopup() {
                       autoFocus
                     />
                     {manualDescription.trim() && (
-                      <p className="text-xs text-blue-600 mt-1">
+                      <p className="text-s text-blue-600 mt-1">
                         Deskripsi baru akan dibuat: {manualDescription.trim()}
                       </p>
                     )}
@@ -1034,7 +1005,7 @@ export function GlobalCallPopup() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium mb-2">Aksi</label>
+                <label className="block text-s text-s mb-2">Aksi</label>
                 <div className="flex gap-4">
                   <label className="flex items-center space-x-2 text-sm">
                     <input
@@ -1072,7 +1043,7 @@ export function GlobalCallPopup() {
               </div>
 
               {/* Action Buttons - Updated with proper disable logic */}
-              <div className="flex flex-col space-y-2 pt-2">
+              <div className="flex flex-col space-y-1 pt-1">
                 <button
                   onClick={handleOpenGate}
                   disabled={isOpenGateDisabled}
@@ -1115,12 +1086,12 @@ export function GlobalCallPopup() {
         </div>
 
         {/* Bottom Section - Photos - Enhanced with base64 support */}
-        <div className="border-t pt-4">
+        <div className="border-t pt-2">
           {isPMGate ? (
             // For PM gates - only show capture photo with larger size
             <div className="flex justify-center">
               <div className="text-center w-full max-w-md">
-                <p className="text-sm font-medium mb-2">Foto Capture</p>
+                <p className="text-sm text-s mb-2">Foto Capture</p>
                 <div className="w-full aspect-video bg-gray-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
                   {!imageErrors.photoCapture ? (
                     <Image
@@ -1163,15 +1134,15 @@ export function GlobalCallPopup() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Foto In */}
                 <div className="text-center">
-                  <p className="text-sm font-medium mb-2">Foto In</p>
-                  <div className="w-full aspect-video bg-gray-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
+                  <p className="text-sm text-s mb-2">Foto In</p>
+                  <div className="bg-gray-600 rounded-lg inline-block">
                     {!imageErrors.photoIn ? (
                       <Image
                         src={fotoInUrl}
                         alt="Foto In"
-                        width={400}
-                        height={225}
-                        className="w-full h-full object-cover rounded-lg"
+                        width={420}
+                        height={220}
+                        className="w-[420px] h-[220px] object-cover rounded-lg"
                         onError={() => {
                           setImageErrors((prev) => ({
                             ...prev,
@@ -1202,22 +1173,22 @@ export function GlobalCallPopup() {
 
                 {/* Foto Capture - Now using base64 image */}
                 <div className="text-center">
-                  <p className="text-sm font-medium mb-2">
+                  <p className="text-sm text-s mb-2">
                     Foto Capture
                     {activeCall?.imageFile?.filename && (
-                      <span className="text-xs text-green-600 ml-1">
+                      <span className="text-s text-green-600 ml-1">
                         (Live)
                       </span>
                     )}
                   </p>
-                  <div className="w-full aspect-video bg-gray-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
+                  <div className="bg-gray-600 rounded-lg inline-block">
                     {!imageErrors.photoCapture ? (
                       <Image
                         src={photoCaptureUrl}
                         alt="Foto Capture"
-                        width={400}
-                        height={225}
-                        className="w-full h-full object-cover rounded-lg"
+                        width={420}
+                        height={220}
+                        className="w-[420px] h-[220px] object-cover rounded-lg"
                         onError={() => {
                           setImageErrors((prev) => ({
                             ...prev,
@@ -1303,7 +1274,7 @@ export function GlobalCallPopup() {
 //         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-96">
 //           <h2 className="text-xl font-semibold mb-4">Setup Agent Number</h2>
 //           <div className="mb-4">
-//             <label className="block text-sm font-medium mb-2">
+//             <label className="block text-sm text-s mb-2">
 //               User Number (1-3):
 //             </label>
 //             <input

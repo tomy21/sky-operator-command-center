@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -282,7 +283,6 @@ export default function Dashboard() {
 
       setMonthlyComplaintData(data);
     } catch (error) {
-      console.error("Error fetching monthly complaint data:", error);
       setMonthlyComplaintData([
         { month: "Jan 2024", date: "2024-01-01", complaints: 125 },
         { month: "Feb 2024", date: "2024-02-01", complaints: 140 },
