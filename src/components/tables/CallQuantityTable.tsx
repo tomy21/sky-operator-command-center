@@ -552,6 +552,8 @@ const CallQuantityTable: React.FC = () => {
   const rowTotal = getRowTotal(currentData);
   const columnHeaders = getColumnHeaders();
 
+  // console.log(paginatedData, "<<<paginatedData");
+
   return (
     <div className="bg-white dark:bg-[#222B36] rounded-lg p-4 md:p-6">
       {/* Header */}

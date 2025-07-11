@@ -44,6 +44,12 @@ const CallByIncidentTable: React.FC = () => {
         { value: 'apr', label: 'April' },
         { value: 'mei', label: 'Mei' },
         { value: 'juni', label: 'Juni' },
+        { value: 'juli', label: 'Juli' },
+        { value: 'agustus', label: 'Agustus' },
+        { value: 'september', label: 'September' },
+        { value: 'oktober', label: 'Oktober' },
+        { value: 'november', label: 'November' },
+        { value: 'desember', label: 'Desember' },
         { value: 'total', label: 'Total' }
     ];
 
@@ -333,6 +339,9 @@ const CallByIncidentTable: React.FC = () => {
         { key: 'bike', label: 'BIKE', bgColor: 'bg-yellow-50 dark:bg-yellow-900' },
         { key: 'total', label: 'TOTAL', bgColor: 'bg-blue-50 dark:bg-blue-900' }
     ];
+
+    console.log(paginatedLocations, "<<<paginatedLocations");
+    
 
     return (
         <div className="bg-white dark:bg-[#222B36] rounded-lg p-4 md:p-6">

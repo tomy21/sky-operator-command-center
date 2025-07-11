@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 
 interface CustomSelectProps {
-  options: { id: number; name: string }[];
+  options: { id: number | string; name: string }[];
   value: number | string | null;
-  onChange: (value: number) => void;
+  onChange: (value: number | string) => void;
   placeholder?: string;
   isDisabled?: boolean;
 }
@@ -39,16 +39,33 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
     <div ref={selectRef} className="relative w-full">
       <button
         type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className={`${isDisabled ? "cursor-not-allowed" : "cursor-pointer"} w-full text-left bg-gray-50 dark:bg-[#2A3441] text-gray-900 dark:text-white px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
+        onClick={() => !isDisabled && setOpen((prev) => !prev)}
+        className={`flex items-center justify-between w-full bg-gray-50 dark:bg-[#2A3441] text-gray-900 dark:text-white px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition`}
         disabled={isDisabled}
       >
-        {selected?.name || placeholder}
-        <span className="float-right text-gray-400">▼</span>
+        <span className={`${selected ? "" : "text-gray-400"}`}>
+          {selected?.name || placeholder}
+        </span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className={`w-4 h-4 ml-2 transition-transform duration-200 ${
+            open ? "rotate-180" : ""
+          }`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
       </button>
 
       {open && (
-        <ul className="absolute z-10 mt-1 w-full bg-white dark:bg-[#2A3441] border border-gray-300 dark:border-gray-700 rounded-lg max-h-48 overflow-y-auto shadow-lg">
+        <ul className="absolute z-50 mt-1 w-full bg-white dark:bg-[#2A3441] border border-gray-300 dark:border-gray-700 rounded-lg max-h-48 overflow-y-auto shadow-lg transition-all duration-150 origin-top scale-100">
           {options.map((option) => (
             <li
               key={option.id}
