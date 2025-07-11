@@ -4,6 +4,8 @@ import {
   // ChevronsLeft, ChevronsRight
 } from "lucide-react";
 import React, { useState } from "react";
+import { CustomSelect } from "../input/CustomSelect";
+import { months, regions, viewSets, years } from "@/utils/filterData";
 
 interface CallData {
   call: number;
@@ -46,61 +48,23 @@ const CallByTimeTable: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState<string>("2024");
   const [selectedMonth, setSelectedMonth] = useState<string>("april");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
-  const [locationsPerPage, setLocationsPerPage] = useState<number>(6);
+  const [locationsPerPage, setLocationsPerPage] = useState<number>(5);
   const [currentLocationPage, setCurrentLocationPage] = useState<number>(1);
 
-  const years = [
-    { value: "2022", label: "2022" },
-    { value: "2023", label: "2023" },
-    { value: "2024", label: "2024" },
-    { value: "2025", label: "2025" },
-  ];
-
-  const months = [
-    { value: "january", label: "January" },
-    { value: "february", label: "February" },
-    { value: "march", label: "March" },
-    { value: "april", label: "April" },
-    { value: "may", label: "May" },
-    { value: "june", label: "June" },
-    { value: "july", label: "July" },
-    { value: "august", label: "August" },
-    { value: "september", label: "September" },
-    { value: "october", label: "October" },
-    { value: "november", label: "November" },
-    { value: "december", label: "December" },
-  ];
-
-  const regions = [
-    { value: "all", label: "All Regions" },
-    { value: "1", label: "Region 1" },
-    { value: "2", label: "Region 2" },
-    { value: "3", label: "Region 3" },
-    { value: "4", label: "Region 4" },
-    { value: "5", label: "Region 5" },
-  ];
-
-  const viewOptions = [
-    { value: 5, label: "5" },
-    { value: 20, label: "20" },
-    { value: 50, label: "50" },
-    { value: 100, label: "100" },
-  ];
-
   const allLocations: Location[] = [
-    { key: "hpm", label: "HPM", region: "1" },
-    { key: "lku", label: "LKU", region: "1" },
-    { key: "lmp", label: "LMP", region: "2" },
-    { key: "pv", label: "PV", region: "2" },
-    { key: "spark", label: "SPARK", region: "3" },
-    { key: "picon", label: "PICON", region: "3" },
-    { key: "ml", label: "ML", region: "4" },
-    { key: "lmn", label: "LMN", region: "4" },
-    { key: "shlv", label: "SHLV", region: "5" },
-    { key: "shkj", label: "SHKJ", region: "5" },
-    { key: "shkd", label: "SHKD", region: "5" },
-    { key: "uph", label: "UPH", region: "1" },
-    { key: "helipad", label: "HELIPAD", region: "2" },
+    { key: "hpm", label: "HPM", region: "Region 1" },
+    { key: "lku", label: "LKU", region: "Region 1" },
+    { key: "lmp", label: "LMP", region: "Region 2" },
+    { key: "pv", label: "PV", region: "Region 2" },
+    { key: "spark", label: "SPARK", region: "Region 3" },
+    { key: "picon", label: "PICON", region: "Region 3" },
+    { key: "ml", label: "ML", region: "Region 4" },
+    { key: "lmn", label: "LMN", region: "Region 4" },
+    { key: "shlv", label: "SHLV", region: "Region 5" },
+    { key: "shkj", label: "SHKJ", region: "Region 5" },
+    { key: "shkd", label: "SHKD", region: "Region 5" },
+    { key: "uph", label: "UPH", region: "Region 1" },
+    { key: "helipad", label: "HELIPAD", region: "Region 2" },
   ];
 
   // Sample yearly data
@@ -330,9 +294,21 @@ const CallByTimeTable: React.FC = () => {
               htmlFor="month-select"
               className="block text-sm text-gray-500 dark:text-gray-400 mb-2"
             >
-              Select Month:
+              Pilih Bulan:
             </label>
-            <select
+            <CustomSelect
+              options={months.map((month) => ({
+                id: month.value,
+                name: month.label,
+              }))}
+              value={selectedMonth}
+              onChange={(value) => {
+                setSelectedMonth(value.toString());
+                setCurrentLocationPage(1);
+              }}
+              placeholder="Pilih bulan"
+            />
+            {/* <select
               id="month-select"
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
@@ -343,7 +319,7 @@ const CallByTimeTable: React.FC = () => {
                   {month.label}
                 </option>
               ))}
-            </select>
+            </select> */}
           </div>
           <div>
             <label
@@ -352,7 +328,19 @@ const CallByTimeTable: React.FC = () => {
             >
               Select Year:
             </label>
-            <select
+            <CustomSelect
+              options={years.map((year) => ({
+                id: year,
+                name: year,
+              }))}
+              value={selectedYear}
+              onChange={(value) => {
+                setSelectedYear(value.toString());
+                setCurrentLocationPage(1);
+              }}
+              placeholder="Pilih tahun"
+            />
+            {/* <select
               id="year-select"
               value={selectedYear}
               onChange={(e) => setSelectedYear(e.target.value)}
@@ -363,7 +351,7 @@ const CallByTimeTable: React.FC = () => {
                   {year.label}
                 </option>
               ))}
-            </select>
+            </select> */}
           </div>
           <div>
             <label
@@ -372,7 +360,19 @@ const CallByTimeTable: React.FC = () => {
             >
               Select Region:
             </label>
-            <select
+            <CustomSelect
+              options={regions.map((region) => ({
+                id: region.value,
+                name: region.label,
+              }))}
+              value={selectedRegion}
+              onChange={(value) => {
+                handleRegionChange(value.toString());
+                setCurrentLocationPage(1);
+              }}
+              placeholder="Pilih region"
+            />
+            {/* <select
               id="region-select"
               value={selectedRegion}
               onChange={(e) => handleRegionChange(e.target.value)}
@@ -383,7 +383,7 @@ const CallByTimeTable: React.FC = () => {
                   {region.label}
                 </option>
               ))}
-            </select>
+            </select> */}
           </div>
           <div>
             <label
@@ -392,18 +392,15 @@ const CallByTimeTable: React.FC = () => {
             >
               View Set:
             </label>
-            <select
-              id="view-select"
+            <CustomSelect
+              options={viewSets.map((size) => ({
+                id: size,
+                name: size.toString(),
+              }))}
               value={locationsPerPage}
-              onChange={(e) => handleViewSetChange(Number(e.target.value))}
-              className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-800 text-black dark:text-white"
-            >
-              {viewOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label} locations per page
-                </option>
-              ))}
-            </select>
+              onChange={(value) => handleViewSetChange(Number(value))}
+              placeholder="Pilih jumlah item"
+            />
           </div>
         </div>
 
@@ -420,7 +417,7 @@ const CallByTimeTable: React.FC = () => {
               </span>
             </span>
           )}
-          <span className="ml-2">| Locations: {filteredLocations.length}</span>
+          {/* <span className="ml-2">| Locations: {filteredLocations.length}</span> */}
         </p>
       </div>
 
@@ -553,16 +550,6 @@ const CallByTimeTable: React.FC = () => {
           </div>
 
           <div className="flex items-center bg-gray-100 dark:bg-[#2A3441] border border-gray-300 dark:border-gray-700 rounded-lg p-1 gap-1">
-            {/* First Page Button */}
-            {/* <button
-                            onClick={() => handlePageChange(1)}
-                            disabled={currentLocationPage === 1}
-                            className="cursor-pointer w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                        >
-                            <ChevronsLeft className="w-4 h-4" />
-                        </button> */}
-
-            {/* Previous Page Button */}
             <button
               onClick={() => handlePageChange(currentLocationPage - 1)}
               disabled={currentLocationPage === 1}
@@ -640,15 +627,6 @@ const CallByTimeTable: React.FC = () => {
             >
               <ChevronRight className="w-4 h-4" />
             </button>
-
-            {/* Last Page Button */}
-            {/* <button
-                            onClick={() => handlePageChange(totalLocationPages)}
-                            disabled={currentLocationPage === totalLocationPages}
-                            className="cursor-pointer w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                        >
-                            <ChevronsRight className="w-4 h-4" />
-                        </button> */}
           </div>
         </div>
       )}

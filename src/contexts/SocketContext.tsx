@@ -450,16 +450,31 @@ export function GlobalCallPopup() {
   //   dataIssue.action !== "OPEN_GATE" ||
   //   !isPlateNumberValid;
 
-  const isSubmitDisabled =
-    !selectedCategory ||
-    !selectedDescription ||
-    (selectedDescription === "OTHER_MANUAL" && !manualDescription.trim()) ||
-    isCreateIssue ||
-    isOpeningGate ||
-    isAddingDescription ||
-    isLoadingCategories ||
-    isLoadingDescriptions ||
-    !isPlateNumberValid;
+  const validateForm = () => {
+    const errors = [];
+
+    if (!selectedCategory) {
+      errors.push("Kategori harus dipilih");
+    }
+
+    if (!selectedDescription) {
+      errors.push("Deskripsi harus dipilih");
+    }
+
+    if (selectedDescription === "OTHER_MANUAL" && !manualDescription.trim()) {
+      errors.push("Deskripsi manual harus diisi");
+    }
+
+    if (!isPlateNumberValid) {
+      errors.push("Format plat nomor tidak valid");
+    }
+
+    if (!dataIssue.action) {
+      errors.push("Aksi harus dipilih");
+    }
+
+    return errors;
+  };
 
   // const imageUrl = (path: string) => {
   //   if (!path) return '';
@@ -481,12 +496,25 @@ export function GlobalCallPopup() {
     : "/images/no-image-found-360x250.png";
 
   const handleCreateIssue = async () => {
-    if (
-      !activeCall ||
-      !selectedCategory ||
-      (!selectedDescription && !manualDescription)
-    ) {
-      toast.error("Mohon lengkapi semua field yang wajib diisi");
+    // Validate form first
+    const validationErrors = validateForm();
+
+    if (validationErrors.length > 0) {
+      // Show validation errors
+      validationErrors.forEach((error) => {
+        toast.error(error);
+      });
+      return; // Don't proceed with API calls
+    }
+
+    // Prevent multiple submissions
+    if (isCreateIssue || isOpeningGate || isAddingDescription) {
+      toast.error("Proses sedang berlangsung, mohon tunggu...");
+      return;
+    }
+
+    if (!activeCall) {
+      toast.error("Tidak ada panggilan aktif");
       return;
     }
 
@@ -1074,14 +1102,15 @@ export function GlobalCallPopup() {
                   <button
                     onClick={async () => {
                       await handleCreateIssue();
-                      endCallFunction();
+                      // Only end call if validation passed and no errors occurred
+                      const validationErrors = validateForm();
+                      if (validationErrors.length === 0) {
+                        endCallFunction();
+                      }
                     }}
-                    disabled={isSubmitDisabled}
-                    className="cursor-pointer flex-1 px-4 py-2 text-sm bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-md transition-colors"
+                    className="cursor-pointer flex-1 px-4 py-2 text-sm bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors"
                     title={
-                      isSubmitDisabled
-                        ? "Pilih kategori dan deskripsi terlebih dahulu"
-                        : dataIssue.action === "OPEN_GATE"
+                      dataIssue.action === "OPEN_GATE"
                         ? "Create issue dan buka gate"
                         : "Create issue"
                     }

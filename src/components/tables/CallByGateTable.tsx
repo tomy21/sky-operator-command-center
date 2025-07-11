@@ -5,6 +5,8 @@ import {
   ChevronRight,
   // ChevronsRight
 } from "lucide-react";
+import { CustomSelect } from "../input/CustomSelect";
+import { months, regions, viewSets, years } from "@/utils/filterData";
 
 interface GateDataCell {
   humanError: number;
@@ -35,32 +37,6 @@ const CallByGateTable: React.FC = () => {
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
-
-  const months = [
-    { value: "january", label: "January" },
-    { value: "february", label: "February" },
-    { value: "march", label: "March" },
-    { value: "april", label: "April" },
-    { value: "may", label: "May" },
-    { value: "june", label: "June" },
-    { value: "july", label: "July" },
-    { value: "august", label: "August" },
-    { value: "september", label: "September" },
-    { value: "october", label: "October" },
-    { value: "november", label: "November" },
-    { value: "december", label: "December" },
-  ];
-
-  const years = ["2022", "2023", "2024", "2025"];
-  const regions = [
-    { value: "all", label: "All Regions" },
-    { value: "Region 1", label: "Region 1" },
-    { value: "Region 2", label: "Region 2" },
-    { value: "Region 3", label: "Region 3" },
-    { value: "Region 4", label: "Region 4" },
-  ];
-
-  const viewSets = [5, 10, 20, 50, 100];
 
   const generateGateNames = (): string[] => {
     const gates = [];
@@ -250,79 +226,71 @@ const CallByGateTable: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           <div>
             <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
-              Month:
+              Bulan:
             </label>
-            <select
+            <CustomSelect
+              options={months.map((month) => ({
+                id: month.value,
+                name: month.label,
+              }))}
               value={selectedMonth}
-              onChange={(e) => {
-                setSelectedMonth(e.target.value);
+              onChange={(value) => {
+                setSelectedMonth(value.toString());
                 setCurrentPage(1);
               }}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            >
-              {months.map((month) => (
-                <option key={month.value} value={month.value}>
-                  {month.label}
-                </option>
-              ))}
-            </select>
+              placeholder="Pilih bulan"
+            />
           </div>
 
           <div>
             <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
-              Year:
+              Tahun:
             </label>
-            <select
+            <CustomSelect
+              options={years.map((year) => ({
+                id: year,
+                name: year,
+              }))}
               value={selectedYear}
-              onChange={(e) => {
-                setSelectedYear(e.target.value);
+              onChange={(value) => {
+                setSelectedYear(value.toString());
                 setCurrentPage(1);
               }}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            >
-              {years.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
+              placeholder="Pilih tahun"
+            />
           </div>
 
           <div>
             <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
               Region:
             </label>
-            <select
+            <CustomSelect
+              options={regions.map((region) => ({
+                id: region.value,
+                name: region.label,
+              }))}
               value={selectedRegion}
-              onChange={(e) => {
-                setSelectedRegion(e.target.value);
+              onChange={(value) => {
+                setSelectedRegion(value.toString());
                 setCurrentPage(1);
               }}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            >
-              {regions.map((region) => (
-                <option key={region.value} value={region.value}>
-                  {region.label}
-                </option>
-              ))}
-            </select>
+              placeholder="Pilih region"
+            />
           </div>
 
           <div>
             <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
-              Items per page:
+              View Set:
             </label>
-            <select
+            <CustomSelect
+              options={viewSets.map((size) => ({
+                id: size,
+                name: size.toString(),
+              }))}
               value={itemsPerPage}
-              onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            >
-              {viewSets.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => handleItemsPerPageChange(Number(value))}
+              placeholder="Pilih jumlah item"
+            />
           </div>
         </div>
 

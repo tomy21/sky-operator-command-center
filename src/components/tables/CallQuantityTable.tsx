@@ -4,6 +4,8 @@ import {
   // ChevronsLeft, ChevronsRight
 } from "lucide-react";
 import React, { useState } from "react";
+import { CustomSelect } from "../input/CustomSelect";
+import { periods, regions, viewSets, years } from "@/utils/filterData";
 
 interface CallData {
   location: string;
@@ -24,8 +26,11 @@ interface CallData {
 
 const CallQuantityTable: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"car" | "bike" | "total">("total");
-  const [selectedYear, setSelectedYear] = useState<number>(2025);
-  const [selectedSemester, setSelectedSemester] = useState<1 | 2 | "all">(1);
+  const [selectedYear, setSelectedYear] = useState<string>("2025");
+  const [selectedSemester, setSelectedSemester] = useState<1 | 2 | "all">(
+    "all"
+  );
+  const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -536,15 +541,15 @@ const CallQuantityTable: React.FC = () => {
     return totals;
   };
 
-  const getPeriodText = () => {
-    if (selectedSemester === 1) {
-      return `Semester 1 (Januari - Juni) ${selectedYear}`;
-    } else if (selectedSemester === 2) {
-      return `Semester 2 (Juli - Desember) ${selectedYear}`;
-    } else {
-      return `Tahun ${selectedYear}`;
-    }
-  };
+  // const getPeriodText = () => {
+  //   if (selectedSemester === 1) {
+  //     return `Semester 1 (Januari - Juni) ${selectedYear}`;
+  //   } else if (selectedSemester === 2) {
+  //     return `Semester 2 (Juli - Desember) ${selectedYear}`;
+  //   } else {
+  //     return `Tahun ${selectedYear}`;
+  //   }
+  // };
 
   const currentData = getCurrentData();
   const paginatedData = getPaginatedData(currentData);
@@ -563,9 +568,6 @@ const CallQuantityTable: React.FC = () => {
             <h3 className="text-lg md:text-xl font-semibold mb-2">
               Call by Quantity
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {getPeriodText()}
-            </p>
           </div>
 
           {/* Tab Navigation */}
@@ -604,30 +606,37 @@ const CallQuantityTable: React.FC = () => {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          {/* Year Filter */}
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
-              Tahun:
-            </label>
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#2A3441] text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value={2023}>2023</option>
-              <option value={2024}>2024</option>
-              <option value={2025}>2025</option>
-              <option value={2026}>2026</option>
-            </select>
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           {/* Semester Filter */}
-          <div className="flex items-center gap-2">
+          <div>
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
               Periode:
             </label>
-            <select
+            <CustomSelect
+              options={periods.map((period) => ({
+                id: period.value,
+                name: period.label,
+              }))}
+              value={
+                selectedSemester === "all"
+                  ? "all"
+                  : selectedSemester === 1
+                  ? "semester1"
+                  : "semester2"
+              }
+              onChange={(value) => {
+                if (value === "all") {
+                  setSelectedSemester("all");
+                } else if (value === "semester1") {
+                  setSelectedSemester(1);
+                } else if (value === "semester2") {
+                  setSelectedSemester(2);
+                }
+                setCurrentPage(1);
+              }}
+              placeholder="Pilih periode"
+            />
+            {/* <select
               value={selectedSemester}
               onChange={(e) =>
                 setSelectedSemester(
@@ -641,14 +650,60 @@ const CallQuantityTable: React.FC = () => {
               <option value={1}>Semester 1 (Jan - Jun)</option>
               <option value={2}>Semester 2 (Jul - Des)</option>
               <option value="all">Sepanjang Tahun</option>
-            </select>
+            </select> */}
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Year Filter */}
+          <div>
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+              Tahun:
+            </label>
+            <CustomSelect
+              options={years.map((year) => ({
+                id: year,
+                name: year,
+              }))}
+              value={selectedYear}
+              onChange={(value) => {
+                setSelectedYear(value.toString());
+                setCurrentPage(1);
+              }}
+              placeholder="Pilih tahun"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+              Region:
+            </label>
+            <CustomSelect
+              options={regions.map((region) => ({
+                id: region.value,
+                name: region.label,
+              }))}
+              value={selectedRegion}
+              onChange={(value) => {
+                setSelectedRegion(value.toString());
+                setCurrentPage(1);
+              }}
+              placeholder="Pilih region"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
               Tampilkan:
             </label>
-            <select
+            <CustomSelect
+              options={viewSets.map((size) => ({
+                id: size,
+                name: size.toString(),
+              }))}
+              value={itemsPerPage}
+              onChange={(value) => handleItemsPerPageChange(Number(value))}
+              placeholder="Pilih jumlah item"
+            />
+            {/* <select
               value={itemsPerPage}
               onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
               className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#2A3441] text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -658,9 +713,20 @@ const CallQuantityTable: React.FC = () => {
               <option value={50}>50 data</option>
               <option value={100}>100 data</option>
               <option value={currentData.length}>Semua</option>
-            </select>
+            </select> */}
           </div>
         </div>
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          Menampilkan data untuk:{" "}
+          <span className="font-semibold text-gray-900 dark:text-white">
+            {periods.find((p) => p.value === selectedSemester)?.label}{" "}
+            {selectedYear}
+          </span>{" "}
+          | Region:{" "}
+          <span className="font-semibold text-gray-900 dark:text-white">
+            {regions.find((r) => r.value === selectedRegion)?.label}
+          </span>
+        </p>
       </div>
 
       {/* Table Container with vertical and horizontal scroll */}

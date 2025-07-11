@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { CustomSelect } from "../input/CustomSelect";
+import { periods, regions, viewSets, years } from "@/utils/filterData";
 
 interface MonthlyData {
   qty: number;
@@ -69,22 +70,6 @@ const TrafficCallTable: React.FC = () => {
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
-
-  const periods = [
-    { value: "all", label: "Sepanjang Tahun" },
-    { value: "semester1", label: "Semester 1 (Jan-Jun)" },
-    { value: "semester2", label: "Semester 2 (Jul-Des)" },
-  ];
-  const years = ["2022", "2023", "2024", "2025"];
-  const regions = [
-    { value: "all", label: "All Regions" },
-    { value: "Region 1", label: "Region 1" },
-    { value: "Region 2", label: "Region 2" },
-    { value: "Region 3", label: "Region 3" },
-    { value: "Region 4", label: "Region 4" },
-  ];
-
-  const viewSets = [5, 10, 20, 50, 100];
 
   // Generate sample data with regions
   const generateSampleData = (): LocationData[] => {
@@ -587,7 +572,7 @@ const TrafficCallTable: React.FC = () => {
     <div className="bg-white dark:bg-[#222B36] rounded-lg p-4 md:p-6">
       <div className="mb-6">
         <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          Traffic VS Call
+          Traffic Call
         </h3>
 
         {/* Filters */}
@@ -612,7 +597,7 @@ const TrafficCallTable: React.FC = () => {
 
           <div>
             <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
-              Year:
+              Tahun:
             </label>
             <CustomSelect
               options={years.map((year) => ({
@@ -662,7 +647,7 @@ const TrafficCallTable: React.FC = () => {
 
           <div>
             <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
-              Items per page:
+              View Set:
             </label>
             <CustomSelect
               options={viewSets.map((size) => ({
