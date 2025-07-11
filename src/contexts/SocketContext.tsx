@@ -420,15 +420,12 @@ export function GlobalCallPopup() {
 
       if (response.code === 250003) {
         toast.success("Gate berhasil dibuka");
-        // endCallFunction();
       } else {
         toast.error("Gagal membuka gate");
       }
     } catch (error) {
       console.error("Error opening gate:", error);
       toast.error("Terjadi kesalahan");
-    } finally {
-      setIsOpeningGate(true);
     }
   };
 
@@ -443,21 +440,22 @@ export function GlobalCallPopup() {
   //   });
   // };
 
-  const isOpenGateDisabled =
-    !selectedCategory ||
-    !selectedDescription ||
-    (selectedDescription === "OTHER_MANUAL" && !manualDescription.trim()) ||
-    isOpeningGate ||
-    isLoadingCategories ||
-    isLoadingDescriptions ||
-    dataIssue.action !== "OPEN_GATE" ||
-    !isPlateNumberValid;
+  // const isOpenGateDisabled =
+  //   !selectedCategory ||
+  //   !selectedDescription ||
+  //   (selectedDescription === "OTHER_MANUAL" && !manualDescription.trim()) ||
+  //   isOpeningGate ||
+  //   isLoadingCategories ||
+  //   isLoadingDescriptions ||
+  //   dataIssue.action !== "OPEN_GATE" ||
+  //   !isPlateNumberValid;
 
   const isSubmitDisabled =
     !selectedCategory ||
     !selectedDescription ||
     (selectedDescription === "OTHER_MANUAL" && !manualDescription.trim()) ||
     isCreateIssue ||
+    isOpeningGate ||
     isAddingDescription ||
     isLoadingCategories ||
     isLoadingDescriptions ||
@@ -528,6 +526,14 @@ export function GlobalCallPopup() {
 
       if (response && response.message.includes("created")) {
         toast.success("Issue berhasil dibuat");
+
+        // Jika action adalah OPEN_GATE, buka gate juga
+        if (dataIssue.action === "OPEN_GATE") {
+          setIsOpeningGate(true);
+          await handleOpenGate();
+          setIsOpeningGate(false);
+        }
+
         setDataIssue({
           idCategory: 0,
           idGate: 0,
@@ -545,6 +551,7 @@ export function GlobalCallPopup() {
       toast.error("Terjadi kesalahan saat membuat issue report");
     } finally {
       setIsCreateIssue(false);
+      setIsOpeningGate(false);
     }
   };
 
@@ -773,7 +780,7 @@ export function GlobalCallPopup() {
                           className="p-1.5 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full"
                           title="Edit Plat Nomor"
                         >
-                          <svg  
+                          <svg
                             className="w-5 h-5"
                             fill="currentColor"
                             viewBox="0 0 20 20"
@@ -1044,7 +1051,7 @@ export function GlobalCallPopup() {
 
               {/* Action Buttons - Updated with proper disable logic */}
               <div className="flex flex-col space-y-1 pt-1">
-                <button
+                {/* <button
                   onClick={handleOpenGate}
                   disabled={isOpenGateDisabled}
                   className="cursor-pointer w-full px-4 py-2 text-sm bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-md transition-colors"
@@ -1055,18 +1062,18 @@ export function GlobalCallPopup() {
                   }
                 >
                   {isOpeningGate ? "Opening..." : "Open Gate"}
-                </button>
+                </button> */}
 
-                <div className="flex space-x-2">
+                <div className="flex space-x-2 pt-1">
                   <button
                     onClick={endCallFunction}
                     className="cursor-pointer flex-1 px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
                   >
-                    End Call
+                    Cancel
                   </button>
                   <button
-                    onClick={() => {
-                      handleCreateIssue();
+                    onClick={async () => {
+                      await handleCreateIssue();
                       endCallFunction();
                     }}
                     disabled={isSubmitDisabled}
@@ -1074,10 +1081,14 @@ export function GlobalCallPopup() {
                     title={
                       isSubmitDisabled
                         ? "Pilih kategori dan deskripsi terlebih dahulu"
-                        : ""
+                        : dataIssue.action === "OPEN_GATE"
+                        ? "Create issue dan buka gate"
+                        : "Create issue"
                     }
                   >
-                    {isCreateIssue ? "Creating..." : "Submit"}
+                    {isCreateIssue || isOpeningGate
+                      ? "Processing..."
+                      : "Submit"}
                   </button>
                 </div>
               </div>
@@ -1176,9 +1187,7 @@ export function GlobalCallPopup() {
                   <p className="text-sm text-s mb-2">
                     Foto Capture
                     {activeCall?.imageFile?.filename && (
-                      <span className="text-s text-green-600 ml-1">
-                        (Live)
-                      </span>
+                      <span className="text-s text-green-600 ml-1">(Live)</span>
                     )}
                   </p>
                   <div className="bg-gray-600 rounded-lg inline-block">
