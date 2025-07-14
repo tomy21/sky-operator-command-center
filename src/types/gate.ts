@@ -41,6 +41,11 @@ export interface GateStatusUpdate {
     issuer_name: string;
     payment_time: string;
   };
+  isMemberStyle: {
+    PlateNumber: string;
+    Name: string;
+    Email: string;
+  }
   newData?: {
     transactionNo: string;
     transactionStatus: string;

@@ -102,7 +102,7 @@ export interface NewTransactionResponse {
 
 export const fetchNewTransaction = async (
   plateNumber: string,
-  locationCode: string | number,
+  locationCode: string | number | undefined,
 ) => {
   try {
     const response = await fetch(
@@ -126,26 +126,6 @@ export const fetchNewTransaction = async (
   }
 };
 
-// export interface SendWhatsAppResponse {
-//   success: boolean;
-//   message: string;
-//   result: {
-//     detail: string;
-//     id: string[];
-//     process: string;
-//     quota: {
-//       [key: string]: {
-//         details: string;
-//         quota: number;
-//         remaining: number;
-//         used: number;
-//       };
-//     };
-//     requestid: number;
-//     status: boolean;
-//     target: string[];
-//   };
-// }
 export interface SendWhatsAppRequest {
   numberWhatsapp: string;
   plate_number: string;

@@ -22,7 +22,7 @@ import { addIssue } from "@/hooks/useIssues";
 import { formatTanggalLocal } from "@/utils/formatDate";
 import SearchableSelect from "@/components/input/SearchableSelect";
 import { validateLicensePlate } from "@/utils/validationNumberPlat";
-// import { fetchNewTransaction } from "@/hooks/useTransaction";
+import { fetchNewTransaction } from "@/hooks/useTransaction";
 
 interface SocketContextType {
   socket: any;
@@ -205,7 +205,7 @@ interface DataIssue {
 export function GlobalCallPopup() {
   const {
     activeCall,
-    // setActiveCall,
+    setActiveCall,
     endCallFunction,
     muteRingtone,
     unmuteRingtone,
@@ -298,137 +298,115 @@ export function GlobalCallPopup() {
     endCallFunction();
   };
 
-  // const getTransaction = async (
-  //   plateNumber: string,
-  //   locationId: string | number
-  // ) => {
-  //   try {
-  //     setIsSearchingTransaction(true);
-  //     const response = await fetchNewTransaction(plateNumber, locationId);
+  const getTransaction = async (
+    plateNumber: string,
+    locationId: string | number | undefined
+  ) => {
+    try {
+      const response = await fetchNewTransaction(plateNumber, locationId);
+      return response;
+    } catch (error) {
+      console.error("Error fetching transaction:", error);
+      throw error;
+    }
+  };
 
-  //     if (!response) {
-  //       throw new Error("Failed to fetch transaction");
-  //     }
+  const handleSearchTransaction = async () => {
+    if (!editablePlateNumber.trim()) {
+      toast.error("Plat nomor tidak boleh kosong");
+      return;
+    }
 
-  //     const data = await response;
-  //     setTransactionData(data);
-  //     toast.success("Data transaksi berhasil ditemukan");
-  //     return data;
-  //   } catch (error) {
-  //     console.error("Error fetching transaction:", error);
-  //     toast.error("Gagal mengambil data transaksi");
-  //     return null;
-  //   } finally {
-  //     setIsSearchingTransaction(false);
-  //   }
-  // };
+    if (!isPlateNumberValid) {
+      toast.error("Format plat nomor tidak valid");
+      return;
+    }
 
-  // const handleSearchTransaction = async () => {
-  //   if (!editablePlateNumber.trim()) {
-  //     toast.error("Plat nomor tidak boleh kosong");
-  //     return;
-  //   }
+    const locationId = activeCall?.location?.id;
+    try {
+      setIsSearchingTransaction(true);
+      const response = await getTransaction(editablePlateNumber, locationId);
 
-  //   if (!isPlateNumberValid) {
-  //     toast.error("Format plat nomor tidak valid");
-  //     return;
-  //   }
+      if (response?.data?.data) {
+        updateActiveCallWithTransactionData(response);
+      } else {
+        toast.error("Data transaksi tidak ditemukan atau format tidak valid");
+      }
+    } catch (error) {
+      console.error("Error searching transaction:", error);
+      toast.error("Gagal mengambil data transaksi");
+    } finally {
+      setIsSearchingTransaction(false);
+    }
+  };
 
-  //   const locationId = activeCall?.location?.id;
-  //   try {
-  //     setIsSearchingTransaction(true);
-  //     const transactionData = await getTransaction(
-  //       editablePlateNumber,
-  //       locationId
-  //     );
+  const updateActiveCallWithTransactionData = (transactionData: any) => {
+    if (!activeCall || !transactionData?.data?.data) return;
 
-  //     if (transactionData) {
-  //       // Update activeCall dengan data transaksi baru
-  //       updateActiveCallWithTransactionData(transactionData);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error searching transaction:", error);
-  //   } finally {
-  //     setIsSearchingTransaction(false);
-  //   }
-  // };
+    // Create a copy of activeCall to update
+    const updatedActiveCall = { ...activeCall };
+    const transaction = transactionData.data.data; // Access the nested data
 
-  // const updateActiveCallWithTransactionData = (transactionData: any) => {
-  //   if (!activeCall || !transactionData) return;
+    // Initialize detailGate if not exists
+    if (!updatedActiveCall.detailGate) {
+      updatedActiveCall.detailGate = {
+        data: {},
+        id: 0,
+        ticket: "",
+        gate: "",
+        lokasi: "",
+        foto_in: "",
+        number_plate: "",
+        payment_status: "",
+        payment_method: "",
+        issuer_name: "",
+        payment_time: "",
+      };
+    }
 
-  //   // Buat salinan activeCall yang akan diupdate
-  //   const updatedActiveCall = { ...activeCall };
+    // Update detailGate with transaction data
+    updatedActiveCall.detailGate = {
+      ...updatedActiveCall.detailGate,
+      data: {
+        ...updatedActiveCall.detailGate.data,
+        transactionNo: transaction.transactionNo || "-",
+        paymentStatus: transaction.paymentStatus || "UNPAID",
+        payment_time: transaction.paymentTime || "",
+        payment_method: transaction.paymentMethod || "-",
+        issuer_name: transaction.issuerName || "-",
+        inTime: transaction.inTime || "-",
+        duration: transaction.duration || 0,
+        tariff: transaction.tariff || 0,
+        vehicleType: transaction.vehicleType || "-",
+      },
+    };
 
-  //   // Pastikan detailGate ada
-  //   if (!updatedActiveCall.detailGate) {
-  //     updatedActiveCall.detailGate = {
-  //       data: {},
-  //       id: 0,
-  //       ticket: "",
-  //       gate: "",
-  //       lokasi: "",
-  //       foto_in: "",
-  //       number_plate: "",
-  //       payment_status: "",
-  //       payment_method: "",
-  //       issuer_name: "",
-  //       payment_time: "",
-  //     };
-  //   }
+    // Update plateNumber
+    if (transaction.plateNumber) {
+      updatedActiveCall.plateNumber = transaction.plateNumber.toUpperCase();
+      setEditablePlateNumber(transaction.plateNumber.toUpperCase());
+      setOriginalPlateNumber(transaction.plateNumber.toUpperCase());
+    }
 
-  //   // Update detailGate dengan data transaksi
-  //   if (transactionData.data) {
-  //     updatedActiveCall.detailGate = {
-  //       ...updatedActiveCall.detailGate,
-  //       data: {
-  //         ...updatedActiveCall.detailGate.data,
-  //         transactionNo: transactionData.data.TrxNo || "-",
-  //         paymentStatus: transactionData.data.PaymentStatus || "UNPAID",
-  //         payment_time: transactionData.data.PaymentTime || null,
-  //         payment_method: transactionData.data.PaymentMethod || "-",
-  //         issuer_name: transactionData.data.IssuerName || "-",
-  //         payment_confirmation: transactionData.data.PaymentConfirmation || "-",
-  //         payment_duration: transactionData.data.PaymentDuration || "-",
-  //       },
-  //     };
-  //   }
+    // Update location info
+    if (transaction.location) {
+      updatedActiveCall.location = {
+        ...updatedActiveCall.location,
+        Name: transaction.location,
+      };
+    }
 
-  //   // Update plateNumber jika ada di response
-  //   if (transactionData.data?.NumberPlate) {
-  //     updatedActiveCall.plateNumber =
-  //       transactionData.data.NumberPlate.toUpperCase();
-  //     setEditablePlateNumber(transactionData.data.NumberPlate.toUpperCase());
-  //     setOriginalPlateNumber(transactionData.data.NumberPlate.toUpperCase());
-  //   }
+    // Update the local state
+    setLocalActiveCall(updatedActiveCall);
 
-  //   // Update foto jika ada di response
-  //   if (transactionData.data?.PhotoIn) {
-  //     updatedActiveCall.imageFileIn = transactionData.data.PhotoIn;
-  //   }
+    // Update the activeCall in context if needed
+    if (setActiveCall) {
+      setActiveCall(updatedActiveCall);
+    }
 
-  //   if (transactionData.data?.photoCapture) {
-  //     updatedActiveCall.imageFile = transactionData.data.PhotoCapture;
-  //   }
-
-  //   // Update gate info jika ada
-  //   if (transactionData.data?.Gate) {
-  //     updatedActiveCall.gate = transactionData.data.Gate;
-  //   }
-
-  //   // Update location info jika ada
-  //   if (transactionData.data?.Location) {
-  //     updatedActiveCall.location = {
-  //       ...updatedActiveCall.location,
-  //       ...transactionData.data.Location,
-  //     };
-  //   }
-  //   setLocalActiveCall(updatedActiveCall);
-
-  //   // Update activeCall state
-  //   if (setActiveCall) {
-  //     setActiveCall(updatedActiveCall);
-  //   }
-  // };
+    // Show success message
+    toast.success("Data transaksi berhasil diperbarui");
+  };
 
   const getPlateNumberValidationClass = (plateNumber: string) => {
     const isValid = validateLicensePlate(plateNumber);
@@ -589,27 +567,6 @@ export function GlobalCallPopup() {
     }
   };
 
-  // const formatDateTime = (date: Date) => {
-  //   return date.toLocaleString("id-ID", {
-  //     year: "numeric",
-  //     month: "2-digit",
-  //     day: "2-digit",
-  //     hour: "2-digit",
-  //     minute: "2-digit",
-  //     second: "2-digit",
-  //   });
-  // };
-
-  // const isOpenGateDisabled =
-  //   !selectedCategory ||
-  //   !selectedDescription ||
-  //   (selectedDescription === "OTHER_MANUAL" && !manualDescription.trim()) ||
-  //   isOpeningGate ||
-  //   isLoadingCategories ||
-  //   isLoadingDescriptions ||
-  //   dataIssue.action !== "OPEN_GATE" ||
-  //   !isPlateNumberValid;
-
   const validateForm = () => {
     const errors = [];
 
@@ -657,18 +614,15 @@ export function GlobalCallPopup() {
     : "/images/no-image-found-360x250.png";
 
   const handleCreateIssue = async () => {
-    // Validate form first
     const validationErrors = validateForm();
 
     if (validationErrors.length > 0) {
-      // Show validation errors
       validationErrors.forEach((error) => {
         toast.error(error);
       });
       return; // Don't proceed with API calls
     }
 
-    // Prevent multiple submissions
     if (isCreateIssue || isOpeningGate || isAddingDescription) {
       toast.error("Proses sedang berlangsung, mohon tunggu...");
       return;
@@ -716,7 +670,6 @@ export function GlobalCallPopup() {
       if (response && response.message.includes("created")) {
         toast.success("Issue berhasil dibuat");
 
-        // Jika action adalah OPEN_GATE, buka gate juga
         if (dataIssue.action === "OPEN_GATE") {
           setIsOpeningGate(true);
           await handleOpenGate();
@@ -952,7 +905,7 @@ export function GlobalCallPopup() {
                           {/* Tombol Search Transaction - hanya untuk pintu keluar */}
                           {!isPMGate && (
                             <button
-                              // onClick={handleSearchTransaction}
+                              onClick={handleSearchTransaction}
                               disabled={
                                 isSearchingTransaction || !isPlateNumberValid
                               }
@@ -1141,6 +1094,19 @@ export function GlobalCallPopup() {
                     </span>
                   </div>
                 )}
+
+                <div className="flex justify-between items-start">
+                  <span className="text-s">Member Style Name:</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
+                    {localActiveCall?.isMemberStyle?.Name || "-"}
+                  </span>
+                </div>
+                <div className="flex justify-between items-start">
+                  <span className="text-s">Member Style Email:</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
+                    {localActiveCall?.isMemberStyle?.Email || "-"}
+                  </span>
+                </div>
               </div>
             </div>
 
