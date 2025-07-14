@@ -27,8 +27,8 @@ export default function formatTanggalUTC(input: string): string {
   return `${day} ${month} ${year}, ${hours}:${minutes}:${seconds}`;
 }
 
-export function formatTanggalLocal(input: string): string {
-  if (!input) return "";
+export function formatTanggalLocal(input: string): string {  
+  if (!input || input === "" || input === "-") return "-";
 
   const date = new Date(input);
 

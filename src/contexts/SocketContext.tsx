@@ -223,7 +223,7 @@ export function GlobalCallPopup() {
   const [isOpeningGate, setIsOpeningGate] = useState(false);
   const [isCreateIssue, setIsCreateIssue] = useState(false);
   // const [categories, setCategories] = useState<Category[]>([]);
-  const [callInTime] = useState<Date>(new Date());
+  // const [callInTime, setCallInTime] = useState<Date>(new Date());
   const [dataIssue, setDataIssue] = useState<DataIssue>({});
   const [editablePlateNumber, setEditablePlateNumber] = useState("");
   const [isPlateNumberValid, setIsPlateNumberValid] = useState(true);
@@ -604,6 +604,7 @@ export function GlobalCallPopup() {
   const gateName = localActiveCall?.gate || detailGate.gate || "-";
   const ticketNo =
     detailGate?.transactionNo || localActiveCall?.newData?.transactionNo || "-";
+  const inTime = detailGate?.inTime || "-";
 
   const fotoInUrl = localActiveCall?.imageFileIn?.trim()
     ? `https://devtest09.skyparking.online/uploads/${localActiveCall?.imageFileIn}`
@@ -1080,8 +1081,8 @@ export function GlobalCallPopup() {
                 <div className="flex justify-between items-start">
                   <span className="text-s">Waktu Masuk :</span>
                   <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                    {callInTime
-                      ? formatTanggalLocal(callInTime.toString())
+                    {inTime && inTime !== ""
+                      ? formatTanggalLocal(inTime?.toString())
                       : "-"}
                   </span>
                 </div>
@@ -1095,18 +1096,28 @@ export function GlobalCallPopup() {
                   </div>
                 )}
 
-                <div className="flex justify-between items-start">
-                  <span className="text-s">Member Style Name:</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                    {localActiveCall?.isMemberStyle?.Name || "-"}
-                  </span>
-                </div>
-                <div className="flex justify-between items-start">
-                  <span className="text-s">Member Style Email:</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                    {localActiveCall?.isMemberStyle?.Email || "-"}
-                  </span>
-                </div>
+                {localActiveCall?.isMemberStyle?.Name && (
+                  <>
+                    <div className="flex justify-between items-start">
+                      <span className="text-s">Member Style:</span>
+                      <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
+                        {localActiveCall?.isMemberStyle?.Name ? "Ya" : "Tidak"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-start">
+                      <span className="text-s">Nama Member :</span>
+                      <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
+                        {localActiveCall?.isMemberStyle?.Name || "-"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-start">
+                      <span className="text-s">Email Member :</span>
+                      <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
+                        {localActiveCall?.isMemberStyle?.Email || "-"}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
