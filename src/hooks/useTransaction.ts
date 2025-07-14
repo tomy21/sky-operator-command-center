@@ -157,7 +157,7 @@ export const sendWhatsApp = async (data: any) => {
 
 export const generateTicket = async (
   noTransaction: string,
-  idLocation: string | number,
+  idLocation: string | number | undefined,
 ) => {
   try {
     const response = await fetch(
@@ -168,13 +168,7 @@ export const generateTicket = async (
       throw new Error(`Error: ${response.status}`);
     }
 
-    const data = await response.json();
-
-    if (data.data && typeof data.data === "object") {
-      return data;
-    } else {
-      throw new Error("Format data tidak valid");
-    }
+    return response;
   } catch (err) {
     console.error("Error generate transaction: ", err);
     throw err;

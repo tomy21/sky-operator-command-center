@@ -22,7 +22,12 @@ import { addIssue } from "@/hooks/useIssues";
 import { formatTanggalLocal } from "@/utils/formatDate";
 import SearchableSelect from "@/components/input/SearchableSelect";
 import { validateLicensePlate } from "@/utils/validationNumberPlat";
-import { fetchNewTransaction } from "@/hooks/useTransaction";
+import {
+  fetchNewTransaction,
+  generateTicket,
+  sendWhatsApp,
+  SendWhatsAppRequest,
+} from "@/hooks/useTransaction";
 
 interface SocketContextType {
   socket: any;
@@ -177,7 +182,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         socket,
         connectionStatus: isDesktop ? connectionStatus : "Disabled (Mobile)",
         activeCall: isDesktop ? activeCall : null,
-        setActiveCall, // Tambahkan ini
+        setActiveCall,
         userNumber,
         setUserNumber,
         endCallFunction,
@@ -185,7 +190,6 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         unmuteRingtone,
       }}
     >
-      {/* Tambahkan notification untuk mobile user */}
       {!isDesktop && <></>}
       {children}
     </SocketContext.Provider>
@@ -223,7 +227,6 @@ export function GlobalCallPopup() {
   const [isOpeningGate, setIsOpeningGate] = useState(false);
   const [isCreateIssue, setIsCreateIssue] = useState(false);
   // const [categories, setCategories] = useState<Category[]>([]);
-  // const [callInTime, setCallInTime] = useState<Date>(new Date());
   const [dataIssue, setDataIssue] = useState<DataIssue>({});
   const [editablePlateNumber, setEditablePlateNumber] = useState("");
   const [isPlateNumberValid, setIsPlateNumberValid] = useState(true);
@@ -236,9 +239,6 @@ export function GlobalCallPopup() {
   });
   const [localActiveCall, setLocalActiveCall] =
     useState<GateStatusUpdate | null>(null);
-  // console.log(formatTanggalLocal(tryDate), "<<<< tryDate local");
-
-  // console.log(callInTime, "callInTime in GlobalCallPopup");
 
   const [isMuted, setIsMuted] = useState(false);
 
@@ -255,6 +255,10 @@ export function GlobalCallPopup() {
   const [isAddingDescription, setIsAddingDescription] = useState(false);
   const [isSearchingTransaction, setIsSearchingTransaction] = useState(false);
   const [transactionData, setTransactionData] = useState<any>(null);
+
+  const [whatsappNumber, setWhatsappNumber] = useState("");
+  const [isSendingWhatsApp, setIsSendingWhatsApp] = useState(false);
+  const [showWhatsAppInput, setShowWhatsAppInput] = useState(false);
 
   const handleAddDescription = async (
     categoryId: number,
@@ -343,11 +347,9 @@ export function GlobalCallPopup() {
   const updateActiveCallWithTransactionData = (transactionData: any) => {
     if (!activeCall || !transactionData?.data?.data) return;
 
-    // Create a copy of activeCall to update
     const updatedActiveCall = { ...activeCall };
-    const transaction = transactionData.data.data; // Access the nested data
+    const transaction = transactionData.data.data;
 
-    // Initialize detailGate if not exists
     if (!updatedActiveCall.detailGate) {
       updatedActiveCall.detailGate = {
         data: {},
@@ -408,11 +410,53 @@ export function GlobalCallPopup() {
     toast.success("Data transaksi berhasil diperbarui");
   };
 
+  const handleSendWhatsApp = async () => {
+    if (!whatsappNumber.trim() || !ticketNo) {
+      toast.error("Nomor WhatsApp dan Nomor Transaksi harus diisi");
+      return;
+    }
+
+    setIsSendingWhatsApp(true);
+    try {
+      // Generate ticket PDF first
+      const ticketResponse = await generateTicket(
+        ticketNo,
+        activeCall?.location?.id
+      );
+
+      if (!ticketResponse) {
+        throw new Error("Gagal menghasilkan tiket");
+      }
+
+      // Send WhatsApp
+      const whatsappData: SendWhatsAppRequest = {
+        numberWhatsapp: whatsappNumber,
+        plate_number: editablePlateNumber,
+        no_transaction: ticketNo,
+      };
+
+      const response = await sendWhatsApp(whatsappData);
+      console.log(response, "<<<<< response");
+
+      if (response.success) {
+        toast.success("Tiket berhasil dikirim via WhatsApp");
+        setShowWhatsAppInput(false);
+      } else {
+        throw new Error(response.message || "Gagal mengirim WhatsApp");
+      }
+    } catch (error) {
+      console.error("Error sending WhatsApp:", error);
+      toast.error("Gagal mengirim tiket via WhatsApp");
+    } finally {
+      setIsSendingWhatsApp(false);
+    }
+  };
+
   const getPlateNumberValidationClass = (plateNumber: string) => {
     const isValid = validateLicensePlate(plateNumber);
 
     if (!plateNumber.trim()) {
-      return "border-gray-300 dark:border-gray-600"; // Default state
+      return "border-gray-300 dark:border-gray-600";
     }
 
     return isValid
@@ -475,7 +519,7 @@ export function GlobalCallPopup() {
       setDescriptionOptions([]);
       setCategoryPagination({ page: 1, hasMore: true, isLoadingMore: false });
       setDataIssue({});
-      setTransactionData(null); // Reset transaction data
+      setTransactionData(null);
       setIsSearchingTransaction(false);
 
       const numberPlate = activeCall?.plateNumber?.toUpperCase() || "-";
@@ -593,11 +637,6 @@ export function GlobalCallPopup() {
     return errors;
   };
 
-  // const imageUrl = (path: string) => {
-  //   if (!path) return '';
-  //   return `/api/proxy/image?path=${encodeURIComponent(path)}`;
-  // };
-
   const detailGate =
     localActiveCall?.detailGate?.data || localActiveCall?.detailGate || {};
   const locationName = localActiveCall?.location?.Name || "Unknown Location";
@@ -621,7 +660,7 @@ export function GlobalCallPopup() {
       validationErrors.forEach((error) => {
         toast.error(error);
       });
-      return; // Don't proceed with API calls
+      return;
     }
 
     if (isCreateIssue || isOpeningGate || isAddingDescription) {
@@ -1012,7 +1051,6 @@ export function GlobalCallPopup() {
                         )}
                       </>
                     ) : (
-                      // View mode dengan styling yang lebih baik
                       <div className="flex items-center justify-end gap-2">
                         <span
                           className={`font-mono px-3 py-1 rounded-md text-sm ${
@@ -1276,7 +1314,6 @@ export function GlobalCallPopup() {
                   value={selectedDescription}
                   onChange={(value) => {
                     setSelectedDescription(value);
-                    // Reset manual description jika bukan "Other"
                     if (value !== "OTHER_MANUAL") {
                       setManualDescription("");
                     }
@@ -1354,18 +1391,6 @@ export function GlobalCallPopup() {
 
               {/* Action Buttons - Updated with proper disable logic */}
               <div className="flex flex-col space-y-1 pt-1">
-                {/* <button
-                  onClick={handleOpenGate}
-                  disabled={isOpenGateDisabled}
-                  className="cursor-pointer w-full px-4 py-2 text-sm bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-md transition-colors"
-                  title={
-                    isOpenGateDisabled
-                      ? "Pilih kategori dan deskripsi terlebih dahulu"
-                      : ""
-                  }
-                >
-                  {isOpeningGate ? "Opening..." : "Open Gate"}
-                </button> */}
 
                 <div className="flex space-x-2 pt-1">
                   <button
@@ -1377,7 +1402,6 @@ export function GlobalCallPopup() {
                   <button
                     onClick={async () => {
                       await handleCreateIssue();
-                      // Only end call if validation passed and no errors occurred
                       const validationErrors = validateForm();
                       if (validationErrors.length === 0) {
                         endCallFunction();
@@ -1397,13 +1421,55 @@ export function GlobalCallPopup() {
                 </div>
               </div>
             </div>
+            {isPMGate && ticketNo && (
+              <div className="mt-4">
+                {showWhatsAppInput ? (
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Nomor WhatsApp Customer
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="tel"
+                        value={whatsappNumber}
+                        onChange={(e) => setWhatsappNumber(e.target.value)}
+                        placeholder="6281234567890"
+                        className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      />
+                      <button
+                        onClick={handleSendWhatsApp}
+                        disabled={isSendingWhatsApp}
+                        className="px-3 py-2 bg-green-600 text-white rounded-md text-sm disabled:opacity-50"
+                      >
+                        {isSendingWhatsApp ? "Mengirim..." : "Kirim"}
+                      </button>
+                      <button
+                        onClick={() => setShowWhatsAppInput(false)}
+                        className="px-3 py-2 bg-gray-200 text-gray-700 rounded-md text-sm"
+                      >
+                        Batal
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Format: 081234567890
+                    </p>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowWhatsAppInput(true)}
+                    className="w-full px-4 py-2 bg-blue-100 text-blue-700 rounded-md text-sm hover:bg-blue-200 transition-colors"
+                  >
+                    Kirim Tiket via WhatsApp
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Bottom Section - Photos - Enhanced with base64 support */}
         <div className="border-t pt-2">
           {isPMGate ? (
-            // For PM gates - only show capture photo with larger size
             <div className="flex justify-center">
               <div className="text-center w-full max-w-md">
                 <p className="text-sm text-s mb-2">Foto Capture</p>
