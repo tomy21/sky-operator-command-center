@@ -28,6 +28,7 @@ import {
   sendWhatsApp,
   SendWhatsAppRequest,
 } from "@/hooks/useTransaction";
+import { validateWhatsAppNumber } from "@/utils/formatPhoneNumber";
 
 interface SocketContextType {
   socket: any;
@@ -259,6 +260,7 @@ export function GlobalCallPopup() {
   const [whatsappNumber, setWhatsappNumber] = useState("");
   const [isSendingWhatsApp, setIsSendingWhatsApp] = useState(false);
   const [showWhatsAppInput, setShowWhatsAppInput] = useState(false);
+  const [whatsappError, setWhatsappError] = useState<string | null>(null);
 
   const handleAddDescription = async (
     categoryId: number,
@@ -410,9 +412,27 @@ export function GlobalCallPopup() {
     toast.success("Data transaksi berhasil diperbarui");
   };
 
+  const handleWhatsAppNumberChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    setWhatsappNumber(value);
+
+    // Validasi real-time
+    const validation = validateWhatsAppNumber(value);
+    setWhatsappError(validation.isValid ? null : validation.message || null);
+  };
+
   const handleSendWhatsApp = async () => {
-    if (!whatsappNumber.trim() || !ticketNo) {
-      toast.error("Nomor WhatsApp dan Nomor Transaksi harus diisi");
+    // Validasi sebelum mengirim
+    const validation = validateWhatsAppNumber(whatsappNumber);
+    if (!validation.isValid) {
+      setWhatsappError(validation.message || "Nomor WhatsApp tidak valid");
+      return;
+    }
+
+    if (!ticketNo) {
+      toast.error("Nomor transaksi harus diisi");
       return;
     }
 
@@ -1391,7 +1411,6 @@ export function GlobalCallPopup() {
 
               {/* Action Buttons - Updated with proper disable logic */}
               <div className="flex flex-col space-y-1 pt-1">
-
                 <div className="flex space-x-2 pt-1">
                   <button
                     onClick={endCallFunction}
@@ -1427,32 +1446,98 @@ export function GlobalCallPopup() {
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Nomor WhatsApp Customer
+                      <span className="text-red-500">*</span>
                     </label>
-                    <div className="flex gap-2">
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"></div>
                       <input
                         type="tel"
                         value={whatsappNumber}
-                        onChange={(e) => setWhatsappNumber(e.target.value)}
-                        placeholder="6281234567890"
-                        className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      />
-                      <button
-                        onClick={handleSendWhatsApp}
+                        onChange={handleWhatsAppNumberChange}
+                        placeholder="081234567890"
+                        className={`block w-full pl-8 pr-12 py-2 text-sm border rounded-md focus:outline-none ${
+                          whatsappError
+                            ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                         disabled={isSendingWhatsApp}
-                        className="px-3 py-2 bg-green-600 text-white rounded-md text-sm disabled:opacity-50"
-                      >
-                        {isSendingWhatsApp ? "Mengirim..." : "Kirim"}
-                      </button>
-                      <button
-                        onClick={() => setShowWhatsAppInput(false)}
-                        className="px-3 py-2 bg-gray-200 text-gray-700 rounded-md text-sm"
-                      >
-                        Batal
-                      </button>
+                      />
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <span className="text-gray-500">
+                          {whatsappNumber.replace(/\D/g, "").length}/15
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-xs text-gray-500">
-                      Format: 081234567890
-                    </p>
+                    <button
+                      onClick={handleSendWhatsApp}
+                      disabled={
+                        isSendingWhatsApp ||
+                        !!whatsappError ||
+                        !whatsappNumber.trim()
+                      }
+                      className={`px-3 py-2 rounded-md text-sm ${
+                        isSendingWhatsApp ||
+                        !!whatsappError ||
+                        !whatsappNumber.trim()
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : "bg-green-600 text-white hover:bg-green-700"
+                      }`}
+                    >
+                      {isSendingWhatsApp ? (
+                        <>
+                          <svg
+                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Mengirim...
+                        </>
+                      ) : (
+                        "Kirim via WhatsApp"
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setShowWhatsAppInput(false)}
+                      className="px-3 py-2 bg-gray-200 text-gray-700 rounded-md text-sm"
+                    >
+                      Batal
+                    </button>
+
+                    {whatsappError ? (
+                      <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+                        <svg
+                          className="w-4 h-4 mr-1"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        {whatsappError}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Format: 08xxxxxxxxx (contoh: 081234567890)
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <button
