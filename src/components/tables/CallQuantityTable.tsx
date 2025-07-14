@@ -6,6 +6,7 @@ import {
 import React, { useState } from "react";
 import { CustomSelect } from "../input/CustomSelect";
 import { periods, regions, viewSets, years } from "@/utils/filterData";
+import { useCallQuantityData } from "@/hooks/useSummatyTable";
 
 interface CallData {
   location: string;
@@ -33,6 +34,20 @@ const CallQuantityTable: React.FC = () => {
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  // const [loading, setLoading] = useState<boolean>(false);
+  // const [error, setError] = useState<string | null>(null);
+
+  const {
+    data: apiData,
+    loading: apiLoading,
+    // error: apiError,
+    // refetch,
+  } = useCallQuantityData({
+    year: selectedYear,
+    region: selectedRegion,
+    page: currentPage,
+    itemsPerPage: itemsPerPage,
+  });
 
   // Extended data with full year (adding Jul-Dec with sample data)
   const carData: CallData[] = [
@@ -447,6 +462,32 @@ const CallQuantityTable: React.FC = () => {
   });
 
   const getCurrentData = () => {
+    // Jika ada data dari API, gunakan data tersebut
+    if (apiData && apiData.data && apiData.data.length > 0) {
+      // Transformasi data API ke format yang sesuai
+      const transformedData = apiData.data.map((item) => ({
+        location: item.location,
+        jan: item.jan,
+        feb: item.feb,
+        mar: item.mar,
+        apr: item.apr,
+        mei: item.mei,
+        juni: item.juni,
+        jul: item.jul,
+        aug: item.aug,
+        sep: item.sep,
+        okt: item.okt,
+        nov: item.nov,
+        des: item.des,
+        total: item.total,
+      }));
+
+      // Filter berdasarkan activeTab jika diperlukan
+      // Untuk sementara return semua data karena API belum ada pembagian car/bike
+      return transformedData;
+    }
+
+    // Jika tidak ada data dari API, gunakan data dummy
     switch (activeTab) {
       case "car":
         return carData;
@@ -459,7 +500,31 @@ const CallQuantityTable: React.FC = () => {
     }
   };
 
+  if (apiLoading) {
+    return (
+      <div className="bg-white dark:bg-[#222B36] rounded-lg p-4 md:p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="flex items-center space-x-2">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+            <span className="text-gray-600 dark:text-gray-300">
+              Memuat data...
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // const isUsingDummyData =
+  //   !apiData || !apiData.data || apiData.data.length === 0;
+
   const getPaginatedData = (data: CallData[]) => {
+    // Jika menggunakan data dari API, data sudah terpaginasi
+    if (apiData && apiData.data && apiData.data.length > 0) {
+      return data;
+    }
+
+    // Jika menggunakan data dummy, lakukan pagination manual
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return data.slice(startIndex, endIndex);
@@ -475,7 +540,7 @@ const CallQuantityTable: React.FC = () => {
 
   const handleItemsPerPageChange = (items: number) => {
     setItemsPerPage(items);
-    setCurrentPage(1); // Reset ke halaman pertama
+    setCurrentPage(1);
   };
 
   const getFilteredColumns = () => {
@@ -541,19 +606,11 @@ const CallQuantityTable: React.FC = () => {
     return totals;
   };
 
-  // const getPeriodText = () => {
-  //   if (selectedSemester === 1) {
-  //     return `Semester 1 (Januari - Juni) ${selectedYear}`;
-  //   } else if (selectedSemester === 2) {
-  //     return `Semester 2 (Juli - Desember) ${selectedYear}`;
-  //   } else {
-  //     return `Tahun ${selectedYear}`;
-  //   }
-  // };
-
   const currentData = getCurrentData();
   const paginatedData = getPaginatedData(currentData);
-  const totalPages = getTotalPages(currentData);
+  const totalPages =
+    apiData?.pagination?.totalPages || getTotalPages(currentData);
+  // const totalItems = apiData?.pagination?.totalItems || currentData.length;
   const rowTotal = getRowTotal(currentData);
   const columnHeaders = getColumnHeaders();
 
@@ -636,21 +693,6 @@ const CallQuantityTable: React.FC = () => {
               }}
               placeholder="Pilih periode"
             />
-            {/* <select
-              value={selectedSemester}
-              onChange={(e) =>
-                setSelectedSemester(
-                  e.target.value === "all"
-                    ? "all"
-                    : (Number(e.target.value) as 1 | 2)
-                )
-              }
-              className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#2A3441] text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value={1}>Semester 1 (Jan - Jun)</option>
-              <option value={2}>Semester 2 (Jul - Des)</option>
-              <option value="all">Sepanjang Tahun</option>
-            </select> */}
           </div>
 
           {/* Year Filter */}
@@ -703,17 +745,6 @@ const CallQuantityTable: React.FC = () => {
               onChange={(value) => handleItemsPerPageChange(Number(value))}
               placeholder="Pilih jumlah item"
             />
-            {/* <select
-              value={itemsPerPage}
-              onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-              className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#2A3441] text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value={5}>5 data</option>
-              <option value={10}>10 data</option>
-              <option value={50}>50 data</option>
-              <option value={100}>100 data</option>
-              <option value={currentData.length}>Semua</option>
-            </select> */}
           </div>
         </div>
         <p className="text-sm text-gray-600 dark:text-gray-300">
@@ -727,6 +758,35 @@ const CallQuantityTable: React.FC = () => {
             {regions.find((r) => r.value === selectedRegion)?.label}
           </span>
         </p>
+        {/*
+        {isUsingDummyData && (
+          <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
+            <div className="flex items-center">
+              <svg
+                className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mr-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span className="text-sm text-yellow-800 dark:text-yellow-200">
+                Menampilkan data dummy karena data dari server tidak tersedia
+                {apiError && ` (Error: ${apiError})`}
+              </span>
+              <button
+                onClick={() => refetch()}
+                className="ml-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                Coba lagi
+              </button>
+            </div>
+          </div>
+        )}
+        */}
       </div>
 
       {/* Table Container with vertical and horizontal scroll */}
@@ -814,21 +874,24 @@ const CallQuantityTable: React.FC = () => {
       {totalPages > 1 && (
         <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
           <div className="text-sm text-gray-700 dark:text-gray-300">
-            Menampilkan {(currentPage - 1) * itemsPerPage + 1} -{" "}
-            {Math.min(currentPage * itemsPerPage, currentData.length)} dari{" "}
-            {currentData.length} hasil
+            Menampilkan{" "}
+            {apiData?.pagination
+              ? `${
+                  (apiData.pagination.page - 1) *
+                    apiData.pagination.itemsPerPage +
+                  1
+                } - ${Math.min(
+                  apiData.pagination.page * apiData.pagination.itemsPerPage,
+                  apiData.pagination.totalItems
+                )} dari ${apiData.pagination.totalItems}`
+              : `${(currentPage - 1) * itemsPerPage + 1} - ${Math.min(
+                  currentPage * itemsPerPage,
+                  currentData.length
+                )} dari ${currentData.length}`}{" "}
+            hasil
           </div>
 
           <div className="flex items-center rounded-lg p-1 gap-1 bg-gray-100 dark:bg-[#2A3441] border border-gray-300 dark:border-gray-700">
-            {/* First Page Button */}
-            {/* <button
-              onClick={() => handlePageChange(1)}
-              disabled={currentPage === 1}
-              className="cursor-pointer w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronsLeft className="w-4 h-4" />
-            </button> */}
-
             {/* Previous Page Button */}
             <button
               onClick={() => handlePageChange(currentPage - 1)}
@@ -866,7 +929,6 @@ const CallQuantityTable: React.FC = () => {
                 } else if (totalPages > 1) {
                   rangeWithDots.push(totalPages);
                 }
-
                 return rangeWithDots;
               };
 
@@ -906,15 +968,6 @@ const CallQuantityTable: React.FC = () => {
             >
               <ChevronRight className="w-4 h-4" />
             </button>
-
-            {/* Last Page Button */}
-            {/* <button
-              onClick={() => handlePageChange(totalPages)}
-              disabled={currentPage === totalPages}
-              className="cursor-pointer w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronsRight className="w-4 h-4" />
-            </button> */}
           </div>
         </div>
       )}
