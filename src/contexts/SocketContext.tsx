@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -21,12 +22,13 @@ import { addIssue } from "@/hooks/useIssues";
 import { formatTanggalLocal } from "@/utils/formatDate";
 import SearchableSelect from "@/components/input/SearchableSelect";
 import { validateLicensePlate } from "@/utils/validationNumberPlat";
+// import { fetchNewTransaction } from "@/hooks/useTransaction";
 
 interface SocketContextType {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   socket: any;
   connectionStatus: string;
   activeCall: GateStatusUpdate | null;
+  setActiveCall: (call: GateStatusUpdate | null) => void;
   userNumber: number | null;
   setUserNumber: (num: number) => void;
   endCallFunction: () => void;
@@ -41,6 +43,7 @@ const SocketContext = createContext<
   socket: null,
   connectionStatus: "Disconnected",
   activeCall: null,
+  setActiveCall: () => {},
   userNumber: null,
   setUserNumber: () => {},
   endCallFunction: () => {},
@@ -174,6 +177,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         socket,
         connectionStatus: isDesktop ? connectionStatus : "Disabled (Mobile)",
         activeCall: isDesktop ? activeCall : null,
+        setActiveCall, // Tambahkan ini
         userNumber,
         setUserNumber,
         endCallFunction,
@@ -199,8 +203,13 @@ interface DataIssue {
 }
 
 export function GlobalCallPopup() {
-  const { activeCall, endCallFunction, muteRingtone, unmuteRingtone } =
-    useGlobalSocket();
+  const {
+    activeCall,
+    // setActiveCall,
+    endCallFunction,
+    muteRingtone,
+    unmuteRingtone,
+  } = useGlobalSocket();
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedDescription, setSelectedDescription] = useState("");
   const [categoryOptions, setCategoryOptions] = useState<
@@ -225,6 +234,8 @@ export function GlobalCallPopup() {
     photoOut: false,
     photoCapture: false,
   });
+  const [localActiveCall, setLocalActiveCall] =
+    useState<GateStatusUpdate | null>(null);
   // console.log(formatTanggalLocal(tryDate), "<<<< tryDate local");
 
   // console.log(callInTime, "callInTime in GlobalCallPopup");
@@ -242,6 +253,8 @@ export function GlobalCallPopup() {
 
   const [manualDescription, setManualDescription] = useState("");
   const [isAddingDescription, setIsAddingDescription] = useState(false);
+  const [isSearchingTransaction, setIsSearchingTransaction] = useState(false);
+  const [transactionData, setTransactionData] = useState<any>(null);
 
   const handleAddDescription = async (
     categoryId: number,
@@ -283,6 +296,150 @@ export function GlobalCallPopup() {
     });
 
     endCallFunction();
+  };
+
+  // const getTransaction = async (
+  //   plateNumber: string,
+  //   locationId: string | number
+  // ) => {
+  //   try {
+  //     setIsSearchingTransaction(true);
+  //     const response = await fetchNewTransaction(plateNumber, locationId);
+
+  //     if (!response) {
+  //       throw new Error("Failed to fetch transaction");
+  //     }
+
+  //     const data = await response;
+  //     setTransactionData(data);
+  //     toast.success("Data transaksi berhasil ditemukan");
+  //     return data;
+  //   } catch (error) {
+  //     console.error("Error fetching transaction:", error);
+  //     toast.error("Gagal mengambil data transaksi");
+  //     return null;
+  //   } finally {
+  //     setIsSearchingTransaction(false);
+  //   }
+  // };
+
+  // const handleSearchTransaction = async () => {
+  //   if (!editablePlateNumber.trim()) {
+  //     toast.error("Plat nomor tidak boleh kosong");
+  //     return;
+  //   }
+
+  //   if (!isPlateNumberValid) {
+  //     toast.error("Format plat nomor tidak valid");
+  //     return;
+  //   }
+
+  //   const locationId = activeCall?.location?.id;
+  //   try {
+  //     setIsSearchingTransaction(true);
+  //     const transactionData = await getTransaction(
+  //       editablePlateNumber,
+  //       locationId
+  //     );
+
+  //     if (transactionData) {
+  //       // Update activeCall dengan data transaksi baru
+  //       updateActiveCallWithTransactionData(transactionData);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error searching transaction:", error);
+  //   } finally {
+  //     setIsSearchingTransaction(false);
+  //   }
+  // };
+
+  // const updateActiveCallWithTransactionData = (transactionData: any) => {
+  //   if (!activeCall || !transactionData) return;
+
+  //   // Buat salinan activeCall yang akan diupdate
+  //   const updatedActiveCall = { ...activeCall };
+
+  //   // Pastikan detailGate ada
+  //   if (!updatedActiveCall.detailGate) {
+  //     updatedActiveCall.detailGate = {
+  //       data: {},
+  //       id: 0,
+  //       ticket: "",
+  //       gate: "",
+  //       lokasi: "",
+  //       foto_in: "",
+  //       number_plate: "",
+  //       payment_status: "",
+  //       payment_method: "",
+  //       issuer_name: "",
+  //       payment_time: "",
+  //     };
+  //   }
+
+  //   // Update detailGate dengan data transaksi
+  //   if (transactionData.data) {
+  //     updatedActiveCall.detailGate = {
+  //       ...updatedActiveCall.detailGate,
+  //       data: {
+  //         ...updatedActiveCall.detailGate.data,
+  //         transactionNo: transactionData.data.TrxNo || "-",
+  //         paymentStatus: transactionData.data.PaymentStatus || "UNPAID",
+  //         payment_time: transactionData.data.PaymentTime || null,
+  //         payment_method: transactionData.data.PaymentMethod || "-",
+  //         issuer_name: transactionData.data.IssuerName || "-",
+  //         payment_confirmation: transactionData.data.PaymentConfirmation || "-",
+  //         payment_duration: transactionData.data.PaymentDuration || "-",
+  //       },
+  //     };
+  //   }
+
+  //   // Update plateNumber jika ada di response
+  //   if (transactionData.data?.NumberPlate) {
+  //     updatedActiveCall.plateNumber =
+  //       transactionData.data.NumberPlate.toUpperCase();
+  //     setEditablePlateNumber(transactionData.data.NumberPlate.toUpperCase());
+  //     setOriginalPlateNumber(transactionData.data.NumberPlate.toUpperCase());
+  //   }
+
+  //   // Update foto jika ada di response
+  //   if (transactionData.data?.PhotoIn) {
+  //     updatedActiveCall.imageFileIn = transactionData.data.PhotoIn;
+  //   }
+
+  //   if (transactionData.data?.photoCapture) {
+  //     updatedActiveCall.imageFile = transactionData.data.PhotoCapture;
+  //   }
+
+  //   // Update gate info jika ada
+  //   if (transactionData.data?.Gate) {
+  //     updatedActiveCall.gate = transactionData.data.Gate;
+  //   }
+
+  //   // Update location info jika ada
+  //   if (transactionData.data?.Location) {
+  //     updatedActiveCall.location = {
+  //       ...updatedActiveCall.location,
+  //       ...transactionData.data.Location,
+  //     };
+  //   }
+  //   setLocalActiveCall(updatedActiveCall);
+
+  //   // Update activeCall state
+  //   if (setActiveCall) {
+  //     setActiveCall(updatedActiveCall);
+  //   }
+  // };
+
+  const getPlateNumberValidationClass = (plateNumber: string) => {
+    const isValid = validateLicensePlate(plateNumber);
+
+    if (!plateNumber.trim()) {
+      return "border-gray-300 dark:border-gray-600"; // Default state
+    }
+
+    return isValid
+      ? "border-green-500 dark:border-green-500 bg-green-50 dark:bg-green-900/20"
+      : "border-red-500 dark:border-red-500 bg-red-50 dark:bg-red-900/20";
   };
 
   const loadCategories = async (page: number = 1, reset: boolean = false) => {
@@ -332,6 +489,7 @@ export function GlobalCallPopup() {
   };
   useEffect(() => {
     if (activeCall) {
+      setLocalActiveCall(activeCall);
       setSelectedCategory("");
       setSelectedDescription("");
       setManualDescription("");
@@ -339,8 +497,10 @@ export function GlobalCallPopup() {
       setDescriptionOptions([]);
       setCategoryPagination({ page: 1, hasMore: true, isLoadingMore: false });
       setDataIssue({});
-      const detailGate = activeCall?.detailGate.data || {};
-      const numberPlate = detailGate?.plateNumber?.toUpperCase() || "-";
+      setTransactionData(null); // Reset transaction data
+      setIsSearchingTransaction(false);
+
+      const numberPlate = activeCall?.plateNumber?.toUpperCase() || "-";
       setEditablePlateNumber(numberPlate);
       setOriginalPlateNumber(numberPlate);
       setIsEditingPlateNumber(false);
@@ -481,18 +641,19 @@ export function GlobalCallPopup() {
   //   return `/api/proxy/image?path=${encodeURIComponent(path)}`;
   // };
 
-  const detailGate = activeCall?.detailGate.data || {};
-  const locationName = activeCall?.location?.Name || "Unknown Location";
-  const gateName = activeCall?.gate || detailGate.gate || "-";
-  // const gateId = activeCall?.gateId || detailGate.id || "-";
-  const ticketNo = detailGate?.ticket || "-";
+  const detailGate =
+    localActiveCall?.detailGate?.data || localActiveCall?.detailGate || {};
+  const locationName = localActiveCall?.location?.Name || "Unknown Location";
+  const gateName = localActiveCall?.gate || detailGate.gate || "-";
+  const ticketNo =
+    detailGate?.transactionNo || localActiveCall?.newData?.transactionNo || "-";
 
-  const fotoInUrl = activeCall?.imageFileIn?.trim()
-    ? `https://devtest09.skyparking.online/uploads/${activeCall?.imageFileIn}`
+  const fotoInUrl = localActiveCall?.imageFileIn?.trim()
+    ? `https://devtest09.skyparking.online/uploads/${localActiveCall?.imageFileIn}`
     : "/images/no-image-found-360x250.png";
 
-  const photoCaptureUrl = activeCall?.imageFile?.filename
-    ? `https://devtest09.skyparking.online/uploads/${activeCall?.imageFile?.filename}`
+  const photoCaptureUrl = localActiveCall?.imageFile?.filename
+    ? `https://devtest09.skyparking.online/uploads/${localActiveCall?.imageFile?.filename}`
     : "/images/no-image-found-360x250.png";
 
   const handleCreateIssue = async () => {
@@ -747,18 +908,81 @@ export function GlobalCallPopup() {
                                     .replace(/\s/g, "")
                                 )
                               }
-                              className={`w-5/6 pr-3 py-2 rounded-lg border-2 bg-gray-50 dark:bg-gray-700 text-right shadow-sm focus:outline-none focus:ring-1 transition ${
+                              className={`w-full pr-6 py-2 rounded-lg border-2 text-right shadow-sm focus:outline-none focus:ring-1 transition ${getPlateNumberValidationClass(
+                                editablePlateNumber
+                              )} ${
                                 isPlateNumberValid
-                                  ? "border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500"
-                                  : "border-red-500 dark:border-red-500 focus:border-red-500 focus:ring-red-500"
+                                  ? "focus:border-blue-500 focus:ring-blue-500"
+                                  : "focus:border-red-500 focus:ring-red-500"
                               }`}
                               placeholder="e.g. B1234XYZ"
                               autoFocus
                             />
+                            {/* Indicator validation */}
+                            <div className="absolute right-1 top-1/2 transform -translate-y-1/2">
+                              {editablePlateNumber.trim() &&
+                                (isPlateNumberValid ? (
+                                  <svg
+                                    className="w-4 h-4 text-green-500"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                ) : (
+                                  <svg
+                                    className="w-4 h-4 text-red-500"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                ))}
+                            </div>
                           </div>
+
+                          {/* Tombol Search Transaction - hanya untuk pintu keluar */}
+                          {!isPMGate && (
+                            <button
+                              // onClick={handleSearchTransaction}
+                              disabled={
+                                isSearchingTransaction || !isPlateNumberValid
+                              }
+                              className="p-1.5 text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-600 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Cari data transaksi"
+                            >
+                              {isSearchingTransaction ? (
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                              ) : (
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                  />
+                                </svg>
+                              )}
+                            </button>
+                          )}
+
                           <button
                             onClick={handleSavePlateNumber}
-                            className="p-1.5 text-green-600 hover:bg-green-100 dark:hover:bg-gray-600 rounded-full"
+                            disabled={!isPlateNumberValid}
+                            className="p-1.5 text-green-600 hover:bg-green-100 dark:hover:bg-gray-600 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
                             title="Simpan"
                           >
                             <svg
@@ -773,6 +997,7 @@ export function GlobalCallPopup() {
                               />
                             </svg>
                           </button>
+
                           <button
                             onClick={handleCancelEditPlateNumber}
                             className="p-1.5 text-red-600 hover:bg-red-100 dark:hover:bg-gray-600 rounded-full"
@@ -791,18 +1016,91 @@ export function GlobalCallPopup() {
                             </svg>
                           </button>
                         </div>
-                        {!isPlateNumberValid && (
-                          <p className="text-s text-red-500 mt-1 pr-1">
-                            Format plat nomor tidak valid.
-                          </p>
+
+                        {/* Pesan validasi dengan styling yang lebih baik */}
+                        {editablePlateNumber.trim() && !isPlateNumberValid && (
+                          <div className="mt-1 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+                            <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+                              <svg
+                                className="w-4 h-4 mr-1"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                              Format plat nomor tidak valid
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Informasi hasil pencarian transaksi */}
+                        {transactionData && (
+                          <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+                            <p className="text-sm text-green-600 dark:text-green-400 flex items-center">
+                              <svg
+                                className="w-4 h-4 mr-1"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                              Data transaksi ditemukan
+                            </p>
+                          </div>
                         )}
                       </>
                     ) : (
-                      // View mode
+                      // View mode dengan styling yang lebih baik
                       <div className="flex items-center justify-end gap-2">
-                        <span className="font-mono text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900/50 px-3 py-1 rounded-md text-s">
+                        <span
+                          className={`font-mono px-3 py-1 rounded-md text-sm ${
+                            isPlateNumberValid
+                              ? "text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900/50"
+                              : "text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/50"
+                          }`}
+                        >
                           {editablePlateNumber || "-"}
                         </span>
+
+                        {/* Status indicator */}
+                        {editablePlateNumber && (
+                          <div className="flex items-center">
+                            {isPlateNumberValid ? (
+                              <svg
+                                className="w-4 h-4 text-green-500"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            ) : (
+                              <svg
+                                className="w-4 h-4 text-red-500"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            )}
+                          </div>
+                        )}
+
                         <button
                           onClick={() => setIsEditingPlateNumber(true)}
                           className="p-1.5 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full"
@@ -918,7 +1216,7 @@ export function GlobalCallPopup() {
                         <span className="text-s">Waktu Pembayaran :</span>
                         <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
                           {detailGate.payment_time
-                            ? formatTanggalLocal(detailGate.payment_time)
+                            ? formatTanggalLocal(detailGate.data.paymentTime)
                             : "-"}
                         </span>
                       </div>
@@ -926,20 +1224,20 @@ export function GlobalCallPopup() {
                         <span className="text-s">Metode Pembayaran :</span>
                         <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
                           <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full text-s text-s">
-                            {detailGate.payment_method || "-"}
+                            {detailGate?.data?.paymentMethod || "-"}
                           </span>
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-s">Issuer Name :</span>
                         <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                          {detailGate.issuer_name || "-"}
+                          {detailGate?.data?.issuerName || "-"}
                         </span>
                       </div>
                     </>
                   )}
 
-                  <div className="flex justify-between items-center">
+                  {/* <div className="flex justify-between items-center">
                     <span className="text-s">Konfirmasi Pembayaran :</span>
                     <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
                       {detailGate?.payment_confirmation || "-"}
@@ -951,7 +1249,7 @@ export function GlobalCallPopup() {
                     <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
                       {detailGate?.payment_duration || "-"}
                     </span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             )}

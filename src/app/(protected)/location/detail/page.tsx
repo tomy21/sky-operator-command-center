@@ -211,11 +211,11 @@ function LocationDetailContent() {
   const getStatusBadge = (status: number) => {
     return status === 1 ? (
       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-        Open
+        Aktif
       </span>
     ) : (
       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-        Closed
+        Non-Aktif
       </span>
     );
   };
@@ -293,8 +293,8 @@ function LocationDetailContent() {
       accessor: "gate",
     },
     {
-      header: "Status",
-      accessor: "statusGate",
+      header: "Status IOT",
+      accessor: "arduino",
       render: (value) => getStatusBadge(value as number),
     },
     {

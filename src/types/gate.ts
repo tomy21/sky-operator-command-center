@@ -3,6 +3,7 @@ export interface Location {
 }
 
 export interface GateStatusUpdate {
+  plateNumber: string;
   gate: string;
   gateId: string;
   gateStatus: string;
@@ -13,6 +14,7 @@ export interface GateStatusUpdate {
   location: {
     Name: string;
     Code: string;
+    id: string | number;
   };
   imageFileIn: string;
   imageFile: {
@@ -39,6 +41,24 @@ export interface GateStatusUpdate {
     issuer_name: string;
     payment_time: string;
   };
+  newData?: {
+    transactionNo: string;
+    transactionStatus: string;
+    inTime: string;
+    duration: number;
+    tariff: number;
+    vehicleType: string;
+    outTime: string;
+    gracePeriod: number;
+    location: string;
+    paymentStatus: string;
+    tariffParking: number;
+    plateNumber: string;
+    paymentTime: string;
+    paymentMethod: string;
+    issuerName: string;
+    issuerCode: string;
+  }
 }
 
 export interface CallEndResponse {
