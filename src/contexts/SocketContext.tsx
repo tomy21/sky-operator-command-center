@@ -1421,7 +1421,7 @@ export function GlobalCallPopup() {
                 </div>
               </div>
             </div>
-            {isPMGate && ticketNo && (
+            {ticketNo && (
               <div className="mt-4">
                 {showWhatsAppInput ? (
                   <div className="space-y-2">
