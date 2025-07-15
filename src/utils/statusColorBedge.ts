@@ -14,6 +14,10 @@ export const getStatusColor = (status: string | null | undefined) => {
       return "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/10 dark:text-yellow-200";
     case "PAID":
       return "bg-blue-50 text-blue-700 dark:bg-blue-900/10 dark:text-blue-200";
+    case "YES":
+      return "bg-green-100 text-green-800 dark:bg-green-900/10 dark:text-green-200";
+    case "NO":
+      return "bg-red-100 text-red-900 dark:bg-red-900/10 dark:text-red-200";
     default:
       return "bg-gray-50 text-gray-700 dark:bg-gray-900/10 dark:text-gray-200";
   }

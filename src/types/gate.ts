@@ -6,6 +6,7 @@ export interface GateStatusUpdate {
   plateNumber: string;
   gate: string;
   gateId: string;
+  codeGate: string;
   gateStatus: string;
   // photoIn?: string;
   // photoOut?: string;

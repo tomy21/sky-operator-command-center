@@ -156,6 +156,29 @@ export const sendWhatsApp = async (data: any) => {
   }
 };
 
+export const createTransaction = async (data: any) => {
+  try {
+    const response = await fetch("/api/message/create-transaksi-post", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Gagal mengirim pesan whatsapp");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error send whatsapp message: ", error);
+    throw error;
+  }
+};
+
 export const generateTicket = async (
   noTransaction: string,
   idLocation: string | number | undefined,

@@ -23,12 +23,14 @@ import { formatTanggalLocal } from "@/utils/formatDate";
 import SearchableSelect from "@/components/input/SearchableSelect";
 import { validateLicensePlate } from "@/utils/validationNumberPlat";
 import {
+  createTransaction,
   fetchNewTransaction,
-  generateTicket,
   sendWhatsApp,
 } from "@/hooks/useTransaction";
 import { validateWhatsAppNumber } from "@/utils/formatPhoneNumber";
-
+import { getStatusColor } from "@/utils/statusColorBedge";
+import { Eye, X, User, Mail, Car } from "lucide-react";
+import { CountdownCircle } from "@/components/Countdown";
 interface SocketContextType {
   socket: any;
   connectionStatus: string;
@@ -261,6 +263,29 @@ export function GlobalCallPopup() {
   const [showWhatsAppInput, setShowWhatsAppInput] = useState(false);
   const [whatsappError, setWhatsappError] = useState<string | null>(null);
 
+  const [isModalDetailMemberOpen, setIsModalDetailMemberOpen] = useState(false);
+  const [
+    isModalDetailCreateTransactionOpen,
+    setIsModalDetailCreateTransactionOpen,
+  ] = useState(false);
+  const [transactionSuccessData, setTransactionSuccessData] = useState<{
+    transactionNo: string;
+    inTime: string;
+    plateNumber: string;
+  } | null>(null);
+
+  // const [newTransactionData, setNewTransactionData] = useState<{
+  //   transactionNo: string;
+  //   inTime: string;
+  //   plateNumber: string;
+  // } | null>(null);
+
+  const openModal = () => setIsModalDetailMemberOpen(true);
+  const closeModal = () => setIsModalDetailMemberOpen(false);
+  const closeModalTransactionSuccess = () => {
+    setIsModalDetailCreateTransactionOpen(false);
+  };
+
   const handleAddDescription = async (
     categoryId: number,
     descriptionName: string
@@ -437,16 +462,6 @@ export function GlobalCallPopup() {
 
     setIsSendingWhatsApp(true);
     try {
-      // Generate ticket PDF first
-      const ticketResponse = await generateTicket(
-        ticketNo,
-        activeCall?.location?.id
-      );
-      console.log(ticketResponse, "<<<<ticketresponse");
-
-      if (!ticketResponse) {
-        throw new Error("Gagal menghasilkan tiket");
-      }
 
       // Send WhatsApp
       const whatsappData = {
@@ -457,7 +472,6 @@ export function GlobalCallPopup() {
       };
 
       const response = await sendWhatsApp(whatsappData);
-      console.log(response, "<<<<response whatsapp");
 
       if (response.success) {
         toast.success("Tiket berhasil dikirim via WhatsApp");
@@ -470,6 +484,80 @@ export function GlobalCallPopup() {
       toast.error("Gagal mengirim tiket via WhatsApp");
     } finally {
       setIsSendingWhatsApp(false);
+    }
+  };
+
+  const handleCreateTransaction = async () => {
+    try {
+      const transactionReqData = {
+        plateNumber: editablePlateNumber,
+        locationId: activeCall?.location?.id,
+        vehicleType: "MOBIL" as const,
+        codeGate: activeCall?.codeGate?.toUpperCase() || "PMB1",
+      };
+
+      const response = await createTransaction(transactionReqData);
+      if (response.success && response.data?.data) {
+        const transactionData = response.data.data;
+        console.log(transactionData, "<<<<transactionData");
+
+        setTransactionSuccessData({
+          transactionNo: transactionData.data.transactionNo,
+          inTime: transactionData.data.inTime,
+          plateNumber: transactionData.data.plateNumber,
+        });
+
+        setIsModalDetailCreateTransactionOpen(true);
+        // Update activeCall dengan type safety
+        if (setActiveCall && activeCall) {
+          const updatedActiveCall: GateStatusUpdate = {
+            ...activeCall,
+            detailGate: {
+              ...activeCall.detailGate,
+              data: {
+                ...activeCall.detailGate?.data,
+                transactionNo: transactionData.data.transactionNo,
+                inTime: transactionData.data.inTime,
+              },
+              number_plate: transactionData.data.plateNumber,
+            },
+            plateNumber: transactionData.data.plateNumber,
+          };
+
+          setActiveCall(updatedActiveCall);
+        }
+
+        // Update localActiveCall dengan type safety
+        setLocalActiveCall((prev: GateStatusUpdate | null) => {
+          if (!prev) return prev;
+
+          return {
+            ...prev,
+            detailGate: {
+              ...prev.detailGate,
+              data: {
+                ...prev.detailGate?.data,
+                transactionNo: transactionData.data.transactionNo,
+                inTime: transactionData.data.inTime,
+              },
+              number_plate: transactionData.data.plateNumber,
+            },
+            plateNumber: transactionData.data.plateNumber,
+          };
+        });
+
+        // Update editable plate number
+        setEditablePlateNumber(transactionData.data.plateNumber);
+        setOriginalPlateNumber(transactionData.data.plateNumber);
+
+        toast.success("Tiket berhasil dibuat");
+      } else {
+        throw new Error(response.message || "Gagal membuat transaksi");
+      }
+    } catch (error) {
+      console.error("Error sending WhatsApp:", error);
+      setIsModalDetailCreateTransactionOpen(false);
+      toast.error("Gagal membuat transaksi baru");
     }
   };
 
@@ -542,6 +630,7 @@ export function GlobalCallPopup() {
       setDataIssue({});
       setTransactionData(null);
       setIsSearchingTransaction(false);
+      setWhatsappNumber("");
 
       const numberPlate = activeCall?.plateNumber?.toUpperCase() || "-";
       setEditablePlateNumber(numberPlate);
@@ -663,7 +752,7 @@ export function GlobalCallPopup() {
   const locationName = localActiveCall?.location?.Name || "Unknown Location";
   const gateName = localActiveCall?.gate || detailGate.gate || "-";
   const ticketNo =
-    detailGate?.transactionNo || localActiveCall?.newData?.transactionNo || "-";
+    detailGate?.transactionNo || localActiveCall?.newData?.transactionNo;
   const inTime = detailGate?.inTime || "-";
 
   const fotoInUrl = localActiveCall?.imageFileIn?.trim()
@@ -776,195 +865,193 @@ export function GlobalCallPopup() {
   if (!activeCall) return null;
 
   return (
-    <div className="modal fixed inset-0 backdrop-blur-md flex items-center justify-center z-100 p-2">
-      <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-xl w-full max-w-5xl relative">
-        {/* Header Controls - Close Button and Mute Button */}
-        <div className="absolute top-4 right-4 z-10 flex space-x-2">
-          {/* Mute Ringtone Button */}
-          <button
-            onClick={handleMuteRingtone}
-            className={`cursor-pointer w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
-              isMuted
-                ? "bg-red-200 hover:bg-red-300 dark:bg-red-600 dark:hover:bg-red-500 text-red-600 dark:text-red-200"
-                : "bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300"
-            } hover:text-gray-800 dark:hover:text-white`}
-            title={
-              isMuted ? "Nyalakan suara ringtone" : "Matikan suara ringtone"
-            }
-          >
-            {isMuted ? (
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
-                  clipRule="evenodd"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"
-                />
-              </svg>
-            ) : (
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
-                />
-              </svg>
-            )}
-          </button>
-
-          {/* Close Button */}
-          <button
-            onClick={handleCloseModal}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors cursor-pointer"
-            title="Tutup modal dan hentikan audio"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+    <>
+      <div className="modal fixed inset-0 backdrop-blur-md flex items-center justify-center z-100 p-2">
+        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-xl w-full max-w-5xl relative">
+          {/* Header Controls - Close Button and Mute Button */}
+          <div className="absolute top-4 right-4 z-10 flex space-x-2">
+            {/* Mute Ringtone Button */}
+            <button
+              onClick={handleMuteRingtone}
+              className={`cursor-pointer w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
+                isMuted
+                  ? "bg-red-200 hover:bg-red-300 dark:bg-red-600 dark:hover:bg-red-500 text-red-600 dark:text-red-200"
+                  : "bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300"
+              } hover:text-gray-800 dark:hover:text-white`}
+              title={
+                isMuted ? "Nyalakan suara ringtone" : "Matikan suara ringtone"
+              }
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
+              {isMuted ? (
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+                    clipRule="evenodd"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+                  />
+                </svg>
+              )}
+            </button>
 
-        {/* Header */}
-        <div className="text-center mb-2 pr-16">
-          <h2 className="text-base font-semibold text-red-600 mb-1">
-            📞 Panggilan Masuk!
-          </h2>
-          {isMuted && (
-            <p className="text-s text-red-500 flex items-center justify-center">
+            {/* Close Button */}
+            <button
+              onClick={handleCloseModal}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors cursor-pointer"
+              title="Tutup modal dan hentikan audio"
+            >
               <svg
-                className="w-3 h-3 mr-1"
+                className="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                {/* SVG paths unchanged */}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
-              Ringtone dimatikan
-            </p>
-          )}
-        </div>
+            </button>
+          </div>
 
-        {/* Main Content - Two Column Layout */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          {/* Left Column - Information */}
-          <div className="space-y-1">
-            {/* Informasi Transaksi Section */}
+          {/* Header */}
+          <div className="text-center mb-2 pr-16">
+            <h2 className="text-base font-semibold text-red-600 mb-1">
+              📞 Panggilan Masuk!
+            </h2>
+            {isMuted && (
+              <p className="text-s text-red-500 flex items-center justify-center">
+                <svg
+                  className="w-3 h-3 mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  {/* SVG paths unchanged */}
+                </svg>
+                Ringtone dimatikan
+              </p>
+            )}
+          </div>
+
+          {/* Main Content - Two Column Layout */}
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            {/* Left Column - Information */}
             <div className="space-y-1">
-              <h3 className="text-base font-semibold border-b pb-1">
-                Informasi Transaksi
-              </h3>
-              <div className="space-y-1.5 bg-gray-50 dark:bg-gray-700/50 p-1.5 rounded-lg">
-                <div className="flex justify-between items-start">
-                  <span className="text-s">Lokasi :</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                    {locationName || "-"}
-                  </span>
-                </div>
+              {/* Informasi Transaksi Section */}
+              <div className="space-y-1">
+                <h3 className="text-base font-semibold border-b pb-1">
+                  Informasi Transaksi
+                </h3>
+                <div className="space-y-1.5 bg-gray-50 dark:bg-gray-700/50 p-1.5 rounded-lg">
+                  <div className="flex justify-between items-start">
+                    <span className="text-s">Lokasi :</span>
+                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
+                      {locationName || "-"}
+                    </span>
+                  </div>
 
-                <div className="flex justify-between items-start">
-                  <span className="text-s">Gate :</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                    {gateName}
-                  </span>
-                </div>
+                  <div className="flex justify-between items-start">
+                    <span className="text-s">Gate :</span>
+                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
+                      {gateName}
+                    </span>
+                  </div>
 
-                {!isPMGate && (
                   <div className="flex justify-between items-start">
                     <span className="text-s">Nomor Transaksi :</span>
                     <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
                       {ticketNo || "-"}
                     </span>
                   </div>
-                )}
 
-                <div className="flex justify-between items-start">
-                  <span className="text-s">Plat Nomor Kendaraan :</span>
-                  <div className="flex-1 text-right">
-                    {isEditingPlateNumber ? (
-                      <>
-                        <div className="flex justify-end items-center gap-2">
-                          <div className="relative inline-block w-full max-w-[200px]">
-                            <input
-                              type="text"
-                              value={editablePlateNumber}
-                              onChange={(e) =>
-                                setEditablePlateNumber(
-                                  e.target.value
-                                    .toUpperCase()
-                                    .replace(/\s/g, "")
-                                )
-                              }
-                              className={`w-full pr-6 py-2 rounded-lg border-2 text-right shadow-sm focus:outline-none focus:ring-1 transition ${getPlateNumberValidationClass(
-                                editablePlateNumber
-                              )} ${
-                                isPlateNumberValid
-                                  ? "focus:border-blue-500 focus:ring-blue-500"
-                                  : "focus:border-red-500 focus:ring-red-500"
-                              }`}
-                              placeholder="e.g. B1234XYZ"
-                              autoFocus
-                            />
-                            {/* Indicator validation */}
-                            <div className="absolute right-1 top-1/2 transform -translate-y-1/2">
-                              {editablePlateNumber.trim() &&
-                                (isPlateNumberValid ? (
-                                  <svg
-                                    className="w-4 h-4 text-green-500"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                  >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                ) : (
-                                  <svg
-                                    className="w-4 h-4 text-red-500"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                  >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                ))}
+                  <div className="flex justify-between items-start">
+                    <span className="text-s">Plat Nomor Kendaraan :</span>
+                    <div className="flex-1 text-right">
+                      {isEditingPlateNumber ? (
+                        <>
+                          <div className="flex justify-end items-center gap-2">
+                            <div className="relative inline-block w-full max-w-[200px]">
+                              <input
+                                type="text"
+                                value={editablePlateNumber}
+                                onChange={(e) =>
+                                  setEditablePlateNumber(
+                                    e.target.value
+                                      .toUpperCase()
+                                      .replace(/\s/g, "")
+                                  )
+                                }
+                                className={`w-full pr-6 py-2 rounded-lg border-2 text-right shadow-sm focus:outline-none focus:ring-1 transition ${getPlateNumberValidationClass(
+                                  editablePlateNumber
+                                )} ${
+                                  isPlateNumberValid
+                                    ? "focus:border-blue-500 focus:ring-blue-500"
+                                    : "focus:border-red-500 focus:ring-red-500"
+                                }`}
+                                placeholder="e.g. B1234XYZ"
+                                autoFocus
+                              />
+                              {/* Indicator validation */}
+                              <div className="absolute right-1 top-1/2 transform -translate-y-1/2">
+                                {editablePlateNumber.trim() &&
+                                  (isPlateNumberValid ? (
+                                    <svg
+                                      className="w-4 h-4 text-green-500"
+                                      fill="currentColor"
+                                      viewBox="0 0 20 20"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                  ) : (
+                                    <svg
+                                      className="w-4 h-4 text-red-500"
+                                      fill="currentColor"
+                                      viewBox="0 0 20 20"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                  ))}
+                              </div>
                             </div>
-                          </div>
 
-                          {/* Tombol Search Transaction - hanya untuk pintu keluar */}
-                          {!isPMGate && (
+                            {/* Tombol Search Transaction - hanya untuk pintu keluar */}
                             <button
                               onClick={handleSearchTransaction}
                               disabled={
@@ -991,289 +1078,295 @@ export function GlobalCallPopup() {
                                 </svg>
                               )}
                             </button>
+
+                            <button
+                              onClick={handleSavePlateNumber}
+                              disabled={!isPlateNumberValid}
+                              className="p-1.5 text-green-600 hover:bg-green-100 dark:hover:bg-gray-600 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Simpan"
+                            >
+                              <svg
+                                className="w-5 h-5"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </button>
+
+                            <button
+                              onClick={handleCancelEditPlateNumber}
+                              className="p-1.5 text-red-600 hover:bg-red-100 dark:hover:bg-gray-600 rounded-full"
+                              title="Batal"
+                            >
+                              <svg
+                                className="w-5 h-5"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+
+                          {/* Pesan validasi dengan styling yang lebih baik */}
+                          {editablePlateNumber.trim() &&
+                            !isPlateNumberValid && (
+                              <div className="mt-1 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+                                <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+                                  <svg
+                                    className="w-4 h-4 mr-1"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                  Format plat nomor tidak valid
+                                </p>
+                              </div>
+                            )}
+
+                          {/* Informasi hasil pencarian transaksi */}
+                          {transactionData && (
+                            <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+                              <p className="text-sm text-green-600 dark:text-green-400 flex items-center">
+                                <svg
+                                  className="w-4 h-4 mr-1"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                                Data transaksi ditemukan
+                              </p>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="flex items-center justify-end gap-2">
+                          <span
+                            className={`font-mono px-3 py-1 rounded-md text-sm ${
+                              isPlateNumberValid
+                                ? "text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900/50"
+                                : "text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/50"
+                            }`}
+                          >
+                            {editablePlateNumber || "-"}
+                          </span>
+
+                          {/* Status indicator */}
+                          {editablePlateNumber && (
+                            <div className="flex items-center">
+                              {isPlateNumberValid ? (
+                                <svg
+                                  className="w-4 h-4 text-green-500"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              ) : (
+                                <svg
+                                  className="w-4 h-4 text-red-500"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              )}
+                            </div>
                           )}
 
                           <button
-                            onClick={handleSavePlateNumber}
-                            disabled={!isPlateNumberValid}
-                            className="p-1.5 text-green-600 hover:bg-green-100 dark:hover:bg-gray-600 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Simpan"
+                            onClick={() => setIsEditingPlateNumber(true)}
+                            className="p-1.5 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full"
+                            title="Edit Plat Nomor"
                           >
                             <svg
                               className="w-5 h-5"
                               fill="currentColor"
                               viewBox="0 0 20 20"
                             >
+                              <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
                               <path
                                 fillRule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          </button>
-
-                          <button
-                            onClick={handleCancelEditPlateNumber}
-                            className="p-1.5 text-red-600 hover:bg-red-100 dark:hover:bg-gray-600 rounded-full"
-                            title="Batal"
-                          >
-                            <svg
-                              className="w-5 h-5"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
                                 clipRule="evenodd"
                               />
                             </svg>
                           </button>
                         </div>
-
-                        {/* Pesan validasi dengan styling yang lebih baik */}
-                        {editablePlateNumber.trim() && !isPlateNumberValid && (
-                          <div className="mt-1 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-                            <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
-                              <svg
-                                className="w-4 h-4 mr-1"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                              Format plat nomor tidak valid
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Informasi hasil pencarian transaksi */}
-                        {transactionData && (
-                          <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-                            <p className="text-sm text-green-600 dark:text-green-400 flex items-center">
-                              <svg
-                                className="w-4 h-4 mr-1"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                              Data transaksi ditemukan
-                            </p>
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <div className="flex items-center justify-end gap-2">
-                        <span
-                          className={`font-mono px-3 py-1 rounded-md text-sm ${
-                            isPlateNumberValid
-                              ? "text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900/50"
-                              : "text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/50"
-                          }`}
-                        >
-                          {editablePlateNumber || "-"}
-                        </span>
-
-                        {/* Status indicator */}
-                        {editablePlateNumber && (
-                          <div className="flex items-center">
-                            {isPlateNumberValid ? (
-                              <svg
-                                className="w-4 h-4 text-green-500"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            ) : (
-                              <svg
-                                className="w-4 h-4 text-red-500"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            )}
-                          </div>
-                        )}
-
-                        <button
-                          onClick={() => setIsEditingPlateNumber(true)}
-                          className="p-1.5 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full"
-                          title="Edit Plat Nomor"
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
-                            <path
-                              fillRule="evenodd"
-                              d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-start">
-                  <span className="text-s">Waktu Masuk :</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                    {inTime && inTime !== ""
-                      ? formatTanggalLocal(inTime?.toString())
-                      : "-"}
-                  </span>
-                </div>
-
-                {!isPMGate && (
-                  <div className="flex justify-between items-start">
-                    <span className="text-s">Waktu Keluar :</span>
-                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                      -
-                    </span>
-                  </div>
-                )}
-
-                {localActiveCall?.isMemberStyle?.Name && (
-                  <>
-                    <div className="flex justify-between items-start">
-                      <span className="text-s">Member Style:</span>
-                      <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                        {localActiveCall?.isMemberStyle?.Name ? "Ya" : "Tidak"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-start">
-                      <span className="text-s">Nama Member :</span>
-                      <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                        {localActiveCall?.isMemberStyle?.Name || "-"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-start">
-                      <span className="text-s">Email Member :</span>
-                      <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                        {localActiveCall?.isMemberStyle?.Email || "-"}
-                      </span>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Informasi Pembayaran Section - Hanya untuk non-PM Gate */}
-            {!isPMGate && (
-              <div className="space-y-1.5">
-                <h3 className="text-base text-s font-semibold border-b pb-1 text-green-600">
-                  <span className="flex items-center gap-1 text-s">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                      />
-                    </svg>
-                    Informasi Pembayaran
-                  </span>
-                </h3>
-
-                <div className="space-y-1 bg-gray-50 dark:bg-gray-700/50 p-1.5 rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <span className="text-s">Status Pembayaran :</span>
-                    <span
-                      className={`flex-1 text-right font-semibold ${
-                        detailGate.paymentStatus === "PAID"
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
-                      }`}
-                    >
-                      {detailGate.paymentStatus === "PAID" ? (
-                        <span className="flex items-center justify-end gap-1">
-                          <svg
-                            className="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                          Paid
-                        </span>
-                      ) : (
-                        <span className="flex items-center justify-end gap-1">
-                          <svg
-                            className="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                          Unpaid
-                        </span>
                       )}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-start">
+                    <span className="text-s">Waktu Masuk :</span>
+                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
+                      {inTime && inTime !== ""
+                        ? formatTanggalLocal(inTime?.toString())
+                        : "-"}
                     </span>
                   </div>
 
-                  {detailGate.paymentStatus === "UNPAID" && (
+                  {!isPMGate && (
+                    <div className="flex justify-between items-start">
+                      <span className="text-s">Waktu Keluar :</span>
+                      <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
+                        -
+                      </span>
+                    </div>
+                  )}
+
+                  {localActiveCall?.isMemberStyle?.Name && (
                     <>
-                      <div className="flex justify-between items-center">
-                        <span className="text-s">Waktu Pembayaran :</span>
-                        <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                          {detailGate.payment_time
-                            ? formatTanggalLocal(detailGate.data.paymentTime)
-                            : "-"}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-s">Metode Pembayaran :</span>
-                        <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                          <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full text-s text-s">
-                            {detailGate?.data?.paymentMethod || "-"}
+                      <div className="flex justify-between items-start">
+                        <span className="text-s">Member Style:</span>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                              localActiveCall?.isMemberStyle?.Name
+                                ? "YES"
+                                : "NO"
+                            )}`}
+                          >
+                            {localActiveCall?.isMemberStyle?.Name
+                              ? "Yes"
+                              : "No"}
                           </span>
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-s">Issuer Name :</span>
-                        <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                          {detailGate?.data?.issuerName || "-"}
-                        </span>
+                          <button
+                            onClick={openModal}
+                            className="inline-flex items-center px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors duration-200"
+                            title="Lihat detail member"
+                          >
+                            <Eye size={12} className="mr-1" />
+                            Detail
+                          </button>
+                        </div>
                       </div>
                     </>
                   )}
+                </div>
+              </div>
 
-                  {/* <div className="flex justify-between items-center">
+              {/* Informasi Pembayaran Section - Hanya untuk non-PM Gate */}
+              {!isPMGate && (
+                <div className="space-y-1.5">
+                  <h3 className="text-base text-s font-semibold border-b pb-1 text-green-600">
+                    <span className="flex items-center gap-1 text-s">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+                        />
+                      </svg>
+                      Informasi Pembayaran
+                    </span>
+                  </h3>
+
+                  <div className="space-y-1 bg-gray-50 dark:bg-gray-700/50 p-1.5 rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <span className="text-s">Status Pembayaran :</span>
+                      <span
+                        className={`flex-1 text-right font-semibold ${
+                          detailGate.paymentStatus === "PAID"
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-red-600 dark:text-red-400"
+                        }`}
+                      >
+                        {detailGate.paymentStatus === "PAID" ? (
+                          <span className="flex items-center justify-end gap-1">
+                            <svg
+                              className="w-4 h-4"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                            Paid
+                          </span>
+                        ) : (
+                          <span className="flex items-center justify-end gap-1">
+                            <svg
+                              className="w-4 h-4"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                            Unpaid
+                          </span>
+                        )}
+                      </span>
+                    </div>
+
+                    {detailGate.paymentStatus === "UNPAID" && (
+                      <>
+                        <div className="flex justify-between items-center">
+                          <span className="text-s">Waktu Pembayaran :</span>
+                          <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
+                            {detailGate.payment_time
+                              ? formatTanggalLocal(detailGate.data.paymentTime)
+                              : "-"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-s">Metode Pembayaran :</span>
+                          <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
+                            <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full text-s text-s">
+                              {detailGate?.data?.paymentMethod || "-"}
+                            </span>
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-s">Issuer Name :</span>
+                          <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
+                            {detailGate?.data?.issuerName || "-"}
+                          </span>
+                        </div>
+                      </>
+                    )}
+
+                    {/* <div className="flex justify-between items-center">
                     <span className="text-s">Konfirmasi Pembayaran :</span>
                     <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
                       {detailGate?.payment_confirmation || "-"}
@@ -1286,162 +1379,161 @@ export function GlobalCallPopup() {
                       {detailGate?.payment_duration || "-"}
                     </span>
                   </div> */}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          {/* Right Column - Input Issue */}
-          <div className="space-y-3">
-            <h3 className="text-base font-semibold border-b pb-1">
-              Input Issue
-            </h3>
-
+            {/* Right Column - Input Issue */}
             <div className="space-y-3">
-              <div>
-                <label className="block text-s text-s mb-1">
-                  Kategori <span className="text-red-500">*</span>
-                </label>
-                <SearchableSelect
-                  options={categoryOptions}
-                  value={selectedCategory}
-                  onChange={setSelectedCategory}
-                  placeholder="-- Pilih Kategori --"
-                  disabled={isLoadingCategories}
-                  className="text-sm"
-                  onLoadMore={handleLoadMoreCategories}
-                  hasMoreData={categoryPagination.hasMore}
-                  isLoadingMore={categoryPagination.isLoadingMore}
-                  // onSearch={handleSearchCategories}
-                  isSearching={isLoadingCategories}
-                  showLoadMoreInfo={true}
-                  loadMoreText="Memuat kategori..."
-                />
-                {isLoadingCategories && (
-                  <div className="flex items-center mt-1 text-s text-blue-600">
-                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
-                    Memuat data kategori...
-                  </div>
-                )}
-              </div>
+              <h3 className="text-base font-semibold border-b pb-1">
+                Input Issue
+              </h3>
 
-              <div>
-                <label className="block text-s text-s mb-1">
-                  Deskripsi <span className="text-red-500">*</span>
-                </label>
-
-                <SearchableSelect
-                  options={descriptionOptions}
-                  value={selectedDescription}
-                  onChange={(value) => {
-                    setSelectedDescription(value);
-                    if (value !== "OTHER_MANUAL") {
-                      setManualDescription("");
-                    }
-                  }}
-                  placeholder={
-                    isLoadingDescriptions
-                      ? "Memuat data deskripsi..."
-                      : !selectedCategory
-                      ? "-- Pilih kategori terlebih dahulu --"
-                      : descriptionOptions.length === 0
-                      ? "-- Tidak ada deskripsi tersedia --"
-                      : "-- Pilih Deskripsi --"
-                  }
-                  disabled={isLoadingDescriptions || !selectedCategory}
-                  className="text-sm"
-                />
-
-                {/* Manual input field - hanya muncul jika "Other (Input Manual)" dipilih */}
-                {selectedDescription === "OTHER_MANUAL" && (
-                  <div className="mt-2">
-                    <input
-                      type="text"
-                      value={manualDescription}
-                      onChange={(e) => setManualDescription(e.target.value)}
-                      placeholder="Masukkan deskripsi baru..."
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      autoFocus
-                    />
-                    {manualDescription.trim() && (
-                      <p className="text-s text-blue-600 mt-1">
-                        Deskripsi baru akan dibuat: {manualDescription.trim()}
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-s text-s mb-2">Aksi</label>
-                <div className="flex gap-4">
-                  <label className="flex items-center space-x-2 text-sm">
-                    <input
-                      type="radio"
-                      name="action"
-                      value="CREATE_ISSUE"
-                      checked={dataIssue.action === "CREATE_ISSUE"}
-                      onChange={(e) =>
-                        setDataIssue((prev) => ({
-                          ...prev,
-                          action: e.target.value,
-                        }))
-                      }
-                      className="accent-blue-600 cursor-pointer"
-                    />
-                    <span>Create Issue</span>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-s text-s mb-1">
+                    Kategori <span className="text-red-500">*</span>
                   </label>
-                  <label className="flex items-center space-x-2 text-sm">
-                    <input
-                      type="radio"
-                      name="action"
-                      value="OPEN_GATE"
-                      checked={dataIssue.action === "OPEN_GATE"}
-                      onChange={(e) =>
-                        setDataIssue((prev) => ({
-                          ...prev,
-                          action: e.target.value,
-                        }))
-                      }
-                      className="accent-blue-600 cursor-pointer"
-                    />
-                    <span>Open Gate</span>
-                  </label>
+                  <SearchableSelect
+                    options={categoryOptions}
+                    value={selectedCategory}
+                    onChange={setSelectedCategory}
+                    placeholder="-- Pilih Kategori --"
+                    disabled={isLoadingCategories}
+                    className="text-sm"
+                    onLoadMore={handleLoadMoreCategories}
+                    hasMoreData={categoryPagination.hasMore}
+                    isLoadingMore={categoryPagination.isLoadingMore}
+                    // onSearch={handleSearchCategories}
+                    isSearching={isLoadingCategories}
+                    showLoadMoreInfo={true}
+                    loadMoreText="Memuat kategori..."
+                  />
+                  {isLoadingCategories && (
+                    <div className="flex items-center mt-1 text-s text-blue-600">
+                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
+                      Memuat data kategori...
+                    </div>
+                  )}
                 </div>
-              </div>
 
-              {/* Action Buttons - Updated with proper disable logic */}
-              <div className="flex flex-col space-y-1 pt-1">
-                <div className="flex space-x-2 pt-1">
-                  <button
-                    onClick={endCallFunction}
-                    className="cursor-pointer flex-1 px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={async () => {
-                      await handleCreateIssue();
-                      const validationErrors = validateForm();
-                      if (validationErrors.length === 0) {
-                        endCallFunction();
+                <div>
+                  <label className="block text-s text-s mb-1">
+                    Deskripsi <span className="text-red-500">*</span>
+                  </label>
+
+                  <SearchableSelect
+                    options={descriptionOptions}
+                    value={selectedDescription}
+                    onChange={(value) => {
+                      setSelectedDescription(value);
+                      if (value !== "OTHER_MANUAL") {
+                        setManualDescription("");
                       }
                     }}
-                    className="cursor-pointer flex-1 px-4 py-2 text-sm bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors"
-                    title={
-                      dataIssue.action === "OPEN_GATE"
-                        ? "Create issue dan buka gate"
-                        : "Create issue"
+                    placeholder={
+                      isLoadingDescriptions
+                        ? "Memuat data deskripsi..."
+                        : !selectedCategory
+                        ? "-- Pilih kategori terlebih dahulu --"
+                        : descriptionOptions.length === 0
+                        ? "-- Tidak ada deskripsi tersedia --"
+                        : "-- Pilih Deskripsi --"
                     }
-                  >
-                    {isCreateIssue || isOpeningGate
-                      ? "Processing..."
-                      : "Submit"}
-                  </button>
+                    disabled={isLoadingDescriptions || !selectedCategory}
+                    className="text-sm"
+                  />
+
+                  {/* Manual input field - hanya muncul jika "Other (Input Manual)" dipilih */}
+                  {selectedDescription === "OTHER_MANUAL" && (
+                    <div className="mt-2">
+                      <input
+                        type="text"
+                        value={manualDescription}
+                        onChange={(e) => setManualDescription(e.target.value)}
+                        placeholder="Masukkan deskripsi baru..."
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        autoFocus
+                      />
+                      {manualDescription.trim() && (
+                        <p className="text-s text-blue-600 mt-1">
+                          Deskripsi baru akan dibuat: {manualDescription.trim()}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-s text-s mb-2">Aksi</label>
+                  <div className="flex gap-4">
+                    <label className="flex items-center space-x-2 text-sm">
+                      <input
+                        type="radio"
+                        name="action"
+                        value="CREATE_ISSUE"
+                        checked={dataIssue.action === "CREATE_ISSUE"}
+                        onChange={(e) =>
+                          setDataIssue((prev) => ({
+                            ...prev,
+                            action: e.target.value,
+                          }))
+                        }
+                        className="accent-blue-600 cursor-pointer"
+                      />
+                      <span>Create Issue</span>
+                    </label>
+                    <label className="flex items-center space-x-2 text-sm">
+                      <input
+                        type="radio"
+                        name="action"
+                        value="OPEN_GATE"
+                        checked={dataIssue.action === "OPEN_GATE"}
+                        onChange={(e) =>
+                          setDataIssue((prev) => ({
+                            ...prev,
+                            action: e.target.value,
+                          }))
+                        }
+                        className="accent-blue-600 cursor-pointer"
+                      />
+                      <span>Open Gate</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Action Buttons - Updated with proper disable logic */}
+                <div className="flex flex-col space-y-1 pt-1">
+                  <div className="flex space-x-2 pt-1">
+                    <button
+                      onClick={endCallFunction}
+                      className="cursor-pointer flex-1 px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={async () => {
+                        await handleCreateIssue();
+                        const validationErrors = validateForm();
+                        if (validationErrors.length === 0) {
+                          endCallFunction();
+                        }
+                      }}
+                      className="cursor-pointer flex-1 px-4 py-2 text-sm bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors"
+                      title={
+                        dataIssue.action === "OPEN_GATE"
+                          ? "Create issue dan buka gate"
+                          : "Create issue"
+                      }
+                    >
+                      {isCreateIssue || isOpeningGate
+                        ? "Processing..."
+                        : "Submit"}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-            {ticketNo && (
               <div className="mt-4">
                 {showWhatsAppInput ? (
                   <div className="space-y-2">
@@ -1538,124 +1630,48 @@ export function GlobalCallPopup() {
                       </p>
                     ) : (
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Format: 08xxxxxxxxx (contoh: 081234567890 / 021234567890)
+                        Format: 08xxxxxxxxx (contoh: 081234567890 /
+                        021234567890)
                       </p>
                     )}
                   </div>
                 ) : (
-                  <button
-                    onClick={() => setShowWhatsAppInput(true)}
-                    className="w-full px-4 py-2 bg-blue-100 text-blue-700 rounded-md text-sm hover:bg-blue-200 transition-colors"
-                  >
-                    Kirim Tiket via WhatsApp
-                  </button>
+                  <div className="flex flex-col space-y-1 pt-1">
+                    <div className="flex space-x-2 pt-1">
+                      <button
+                        onClick={handleCreateTransaction}
+                        className="cursor-pointer flex-1 px-4 py-2 bg-blue-100 text-blue-700 rounded-md text-sm hover:bg-blue-200 transition-colors"
+                      >
+                        Buat Transaksi
+                      </button>
+                      <button
+                        onClick={() => setShowWhatsAppInput(true)}
+                        disabled={!ticketNo}
+                        className="cursor-pointer flex-1 px-4 py-2 bg-blue-100 text-blue-700 rounded-md text-sm hover:bg-blue-200 transition-colors disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+                      >
+                        Kirim Tiket via WhatsApp
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* Bottom Section - Photos - Enhanced with base64 support */}
-        <div className="border-t pt-2">
-          {isPMGate ? (
-            <div className="flex justify-center">
-              <div className="text-center w-full max-w-md">
-                <p className="text-sm text-s mb-2">Foto Capture</p>
-                <div className="w-full aspect-video bg-gray-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
-                  {!imageErrors.photoCapture ? (
-                    <Image
-                      src={photoCaptureUrl}
-                      alt="Foto Capture"
-                      width={400}
-                      height={225}
-                      className="w-full h-full object-cover rounded-lg"
-                      onError={() => {
-                        setImageErrors((prev) => ({
-                          ...prev,
-                          photoCapture: true,
-                        }));
-                      }}
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-full">
-                      <svg
-                        className="w-12 h-12 text-gray-400 mb-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                      </svg>
-                      <span className="text-sm">Foto Capture</span>
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
-          ) : (
-            // For non-PM gates - show photos in a better grid layout
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Foto In */}
-                <div className="text-center">
-                  <p className="text-sm text-s mb-2">Foto In</p>
-                  <div className="bg-gray-600 rounded-lg inline-block">
-                    {!imageErrors.photoIn ? (
-                      <Image
-                        src={fotoInUrl}
-                        alt="Foto In"
-                        width={420}
-                        height={220}
-                        className="w-[420px] h-[220px] object-cover rounded-lg"
-                        onError={() => {
-                          setImageErrors((prev) => ({
-                            ...prev,
-                            photoIn: true,
-                          }));
-                        }}
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center justify-center h-full">
-                        <svg
-                          className="w-12 h-12 text-gray-400 mb-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          />
-                        </svg>
-                        <span className="text-sm">Foto In</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+          </div>
 
-                {/* Foto Capture - Now using base64 image */}
-                <div className="text-center">
-                  <p className="text-sm text-s mb-2">
-                    Foto Capture
-                    {activeCall?.imageFile?.filename && (
-                      <span className="text-s text-green-600 ml-1">(Live)</span>
-                    )}
-                  </p>
-                  <div className="bg-gray-600 rounded-lg inline-block">
+          {/* Bottom Section - Photos - Enhanced with base64 support */}
+          <div className="border-t pt-2">
+            {isPMGate ? (
+              <div className="flex justify-center">
+                <div className="text-center w-full max-w-md">
+                  <p className="text-sm text-s mb-2">Foto Capture</p>
+                  <div className="w-full aspect-video bg-gray-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
                     {!imageErrors.photoCapture ? (
                       <Image
                         src={photoCaptureUrl}
                         alt="Foto Capture"
-                        width={420}
-                        height={220}
-                        className="w-[420px] h-[220px] object-cover rounded-lg"
+                        width={400}
+                        height={225}
+                        className="w-full h-full object-cover rounded-lg"
                         onError={() => {
                           setImageErrors((prev) => ({
                             ...prev,
@@ -1684,10 +1700,272 @@ export function GlobalCallPopup() {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            ) : (
+              // For non-PM gates - show photos in a better grid layout
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Foto In */}
+                  <div className="text-center">
+                    <p className="text-sm text-s mb-2">Foto In</p>
+                    <div className="bg-gray-600 rounded-lg inline-block">
+                      {!imageErrors.photoIn ? (
+                        <Image
+                          src={fotoInUrl}
+                          alt="Foto In"
+                          width={420}
+                          height={220}
+                          className="w-[420px] h-[220px] object-cover rounded-lg"
+                          onError={() => {
+                            setImageErrors((prev) => ({
+                              ...prev,
+                              photoIn: true,
+                            }));
+                          }}
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center h-full">
+                          <svg
+                            className="w-12 h-12 text-gray-400 mb-2"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                          <span className="text-sm">Foto In</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Foto Capture - Now using base64 image */}
+                  <div className="text-center">
+                    <p className="text-sm text-s mb-2">
+                      Foto Capture
+                      {activeCall?.imageFile?.filename && (
+                        <span className="text-s text-green-600 ml-1">
+                          (Live)
+                        </span>
+                      )}
+                    </p>
+                    <div className="bg-gray-600 rounded-lg inline-block">
+                      {!imageErrors.photoCapture ? (
+                        <Image
+                          src={photoCaptureUrl}
+                          alt="Foto Capture"
+                          width={420}
+                          height={220}
+                          className="w-[420px] h-[220px] object-cover rounded-lg"
+                          onError={() => {
+                            setImageErrors((prev) => ({
+                              ...prev,
+                              photoCapture: true,
+                            }));
+                          }}
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center h-full">
+                          <svg
+                            className="w-12 h-12 text-gray-400 mb-2"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                          <span className="text-sm">Foto Capture</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+      {isModalDetailMemberOpen && (
+        <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-500 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Detail Member
+              </h2>
+              <button
+                onClick={closeModal}
+                className="text-gray-400 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-4 space-y-4">
+              {/* Member Status */}
+              {/* <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Status Member:
+                </span>
+                <span
+                  className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                    localActiveCall?.isMemberStyle?.Name ? "YES" : "NO"
+                  )}`}
+                >
+                  {localActiveCall?.isMemberStyle?.Name ? "Active" : "Inactive"}
+                </span>
+              </div> */}
+
+              {/* Member Details */}
+              <div className="space-y-3">
+                {/* Nama Member */}
+                <div className="flex items-start space-x-3 p-3 border border-gray-200 dark:border-gray-600 rounded-lg">
+                  <div className="flex-shrink-0 mt-1">
+                    <User
+                      size={16}
+                      className="text-gray-500 dark:text-gray-400"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Nama Member
+                    </label>
+                    <p className="text-sm text-gray-900 dark:text-white">
+                      {localActiveCall?.isMemberStyle?.Name || "Tidak tersedia"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Email Member */}
+                <div className="flex items-start space-x-3 p-3 border border-gray-200 dark:border-gray-600 rounded-lg">
+                  <div className="flex-shrink-0 mt-1">
+                    <Mail
+                      size={16}
+                      className="text-gray-500 dark:text-gray-400"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Email Member
+                    </label>
+                    <p className="text-sm text-gray-900 dark:text-white break-all">
+                      {localActiveCall?.isMemberStyle?.Email ||
+                        "Tidak tersedia"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Plat Nomor */}
+                <div className="flex items-start space-x-3 p-3 border border-gray-200 dark:border-gray-600 rounded-lg">
+                  <div className="flex-shrink-0 mt-1">
+                    <Car
+                      size={16}
+                      className="text-gray-500 dark:text-gray-400"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Plat Nomor
+                    </label>
+                    <p className="text-sm text-gray-900 dark:text-white">
+                      {localActiveCall?.isMemberStyle?.PlateNumber ||
+                        localActiveCall?.plateNumber ||
+                        "Tidak tersedia"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex justify-end p-4 border-t border-gray-200 dark:border-gray-700">
+              <button
+                onClick={closeModal}
+                className="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition-colors duration-200"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {isModalDetailCreateTransactionOpen && (
+        <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-[500] p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
+            {/* Modal Header with countdown */}
+            <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Berhasil Membuat Transaksi
+              </h2>
+              <div className="flex items-center gap-2">
+                <CountdownCircle
+                  duration={3}
+                  onComplete={closeModalTransactionSuccess}
+                  isActive={isModalDetailCreateTransactionOpen}
+                />
+                <button
+                  onClick={closeModalTransactionSuccess}
+                  className="text-gray-400 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-4 space-y-4">
+              {transactionSuccessData && (
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Nomor Tiket:
+                    </span>
+                    <span className="text-sm text-gray-900 dark:text-white font-mono">
+                      {transactionSuccessData.transactionNo}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Waktu Masuk:
+                    </span>
+                    <span className="text-sm text-gray-900 dark:text-white">
+                      {formatTanggalLocal(transactionSuccessData.inTime)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Plat Nomor:
+                    </span>
+                    <span className="text-sm text-gray-900 dark:text-white font-mono">
+                      {transactionSuccessData.plateNumber}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex justify-end p-4 border-t border-gray-200 dark:border-gray-700">
+              <button
+                onClick={closeModalTransactionSuccess}
+                className="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition-colors duration-200"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
