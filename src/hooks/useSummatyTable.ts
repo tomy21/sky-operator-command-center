@@ -11,7 +11,7 @@ export const fetchCallQuantity = async (params?: CallQuantityParams): Promise<Ca
         if (params?.page) queryParams.append('page', params.page.toString());
         if (params?.itemsPerPage) queryParams.append('itemsPerPage', params.itemsPerPage.toString());
 
-        const url = `/api/callquantity${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+        const url = `/api/summary/call-byquantity${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
         const response = await fetch(url);
 
         if (!response.ok) {

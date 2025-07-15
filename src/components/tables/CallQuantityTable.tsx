@@ -3,7 +3,7 @@ import {
   ChevronRight,
   // ChevronsLeft, ChevronsRight
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CustomSelect } from "../input/CustomSelect";
 import { periods, regions, viewSets, years } from "@/utils/filterData";
 import { useCallQuantityData } from "@/hooks/useSummatyTable";
@@ -28,7 +28,7 @@ interface CallData {
 const CallQuantityTable: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"car" | "bike" | "total">("total");
   const [selectedYear, setSelectedYear] = useState<string>("2025");
-  const [selectedSemester, setSelectedSemester] = useState<1 | 2 | "all">(
+  const [selectedSemester, setSelectedSemester] = useState<"1" | "2" | "all">(
     "all"
   );
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
@@ -44,10 +44,22 @@ const CallQuantityTable: React.FC = () => {
     // refetch,
   } = useCallQuantityData({
     year: selectedYear,
+    month: selectedSemester,
     region: selectedRegion,
     page: currentPage,
     itemsPerPage: itemsPerPage,
   });
+
+  useEffect(() => {
+    // Trigger refetch ketika filter berubah
+    // Anda mungkin perlu menambahkan refetch function dari hook Anda
+  }, [
+    selectedYear,
+    selectedSemester,
+    selectedRegion,
+    currentPage,
+    itemsPerPage,
+  ]);
 
   // Extended data with full year (adding Jul-Dec with sample data)
   const carData: CallData[] = [
@@ -493,8 +505,6 @@ const CallQuantityTable: React.FC = () => {
         return carData;
       case "bike":
         return bikeData;
-      case "total":
-        return totalData;
       default:
         return totalData;
     }
@@ -544,9 +554,9 @@ const CallQuantityTable: React.FC = () => {
   };
 
   const getFilteredColumns = () => {
-    if (selectedSemester === 1) {
+    if (selectedSemester === "1") {
       return ["jan", "feb", "mar", "apr", "mei", "juni"];
-    } else if (selectedSemester === 2) {
+    } else if (selectedSemester === "2") {
       return ["jul", "aug", "sep", "okt", "nov", "des"];
     } else {
       return [
@@ -677,7 +687,7 @@ const CallQuantityTable: React.FC = () => {
               value={
                 selectedSemester === "all"
                   ? "all"
-                  : selectedSemester === 1
+                  : selectedSemester === "1"
                   ? "semester1"
                   : "semester2"
               }
@@ -685,9 +695,9 @@ const CallQuantityTable: React.FC = () => {
                 if (value === "all") {
                   setSelectedSemester("all");
                 } else if (value === "semester1") {
-                  setSelectedSemester(1);
+                  setSelectedSemester("1");
                 } else if (value === "semester2") {
-                  setSelectedSemester(2);
+                  setSelectedSemester("2");
                 }
                 setCurrentPage(1);
               }}
