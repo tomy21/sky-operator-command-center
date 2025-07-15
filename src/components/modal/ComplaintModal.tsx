@@ -27,7 +27,7 @@ export const ComplaintModal: React.FC<ComplaintModalProps> = ({
     const [complaintDetails, setComplaintDetails] = useState<ComplaintDetail[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
-    const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
+    // const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
     const [isLoading, setIsLoading] = useState(false);
 
     // Dummy data sebagai fallback
@@ -188,7 +188,7 @@ export const ComplaintModal: React.FC<ComplaintModalProps> = ({
                 <div className="bg-gray-50 dark:bg-[#1e2632] p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         {/* View Mode Toggle */}
-                        <div className="flex items-center space-x-2">
+                        {/* <div className="flex items-center space-x-2">
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Tampilan:</span>
                             <div className="flex bg-white dark:bg-[#2a3441] rounded-lg p-1 border border-gray-200 dark:border-gray-600">
                                 <button
@@ -216,7 +216,7 @@ export const ComplaintModal: React.FC<ComplaintModalProps> = ({
                                     Kartu
                                 </button>
                             </div>
-                        </div>
+                        </div> */}
 
                         {/* Items per page selector */}
                         <div className="flex items-center space-x-2">
@@ -247,7 +247,7 @@ export const ComplaintModal: React.FC<ComplaintModalProps> = ({
                                     <p className="text-gray-600 dark:text-gray-400">Memuat data komplain...</p>
                                 </div>
                             </div>
-                        ) : viewMode === 'table' ? (
+                        ) : (
                             // Table View with Fixed Header
                             <div className="h-full flex flex-col">
                                 <div className="overflow-x-auto flex-1">
@@ -313,47 +313,6 @@ export const ComplaintModal: React.FC<ComplaintModalProps> = ({
                                         </tbody>
                                     </table>
                                 </div>
-                            </div>
-                        ) : (
-                            // Card View with Scrollable Grid
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {currentItems.map((complaint, index) => (
-                                    <div key={index} className="bg-white dark:bg-[#2a3441] rounded-xl p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 hover:scale-105">
-                                        <div className="flex items-start justify-between mb-4">
-                                            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                                                <span className="text-white font-bold text-lg">{complaint.nomor}</span>
-                                            </div>
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
-                                                {complaint.gate}
-                                            </span>
-                                        </div>
-
-                                        <div className="space-y-3">
-                                            <div>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Tanggal</p>
-                                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                                    {new Date(complaint.date).toLocaleDateString('id-ID', {
-                                                        year: 'numeric',
-                                                        month: 'long',
-                                                        day: 'numeric'
-                                                    })}
-                                                </p>
-                                            </div>
-
-                                            <div>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Lokasi</p>
-                                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{complaint.location}</p>
-                                            </div>
-
-                                            <div>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Deskripsi</p>
-                                                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                                                    {complaint.description}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
                             </div>
                         )}
 
