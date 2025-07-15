@@ -26,7 +26,6 @@ import {
   fetchNewTransaction,
   generateTicket,
   sendWhatsApp,
-  SendWhatsAppRequest,
 } from "@/hooks/useTransaction";
 import { validateWhatsAppNumber } from "@/utils/formatPhoneNumber";
 
@@ -443,20 +442,22 @@ export function GlobalCallPopup() {
         ticketNo,
         activeCall?.location?.id
       );
+      console.log(ticketResponse, "<<<<ticketresponse");
 
       if (!ticketResponse) {
         throw new Error("Gagal menghasilkan tiket");
       }
 
       // Send WhatsApp
-      const whatsappData: SendWhatsAppRequest = {
+      const whatsappData = {
         numberWhatsapp: whatsappNumber,
         plate_number: editablePlateNumber,
         no_transaction: ticketNo,
+        idLocation: activeCall?.location?.id,
       };
 
       const response = await sendWhatsApp(whatsappData);
-      console.log(response, "<<<<< response");
+      console.log(response, "<<<<response whatsapp");
 
       if (response.success) {
         toast.success("Tiket berhasil dikirim via WhatsApp");
@@ -1468,55 +1469,57 @@ export function GlobalCallPopup() {
                         </span>
                       </div>
                     </div>
-                    <button
-                      onClick={handleSendWhatsApp}
-                      disabled={
-                        isSendingWhatsApp ||
-                        !!whatsappError ||
-                        !whatsappNumber.trim()
-                      }
-                      className={`px-3 py-2 rounded-md text-sm ${
-                        isSendingWhatsApp ||
-                        !!whatsappError ||
-                        !whatsappNumber.trim()
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-green-600 text-white hover:bg-green-700"
-                      }`}
-                    >
-                      {isSendingWhatsApp ? (
-                        <>
-                          <svg
-                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            ></circle>
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            ></path>
-                          </svg>
-                          Mengirim...
-                        </>
-                      ) : (
-                        "Kirim via WhatsApp"
-                      )}
-                    </button>
-                    <button
-                      onClick={() => setShowWhatsAppInput(false)}
-                      className="px-3 py-2 bg-gray-200 text-gray-700 rounded-md text-sm"
-                    >
-                      Batal
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleSendWhatsApp}
+                        disabled={
+                          isSendingWhatsApp ||
+                          !!whatsappError ||
+                          !whatsappNumber.trim()
+                        }
+                        className={`px-3 py-2 rounded-md text-sm ${
+                          isSendingWhatsApp ||
+                          !!whatsappError ||
+                          !whatsappNumber.trim()
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            : "bg-green-600 text-white hover:bg-green-700"
+                        }`}
+                      >
+                        {isSendingWhatsApp ? (
+                          <>
+                            <svg
+                              className="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              ></circle>
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
+                            </svg>
+                            Mengirim...
+                          </>
+                        ) : (
+                          "Kirim via WhatsApp"
+                        )}
+                      </button>
+                      <button
+                        onClick={() => setShowWhatsAppInput(false)}
+                        className="px-3 mr-2 py-2 bg-gray-200 text-gray-700 rounded-md text-sm"
+                      >
+                        Batal
+                      </button>
+                    </div>
 
                     {whatsappError ? (
                       <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
@@ -1535,7 +1538,7 @@ export function GlobalCallPopup() {
                       </p>
                     ) : (
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Format: 08xxxxxxxxx (contoh: 081234567890)
+                        Format: 08xxxxxxxxx (contoh: 081234567890 / 021234567890)
                       </p>
                     )}
                   </div>

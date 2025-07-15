@@ -1293,7 +1293,7 @@ const CallByIncidentTable: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
         {/* Month Filter */}
         <div>
           <label className="block text-sm text-gray-500 dark:text-gray-400 mb-2">
@@ -1367,6 +1367,16 @@ const CallByIncidentTable: React.FC = () => {
           />
         </div>
       </div>
+      <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+        Menampilkan data untuk:{" "}
+        <span className="font-semibold text-gray-900 dark:text-white">
+          {selectedMonth} {selectedYear}
+        </span>{" "}
+        | Region:{" "}
+        <span className="font-semibold text-gray-900 dark:text-white">
+          {regions.find((r) => r.value === selectedRegion)?.label}
+        </span>
+      </p>
 
       {/* Table */}
       <div className="overflow-x-auto thin-scrollbar">

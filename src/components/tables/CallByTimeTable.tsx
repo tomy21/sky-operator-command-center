@@ -219,68 +219,68 @@ const CallByTimeTable: React.FC = () => {
 
   // Tambahkan fungsi baru untuk mengkonversi data ke JSON
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//   const convertTableDataToJSON = (): any => {
-//     const tableData = {
-//       metadata: {
-//         year: selectedYear,
-//         month: selectedMonth,
-//         region: selectedRegion,
-//         regionLabel: regions.find((r) => r.value === selectedRegion)?.label,
-//         locationsCount: filteredLocations.length,
-//         generatedAt: new Date().toISOString(),
-//       },
-//       timeSlots: timeSlots.map((timeSlot) => {
-//         const locations = currentLocations.map((location) => {
-//           const data = getDataForTimeSlot(timeSlot, location.key);
-//           return {
-//             key: location.key,
-//             label: location.label,
-//             region: location.region,
-//             call: data.call,
-//             noAnswer: data.noAnswer,
-//             doublePush: data.doublePush,
-//           };
-//         });
+  //   const convertTableDataToJSON = (): any => {
+  //     const tableData = {
+  //       metadata: {
+  //         year: selectedYear,
+  //         month: selectedMonth,
+  //         region: selectedRegion,
+  //         regionLabel: regions.find((r) => r.value === selectedRegion)?.label,
+  //         locationsCount: filteredLocations.length,
+  //         generatedAt: new Date().toISOString(),
+  //       },
+  //       timeSlots: timeSlots.map((timeSlot) => {
+  //         const locations = currentLocations.map((location) => {
+  //           const data = getDataForTimeSlot(timeSlot, location.key);
+  //           return {
+  //             key: location.key,
+  //             label: location.label,
+  //             region: location.region,
+  //             call: data.call,
+  //             noAnswer: data.noAnswer,
+  //             doublePush: data.doublePush,
+  //           };
+  //         });
 
-//         const totalCall = locations.reduce(
-//           (sum, location) => sum + location.call,
-//           0
-//         );
-//         const totalNoAnswer = locations.reduce(
-//           (sum, location) => sum + location.noAnswer,
-//           0
-//         );
-//         const totalDoublePush = locations.reduce(
-//           (sum, location) => sum + location.doublePush,
-//           0
-//         );
+  //         const totalCall = locations.reduce(
+  //           (sum, location) => sum + location.call,
+  //           0
+  //         );
+  //         const totalNoAnswer = locations.reduce(
+  //           (sum, location) => sum + location.noAnswer,
+  //           0
+  //         );
+  //         const totalDoublePush = locations.reduce(
+  //           (sum, location) => sum + location.doublePush,
+  //           0
+  //         );
 
-//         return {
-//           timeSlot,
-//           locations,
-//           totals: {
-//             totalCall,
-//             totalNoAnswer,
-//             totalDoublePush,
-//           },
-//         };
-//       }),
-//     };
+  //         return {
+  //           timeSlot,
+  //           locations,
+  //           totals: {
+  //             totalCall,
+  //             totalNoAnswer,
+  //             totalDoublePush,
+  //           },
+  //         };
+  //       }),
+  //     };
 
-//     return tableData;
-//   };
+  //     return tableData;
+  //   };
 
   // Tambahkan useEffect untuk console log data JSON
-//   React.useEffect(() => {
-//     const jsonData = convertTableDataToJSON();
-//     console.log("Table Data JSON:", jsonData);
-//   }, [
-//     selectedYear,
-//     selectedMonth,
-//     selectedRegion,
-//     currentLocationPage,
-//     locationsPerPage,
-//   ]);
+  //   React.useEffect(() => {
+  //     const jsonData = convertTableDataToJSON();
+  //     console.log("Table Data JSON:", jsonData);
+  //   }, [
+  //     selectedYear,
+  //     selectedMonth,
+  //     selectedRegion,
+  //     currentLocationPage,
+  //     locationsPerPage,
+  //   ]);
 
   return (
     <div className="bg-white dark:bg-[#222B36] rounded-lg p-4 md:p-6">
@@ -404,7 +404,7 @@ const CallByTimeTable: React.FC = () => {
           </div>
         </div>
 
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+        {/* <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
           Currently showing data for:{" "}
           <span className="font-semibold capitalize">
             {selectedMonth} {selectedYear}
@@ -417,7 +417,16 @@ const CallByTimeTable: React.FC = () => {
               </span>
             </span>
           )}
-          {/* <span className="ml-2">| Locations: {filteredLocations.length}</span> */}
+        </p> */}
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          Menampilkan data untuk:{" "}
+          <span className="font-semibold text-gray-900 dark:text-white">
+            {selectedMonth} {selectedYear}
+          </span>{" "}
+          | Region:{" "}
+          <span className="font-semibold text-gray-900 dark:text-white">
+            {regions.find((r) => r.value === selectedRegion)?.label}
+          </span>
         </p>
       </div>
 

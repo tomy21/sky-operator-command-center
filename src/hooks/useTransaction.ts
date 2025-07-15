@@ -130,6 +130,7 @@ export interface SendWhatsAppRequest {
   numberWhatsapp: string;
   plate_number: string;
   no_transaction: string;
+  idLocation: number | string | undefined;
 }
 
 export const sendWhatsApp = async (data: any) => {

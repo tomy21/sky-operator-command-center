@@ -213,8 +213,6 @@ const CallByGateTable: React.FC = () => {
     return "hover:bg-gray-50 dark:hover:bg-gray-700";
   };
 
-  console.log(gateNames, "<<<<gatenames");
-
   return (
     <div className="bg-white dark:bg-[#222B36] rounded-lg p-4 md:p-6">
       <div className="mb-6">
