@@ -833,30 +833,33 @@ export default function ReportsPage() {
                 </div>
 
                 {/* Search Button */}
-                <div
-                  className={`${
-                    !hasActiveFilters && !hasPerformedSearch ? "flex-1 flex justify-end" : ""
-                  }`}
-                >
-                  <button
-                    onClick={handleSearch}
-                    className="cursor-pointer bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2 whitespace-nowrap h-fit"
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`w-full sm:w-auto ${
+                      !hasActiveFilters && !hasPerformedSearch
+                        ? "sm:ml-auto flex justify-end"
+                        : ""
+                    }`}
                   >
-                    <span>🔍</span>
-                    <span>Cari</span>
-                  </button>
-                </div>
+                    <button
+                      onClick={handleSearch}
+                      className="cursor-pointer bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2 whitespace-nowrap w-full sm:w-auto"
+                    >
+                      <span>🔍</span>
+                      <span>Cari</span>
+                    </button>
+                  </div>
 
-                {/* Clear Filters Button */}
-                {hasActiveFilters && hasPerformedSearch && (
-                  <button
-                    onClick={handleClearFilters}
-                    className="cursor-pointer bg-gray-500 hover:bg-gray-600 text-white px-3 py-2.5 rounded-lg text-sm whitespace-nowrap h-fit"
-                    title="Clear all filters"
-                  >
-                    ✕ Clear
-                  </button>
-                )}
+                  {hasActiveFilters && hasPerformedSearch && (
+                    <button
+                      onClick={handleClearFilters}
+                      className="cursor-pointer bg-gray-500 hover:bg-gray-600 text-white px-3 py-2.5 rounded-lg text-sm whitespace-nowrap"
+                      title="Clear all filters"
+                    >
+                      ✕ Clear
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
