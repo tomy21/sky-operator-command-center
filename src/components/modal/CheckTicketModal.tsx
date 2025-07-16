@@ -353,8 +353,10 @@ export default function CheckTicketModal({
                   }) => (
                     <div className="flex items-center justify-between px-2 py-2">
                       <button
+                        type="button"
                         onClick={decreaseMonth}
                         disabled={prevMonthButtonDisabled}
+                        className="cursor-pointer"
                       >
                         <IoIosArrowBack />
                       </button>
@@ -363,7 +365,7 @@ export default function CheckTicketModal({
                         onChange={({ target: { value } }) =>
                           changeMonth(Number(value))
                         }
-                        className="mx-1 px-2 py-1 border rounded"
+                        className="mx-1 px-2 py-1 border rounded cursor-pointer"
                       >
                         {[
                           "Jan",
@@ -389,7 +391,7 @@ export default function CheckTicketModal({
                         onChange={({ target: { value } }) =>
                           changeYear(Number(value))
                         }
-                        className="mx-1 px-2 py-1 border rounded"
+                        className="mx-1 px-2 py-1 border rounded cursor-pointer"
                       >
                         {Array.from(
                           { length: 10 },
@@ -401,8 +403,10 @@ export default function CheckTicketModal({
                         ))}
                       </select>
                       <button
+                        type="button"
                         onClick={increaseMonth}
                         disabled={nextMonthButtonDisabled}
+                        className="cursor-pointer"
                       >
                         <IoIosArrowForward />
                       </button>
