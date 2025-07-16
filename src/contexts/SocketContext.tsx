@@ -399,14 +399,19 @@ export function GlobalCallPopup() {
         ...updatedActiveCall.detailGate.data,
         transactionNo: transaction.transactionNo || "-",
         paymentStatus: transaction.paymentStatus || "UNPAID",
-        payment_time: transaction.paymentTime || "",
-        payment_method: transaction.paymentMethod || "-",
-        issuer_name: transaction.issuerName || "-",
+        paymentTime: transaction.paymentTime || "",
+        paymentMethod: transaction.paymentMethod || "-",
+        issuerName: transaction.issuerName || "-",
         inTime: transaction.inTime || "-",
+        outTime: transaction.outTime || "-",
         duration: transaction.duration || 0,
         tariff: transaction.tariff || 0,
         vehicleType: transaction.vehicleType || "-",
       },
+      payment_status: transaction.paymentStatus || "UNPAID",
+      payment_method: transaction.paymentMethod || "-",
+      issuer_name: transaction.issuerName || "-",
+      payment_time: transaction.paymentTime || "",
     };
 
     // Update plateNumber
@@ -462,7 +467,6 @@ export function GlobalCallPopup() {
 
     setIsSendingWhatsApp(true);
     try {
-
       // Send WhatsApp
       const whatsappData = {
         numberWhatsapp: whatsappNumber,
@@ -754,6 +758,11 @@ export function GlobalCallPopup() {
   const ticketNo =
     detailGate?.transactionNo || localActiveCall?.newData?.transactionNo;
   const inTime = detailGate?.inTime || "-";
+  const outTime = detailGate?.outTime || "-";
+  const issuerName = detailGate?.issuerName || "-";
+  const paymentMethod = detailGate?.paymentMethod || "-";
+  console.log(detailGate, "<<<<<detailGate");
+  
 
   const fotoInUrl = localActiveCall?.imageFileIn?.trim()
     ? `https://devtest09.skyparking.online/uploads/${localActiveCall?.imageFileIn}`
@@ -1237,7 +1246,9 @@ export function GlobalCallPopup() {
                     <div className="flex justify-between items-start">
                       <span className="text-s">Waktu Keluar :</span>
                       <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                        -
+                        {outTime && outTime!== ""
+                         ? formatTanggalLocal(outTime?.toString())
+                          : "-"}
                       </span>
                     </div>
                   )}
@@ -1339,28 +1350,26 @@ export function GlobalCallPopup() {
                       </span>
                     </div>
 
-                    {detailGate.paymentStatus === "UNPAID" && (
+                    {detailGate.paymentStatus === "PAID" && (
                       <>
-                        <div className="flex justify-between items-center">
+                        {/* <div className="flex justify-between items-center">
                           <span className="text-s">Waktu Pembayaran :</span>
                           <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
                             {detailGate.payment_time
                               ? formatTanggalLocal(detailGate.data.paymentTime)
                               : "-"}
                           </span>
-                        </div>
+                        </div> */}
                         <div className="flex justify-between items-center">
                           <span className="text-s">Metode Pembayaran :</span>
                           <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                            <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full text-s text-s">
-                              {detailGate?.data?.paymentMethod || "-"}
-                            </span>
+                              {paymentMethod || "-"}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-s">Issuer Name :</span>
                           <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                            {detailGate?.data?.issuerName || "-"}
+                            {issuerName || "-"}
                           </span>
                         </div>
                       </>
