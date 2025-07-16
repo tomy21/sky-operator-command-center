@@ -44,11 +44,20 @@ interface IssueDetailResponse {
   data: Issue;
 }
 
-export const fetchIssues = async (page = 1, limit = 5) => {
+export const fetchIssues = async (page = 1, limit = 5, search = '', date = '', location = '') => {
   try {
-    const response = await fetch(
-      `/api/issue/get-all?page=${page}&limit=${limit}`
-    );
+    // Build query parameters
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString()
+    });
+
+    // Add optional parameters if they exist
+    if (search) params.append('search', search);
+    if (date) params.append('date', date);
+    if (location) params.append('location', location);
+
+    const response = await fetch(`/api/issue/get-all?${params.toString()}`);
 
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
@@ -62,7 +71,7 @@ export const fetchIssues = async (page = 1, limit = 5) => {
       throw new Error("Format data tidak valid");
     }
   } catch (err) {
-    console.error("Error fetching descriptions: ", err);
+    console.error("Error fetching issues: ", err);
     throw err;
   }
 };

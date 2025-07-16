@@ -37,7 +37,7 @@ import { validateIndonesianLicensePlate } from "@/utils/validationNumberPlat";
 interface Report {
   no?: number;
   duration?: string;
-  call: string;
+  ticket: string;
   location: string;
   category: string;
   description: string;
@@ -89,7 +89,9 @@ export default function ReportsPage() {
 
   const [searchDate, setSearchDate] = useState<Date | null>(null);
   const [searchLocation, setSearchLocation] = useState("");
-  const [searchCategory, setSearchCategory] = useState("");
+  // const [searchCategory, setSearchCategory] = useState("");
+  const [searchTicket, setSearchTicket] = useState("");
+  const [hasPerformedSearch, setHasPerformedSearch] = useState(false);
 
   const [formFieldValues, setFormFieldValues] = useState<
     Record<string, string>
@@ -130,7 +132,17 @@ export default function ReportsPage() {
   const fetchAllIssuesData = async () => {
     try {
       setIsDataLoading(true);
-      const issuesData = await fetchIssues(1, 10000);
+      const formattedDate = searchDate
+        ? searchDate.toISOString().split("T")[0]
+        : "";
+      const issuesData = await fetchIssues(
+        issuesPagination.currentPage,
+        issuesPagination.itemsPerPage,
+        searchTicket,
+        formattedDate,
+        searchLocation
+      );
+
       if (issuesData && issuesData.data && issuesData.meta) {
         const mappedReports: Report[] = issuesData.data.map((issue, index) => {
           const createdDate = new Date(issue.createdAt);
@@ -140,20 +152,27 @@ export default function ReportsPage() {
             no: index + 1,
             formatDate,
             duration: "30 mins",
-            call: issue.ticket,
-            location: issue.lokasi,
-            category: issue.category,
-            description: issue.description,
-            solution: issue.action || "No solution provided",
+            ticket: issue.ticket,
+            location: issue.lokasi && issue.lokasi !== "" ? issue.lokasi : "-",
+            category:
+              issue.category && issue.category !== "" ? issue.category : "-",
+            description:
+              issue.description && issue.description !== ""
+                ? issue.description
+                : "-",
+            solution: issue.action || "-",
             rawDate: createdDate,
           };
         });
+
         setReports(mappedReports);
         setIssuesPagination({
-          totalItems: mappedReports.length,
-          totalPages: Math.ceil(mappedReports.length / 5),
-          currentPage: 1,
-          itemsPerPage: 5,
+          totalItems: issuesData.meta.totalItems,
+          totalPages: Math.ceil(
+            issuesData.meta.totalItems / issuesPagination.itemsPerPage
+          ),
+          currentPage: issuesPagination.currentPage,
+          itemsPerPage: issuesPagination.itemsPerPage,
         });
       }
     } catch (error) {
@@ -163,60 +182,23 @@ export default function ReportsPage() {
     }
   };
 
-  const filteredReports = useMemo(() => {
-    return reports.filter((report) => {
-      const dateMatch =
-        !searchDate ||
-        report?.rawDate?.toDateString() === searchDate?.toDateString();
+  const handleSearch = () => {
+    setHasPerformedSearch(true);
+    setIssuesPagination((prev) => ({ ...prev, currentPage: 1 }));
+    fetchAllIssuesData();
+  };
 
-      const locationMatch =
-        !searchLocation ||
-        report?.location
-          ?.toLowerCase()
-          ?.includes(searchLocation?.toLowerCase());
+  const handleIssuesPageChange = (page: number) => {
+    setIssuesPagination((prev) => ({ ...prev, currentPage: page }));
+  };
 
-      const categoryMatch =
-        !searchCategory ||
-        report?.category
-          ?.toLowerCase()
-          ?.includes(searchCategory?.toLowerCase());
-
-      return dateMatch && locationMatch && categoryMatch;
-    });
-  }, [reports, searchDate, searchLocation, searchCategory]);
-
-  const filteredPagination = useMemo(() => {
-    const totalFilteredItems = filteredReports.length;
-    const totalFilteredPages = Math.ceil(
-      totalFilteredItems / issuesPagination.itemsPerPage
-    );
-    const currentPage = Math.min(
-      issuesPagination.currentPage,
-      totalFilteredPages || 1
-    );
-
-    return {
-      ...issuesPagination,
-      totalItems: totalFilteredItems,
-      totalPages: totalFilteredPages,
-      currentPage: currentPage,
-    };
-  }, [filteredReports, issuesPagination]);
-
-  const paginatedFilteredReports = useMemo(() => {
-    const startIndex =
-      (filteredPagination.currentPage - 1) * filteredPagination.itemsPerPage;
-    const endIndex = startIndex + filteredPagination.itemsPerPage;
-
-    return filteredReports.slice(startIndex, endIndex).map((report, index) => ({
-      ...report,
-      no: startIndex + index + 1,
+  const handleItemsReportPerPageChange = (newItemsPerPage: number) => {
+    setIssuesPagination((prev) => ({
+      ...prev,
+      itemsPerPage: newItemsPerPage,
+      currentPage: 1,
     }));
-  }, [
-    filteredReports,
-    filteredPagination.currentPage,
-    filteredPagination.itemsPerPage,
-  ]);
+  };
 
   const fetchAllLocations = async (
     limit: number = 5,
@@ -293,18 +275,6 @@ export default function ReportsPage() {
     categoriesPagination.hasMore,
     categories.length,
   ]);
-
-  const handleIssuesPageChange = (page: number) => {
-    setIssuesPagination((prev) => ({ ...prev, currentPage: page }));
-  };
-
-  const handleItemsReportPerPageChange = (newItemsPerPage: number) => {
-    setIssuesPagination((prev) => ({
-      ...prev,
-      itemsPerPage: newItemsPerPage,
-      currentPage: 1,
-    }));
-  };
 
   const handleFieldValueChange = useCallback(
     async (fieldId: string, value: string) => {
@@ -534,11 +504,15 @@ export default function ReportsPage() {
   const handleClearFilters = () => {
     setSearchDate(null);
     setSearchLocation("");
-    setSearchCategory("");
+    setSearchTicket("");
+    setHasPerformedSearch(false);
     setIssuesPagination((prev) => ({ ...prev, currentPage: 1 }));
+    setTimeout(() => {
+      fetchAllIssuesData();
+    }, 100);
   };
 
-  const hasActiveFilters = searchDate || searchLocation || searchCategory;
+  const hasActiveFilters = searchDate || searchLocation || searchTicket;
 
   const handleModalClose = () => {
     setIsNewReportModalOpen(false);
@@ -556,13 +530,17 @@ export default function ReportsPage() {
 
   useEffect(() => {
     fetchAllIssuesData();
+  }, [issuesPagination.currentPage, issuesPagination.itemsPerPage]);
+
+  useEffect(() => {
     fetchAllCategories();
     fetchAllLocations();
   }, []);
 
   const columns: Column<Report>[] = [
     { header: "No.", accessor: "no" },
-    { header: "Date", accessor: "formatDate", width: 100 },
+    { header: "Tanggat", accessor: "formatDate", width: 100 },
+    { header: "Tiket", accessor: "ticket" },
     { header: "Lokasi", accessor: "location" },
     { header: "Kategori", accessor: "category" },
     { header: "Deskripsi", accessor: "description" },
@@ -735,17 +713,23 @@ export default function ReportsPage() {
           <div className="px-6">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-bold">Laporan</h1>
+              <button
+                onClick={handleModalOpen}
+                className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center justify-center space-x-2 whitespace-nowrap"
+              >
+                <span>➕</span>
+                <span>Tambah Laporan</span>
+              </button>
             </div>
             {/* Wrap DatePicker with Suspense */}
             <div className="flex flex-col space-y-4 mb-4">
-              {/* Filter Section */}
               <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4 items-end">
                 <div className="relative z-30 flex-1 min-w-[200px] max-w-xs">
                   <DatePicker
                     selected={searchDate}
                     onChange={(date) => setSearchDate(date)}
                     className="px-4 py-2 border rounded-lg pl-10 w-full"
-                    placeholderText="Cari Tanggal"
+                    placeholderText="Tanggal"
                     dateFormat="dd MMM yyyy"
                     isClearable
                     maxDate={new Date()}
@@ -825,7 +809,7 @@ export default function ReportsPage() {
                 <div className="relative flex-1 min-w-[150px] max-w-xs">
                   <input
                     type="text"
-                    placeholder="Cari Lokasi"
+                    placeholder="Lokasi"
                     value={searchLocation}
                     onChange={(e) => setSearchLocation(e.target.value)}
                     className="px-4 py-2 border rounded-lg pl-10 w-full"
@@ -838,39 +822,46 @@ export default function ReportsPage() {
                 <div className="relative flex-1 min-w-[150px] max-w-xs">
                   <input
                     type="text"
-                    placeholder="Cari Kategori"
-                    value={searchCategory}
-                    onChange={(e) => setSearchCategory(e.target.value)}
+                    placeholder="Ticket"
+                    value={searchTicket}
+                    onChange={(e) => setSearchTicket(e.target.value)}
                     className="px-4 py-2 border rounded-lg pl-10 w-full"
                   />
                   <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    🔍
+                    🎫
                   </span>
                 </div>
 
+                {/* Search Button */}
+                <div
+                  className={`${
+                    !hasActiveFilters && !hasPerformedSearch ? "flex-1 flex justify-end" : ""
+                  }`}
+                >
+                  <button
+                    onClick={handleSearch}
+                    className="cursor-pointer bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2 whitespace-nowrap h-fit"
+                  >
+                    <span>🔍</span>
+                    <span>Cari</span>
+                  </button>
+                </div>
+
                 {/* Clear Filters Button */}
-                {hasActiveFilters && (
+                {hasActiveFilters && hasPerformedSearch && (
                   <button
                     onClick={handleClearFilters}
-                    className="cursor-pointer bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap h-fit"
+                    className="cursor-pointer bg-gray-500 hover:bg-gray-600 text-white px-3 py-2.5 rounded-lg text-sm whitespace-nowrap h-fit"
                     title="Clear all filters"
                   >
                     ✕ Clear
                   </button>
                 )}
-
-                {/* Tambah Laporan Button - Sejajar dengan input */}
-                <button
-                  onClick={handleModalOpen}
-                  className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full flex items-center justify-center space-x-2 whitespace-nowrap"
-                >
-                  <span>➕</span>
-                  <span>Tambah Laporan</span>
-                </button>
               </div>
             </div>
-            {/* Filter Results Info */}
-            {hasActiveFilters && (
+
+            {/* Filter Results Info - update untuk ticket */}
+            {hasPerformedSearch && hasActiveFilters && (
               <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-blue-800 dark:text-blue-200">
@@ -885,15 +876,14 @@ export default function ReportsPage() {
                         Lokasi: {searchLocation}
                       </span>
                     )}
-                    {searchCategory && (
+                    {searchTicket && (
                       <span className="ml-2 inline-block bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs">
-                        Kategori: {searchCategory}
+                        Ticket: {searchTicket}
                       </span>
                     )}
                   </div>
                   <div className="text-sm text-blue-600 dark:text-blue-300">
-                    Menampilkan {filteredReports.length} dari {reports.length}{" "}
-                    data
+                    Menampilkan {reports.length} data
                   </div>
                 </div>
               </div>
@@ -914,7 +904,7 @@ export default function ReportsPage() {
                     Memuat data laporan...
                   </p>
                 </div>
-              ) : filteredReports.length === 0 && hasActiveFilters ? (
+              ) : reports.length === 0 && hasPerformedSearch ? (
                 <div className="text-center py-8">
                   <div className="text-gray-500 dark:text-gray-400">
                     <div className="text-4xl mb-4">🔍</div>
@@ -927,14 +917,14 @@ export default function ReportsPage() {
               ) : (
                 <div className="">
                   <CommonTable
-                    data={paginatedFilteredReports}
+                    data={reports}
                     columns={columns as any}
                     showPagination={true}
-                    currentPage={filteredPagination.currentPage}
-                    totalPages={filteredPagination.totalPages}
+                    currentPage={issuesPagination.currentPage}
+                    totalPages={issuesPagination.totalPages}
                     onPageChange={handleIssuesPageChange}
-                    itemsPerPage={filteredPagination.itemsPerPage}
-                    totalItems={filteredPagination.totalItems}
+                    itemsPerPage={issuesPagination.itemsPerPage}
+                    totalItems={issuesPagination.totalItems}
                     onItemsPerPageChange={handleItemsReportPerPageChange}
                   />
                 </div>
