@@ -715,7 +715,7 @@ export default function ReportsPage() {
               <h1 className="text-2xl font-bold">Laporan</h1>
               <button
                 onClick={handleModalOpen}
-                className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center justify-center space-x-2 whitespace-nowrap"
+                className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2 whitespace-nowrap"
               >
                 <span>➕</span>
                 <span>Tambah Laporan</span>
