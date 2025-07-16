@@ -33,6 +33,7 @@ import {
 } from "@/hooks/useLocation";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { validateIndonesianLicensePlate } from "@/utils/validationNumberPlat";
+import { CalenderIcon, LocationIcon2, TicketIcon } from "@/public/icons/Icons";
 
 interface Report {
   no?: number;
@@ -802,7 +803,7 @@ export default function ReportsPage() {
                     )}
                   />
                   <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    📅
+                    <CalenderIcon/>
                   </span>
                 </div>
 
@@ -815,7 +816,7 @@ export default function ReportsPage() {
                     className="px-4 py-2 border rounded-lg pl-10 w-full"
                   />
                   <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    📍
+                    <LocationIcon2/>
                   </span>
                 </div>
 
@@ -828,7 +829,7 @@ export default function ReportsPage() {
                     className="px-4 py-2 border rounded-lg pl-10 w-full"
                   />
                   <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    🎫
+                    <TicketIcon/>
                   </span>
                 </div>
 
