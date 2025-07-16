@@ -12,6 +12,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import React from 'react';
 import { fetchIssuesMonthly } from "@/hooks/useIssues";
 import { ComplaintModal } from "@/components/modal/ComplaintModal";
+import { fetchCall } from "@/hooks/useCall";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -268,6 +269,16 @@ export default function Dashboard() {
 
   const [monthlyComplaintData, setMonthlyComplaintData] = useState<MonthlyComplaintData[]>([]);
   const [isLoadingMonthlyData, setIsLoadingMonthlyData] = useState(false);
+  const [countInCall, setCountInCall] = useState(0);
+
+  const fetchCountInCall = async () => {
+    try {
+      const response = await fetchCall(new Date().toISOString().split('T')[0]);
+      setCountInCall(response.data._sum.CountInCall);
+    } catch (error) {
+      console.error("Failed to fetch count in call:", error);
+    }
+  }
 
   const fetchMonthlyComplaintData = async () => {
     setIsLoadingMonthlyData(true);
@@ -298,6 +309,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchMonthlyComplaintData();
+    fetchCountInCall();
   }, []);
 
   const chartSeries = [
@@ -354,7 +366,7 @@ export default function Dashboard() {
               </div>
               <div className="text-sm">
                 <span className="text-gray-500">Total Panggilan: </span>
-                <span className="font-semibold">11</span>
+                <span className="font-semibold">{countInCall}</span>
               </div>
             </div>
           </div>
