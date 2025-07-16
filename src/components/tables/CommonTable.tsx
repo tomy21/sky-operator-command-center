@@ -6,6 +6,7 @@ import {
   // ChevronsLeft,
   // ChevronsRight,
 } from "lucide-react";
+import { CustomSelect } from "../input/CustomSelect";
 
 export interface Column<T> {
   header: string;
@@ -132,18 +133,19 @@ export default function CommonTable<T>({
                   >
                     Per halaman:
                   </label>
-                  <select
-                    id="itemsPerPage-mobile"
+                  <CustomSelect
+                    options={[
+                      { id: 5, name: 5 },
+                      { id: 10, name: 10 },
+                      { id: 20, name: 20 },
+                      { id: 50, name: 50 },
+                      { id: 100, name: 100 },
+                    ]}
                     value={itemsPerPage}
-                    onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-                    className="block w-16 rounded-md border-0 py-1 px-2 text-gray-900 dark:text-gray-100 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-blue-600 text-sm bg-white dark:bg-gray-800"
-                  >
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                  </select>
+                    onChange={(value) => onItemsPerPageChange(Number(value))}
+                    placeholder="Pilih jumlah item"
+                    isDisabled={false}
+                  />
                 </div>
               )}
             </div>
@@ -184,10 +186,11 @@ export default function CommonTable<T>({
                       ) : (
                         <button
                           onClick={() => onPageChange(page as number)}
-                          className={`cursor-pointer relative inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-md ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:z-20 focus:outline-offset-0 transition-colors duration-200 ${currentPage === page
-                            ? "bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                            : "text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
-                            }`}
+                          className={`cursor-pointer relative inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-md ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:z-20 focus:outline-offset-0 transition-colors duration-200 ${
+                            currentPage === page
+                              ? "bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                              : "text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+                          }`}
                           title={`Go to page ${page}`}
                         >
                           {page}
@@ -238,18 +241,19 @@ export default function CommonTable<T>({
                 >
                   Item per halaman:
                 </label>
-                <select
-                  id="itemsPerPage"
+                <CustomSelect
+                  options={[
+                    { id: 5, name: 5 },
+                    { id: 10, name: 10 },
+                    { id: 20, name: 20 },
+                    { id: 50, name: 50 },
+                    { id: 100, name: 100 },
+                  ]}
                   value={itemsPerPage}
-                  onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-                  className="cursor-pointer block w-20 rounded-md border-0 py-1.5 pl-3 pr-2 text-gray-900 dark:text-gray-100 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6 bg-white dark:bg-gray-800"
-                >
-                  <option value="5">5</option>
-                  <option value="10">10</option>
-                  <option value="20">20</option>
-                  <option value="50">50</option>
-                  <option value="100">100</option>
-                </select>
+                  onChange={(value) => onItemsPerPageChange(Number(value))}
+                  placeholder="Pilih jumlah item"
+                  isDisabled={false}
+                />
               </div>
             )}
           </div>
@@ -290,10 +294,11 @@ export default function CommonTable<T>({
                   ) : (
                     <button
                       onClick={() => onPageChange(page as number)}
-                      className={`cursor-pointer relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:z-20 focus:outline-offset-0 transition-colors duration-200 ${currentPage === page
-                        ? "z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                        : "text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
-                        }`}
+                      className={`cursor-pointer relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:z-20 focus:outline-offset-0 transition-colors duration-200 ${
+                        currentPage === page
+                          ? "z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                          : "text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+                      }`}
                       title={`Go to page ${page}`}
                     >
                       {page}
@@ -346,8 +351,8 @@ export default function CommonTable<T>({
                       className="p-4 text-sm font-semibold text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 whitespace-nowrap"
                       style={{
                         width: column.width,
-                        minWidth: column.minWidth || '20px',
-                        maxWidth: column.maxWidth || '300px'
+                        minWidth: column.minWidth || "20px",
+                        maxWidth: column.maxWidth || "300px",
                       }}
                     >
                       {column.header}
@@ -359,17 +364,19 @@ export default function CommonTable<T>({
                 {data.map((item, rowIndex) => (
                   <tr
                     key={rowIndex}
-                    className={`transition-colors duration-150 hover:bg-gray-100 dark:hover:bg-gray-700 ${rowIndex % 2 === 0
-                      ? "bg-white dark:bg-gray-900"
-                      : "bg-gray-200 dark:bg-gray-800"
-                      }`}
+                    className={`transition-colors duration-150 hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                      rowIndex % 2 === 0
+                        ? "bg-white dark:bg-gray-900"
+                        : "bg-gray-200 dark:bg-gray-800"
+                    }`}
                   >
                     {columns.map((column, colIndex) => {
                       const cellValue = column.render
                         ? column.render(item[column.accessor], item)
-                        : item[column.accessor]?.toString() || '';
+                        : item[column.accessor]?.toString() || "";
 
-                      const cellText = typeof cellValue === 'string' ? cellValue : '';
+                      const cellText =
+                        typeof cellValue === "string" ? cellValue : "";
                       const shouldTruncate = cellText.length > 30; // Truncate if text is longer than 30 characters
 
                       return (
@@ -378,14 +385,14 @@ export default function CommonTable<T>({
                           className="p-4 text-sm text-gray-900 dark:text-gray-100 relative group"
                           style={{
                             width: column.width,
-                            minWidth: column.minWidth || '20px',
-                            maxWidth: column.maxWidth || '300px'
+                            minWidth: column.minWidth || "20px",
+                            maxWidth: column.maxWidth || "300px",
                           }}
                         >
                           <div
                             className="truncate"
                             style={{
-                              maxWidth: column.maxWidth || '300px'
+                              maxWidth: column.maxWidth || "300px",
                             }}
                           >
                             {cellValue}

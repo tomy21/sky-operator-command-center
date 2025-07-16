@@ -32,7 +32,7 @@ const CallQuantityTable: React.FC = () => {
     "all"
   );
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [currentPage, setCurrentPage] = useState<number>(1);
   // const [loading, setLoading] = useState<boolean>(false);
   // const [error, setError] = useState<string | null>(null);

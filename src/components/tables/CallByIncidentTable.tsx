@@ -42,7 +42,7 @@ const CallByIncidentTable: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState<string>("2024");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
 
   const monthToDataKey: { [key: string]: keyof MonthlyIncidentData } = {
     january: "jan",

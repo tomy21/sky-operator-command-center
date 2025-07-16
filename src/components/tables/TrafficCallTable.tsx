@@ -69,7 +69,7 @@ const TrafficCallTable: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState<string>("2025");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
 
   // Generate sample data with regions
   const generateSampleData = (): LocationData[] => {
@@ -902,16 +902,6 @@ const TrafficCallTable: React.FC = () => {
         {/* Pagination Controls */}
         {totalPages > 1 && (
           <div className="flex items-center bg-gray-100 dark:bg-[#2A3441] border border-gray-300 dark:border-gray-700 rounded-lg p-1 gap-1">
-            {/* First Page Button */}
-            {/* <button
-                            onClick={() => handlePageChange(1)}
-                            disabled={currentPage === 1}
-                            className="cursor-pointer w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                        >
-                            <ChevronsLeft className="w-4 h-4" />
-                        </button> */}
-
-            {/* Previous Page Button */}
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
@@ -988,15 +978,6 @@ const TrafficCallTable: React.FC = () => {
             >
               <ChevronRight className="w-4 h-4" />
             </button>
-
-            {/* Last Page Button */}
-            {/* <button
-                            onClick={() => handlePageChange(totalPages)}
-                            disabled={currentPage === totalPages}
-                            className="cursor-pointer w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                        >
-                            <ChevronsRight className="w-4 h-4" />
-                        </button> */}
           </div>
         )}
       </div>
