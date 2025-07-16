@@ -9,7 +9,7 @@ import { ApexOptions } from "apexcharts";
 import { useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import React from 'react';
+import React from "react";
 import { fetchIssuesMonthly } from "@/hooks/useIssues";
 import { ComplaintModal } from "@/components/modal/ComplaintModal";
 import { fetchCall } from "@/hooks/useCall";
@@ -18,11 +18,21 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
-const CallQuantityTable = lazy(() => import("@/components/tables/CallQuantityTable"));
-const CallByTimeTable = lazy(() => import("@/components/tables/CallByTimeTable"));
-const CallByGateTable = lazy(() => import("@/components/tables/CallByGateTable"));
-const CallByIncidentTable = lazy(() => import("@/components/tables/CallByIncidentTable"));
-const TrafficCallTable = lazy(() => import("@/components/tables/TrafficCallTable"));
+const CallQuantityTable = lazy(
+  () => import("@/components/tables/CallQuantityTable")
+);
+const CallByTimeTable = lazy(
+  () => import("@/components/tables/CallByTimeTable")
+);
+const CallByGateTable = lazy(
+  () => import("@/components/tables/CallByGateTable")
+);
+const CallByIncidentTable = lazy(
+  () => import("@/components/tables/CallByIncidentTable")
+);
+const TrafficCallTable = lazy(
+  () => import("@/components/tables/TrafficCallTable")
+);
 
 interface MonthlyComplaintData {
   month: string;
@@ -30,13 +40,18 @@ interface MonthlyComplaintData {
   complaints: number;
 }
 
-type TableType = "call-quantity" | "call-by-time" | "call-by-gate" | "call-by-incident" | "traffic-call";
+type TableType =
+  | "call-quantity"
+  | "call-by-time"
+  | "call-by-gate"
+  | "call-by-incident"
+  | "traffic-call";
 const tableOptions = [
   { value: "call-quantity", label: "Jumlah Panggilan per Periode" },
   { value: "call-by-time", label: "Panggilan per Waktu" },
   { value: "call-by-gate", label: "Panggilan per Gate" },
   { value: "call-by-incident", label: "Panggilan per Insiden" },
-  { value: "traffic-call", label: "Panggilan dan Traffic" }
+  { value: "traffic-call", label: "Panggilan dan Traffic" },
 ] as const;
 
 export default function Dashboard() {
@@ -52,12 +67,14 @@ export default function Dashboard() {
       toast.success("Berhasil login!");
       const url = new URL(window.location.href);
       url.searchParams.delete("loginSuccess");
-      window.history.replaceState({}, '', url.toString());
+      window.history.replaceState({}, "", url.toString());
     }
   }, [searchParams]);
 
   const handlePieChartClick = (event: any, chartContext: any, config: any) => {
-    const category = categoryComplaintOptions.labels?.[config.dataPointIndex] as string;
+    const category = categoryComplaintOptions.labels?.[
+      config.dataPointIndex
+    ] as string;
     setSelectedCategory(category);
     setIsModalOpen(true);
   };
@@ -68,85 +85,104 @@ export default function Dashboard() {
       background: "transparent",
       foreColor: "inherit",
       events: {
-        dataPointSelection: handlePieChartClick
+        dataPointSelection: handlePieChartClick,
       },
     },
     labels: ["Informasi", "Teknikal", "Fasilitas", "Layanan"],
-    colors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"],
+    colors: ["#3B82F6", "#F59E0B", "#10B981", "#EF4444"],
+    series: [15, 0, 25, 20], // Updated with your new data
     title: {
       text: "Komplain per Kategori",
-      align: 'center',
+      align: "center",
       style: {
+        fontSize: "16px",
+        fontWeight: "600",
         color: "currentColor",
-        fontSize: '16px',
-        fontWeight: '600',
       },
+      offsetY: 5,
     },
     legend: {
-      position: 'bottom',
-      horizontalAlign: 'center',
+      position: "bottom",
+      horizontalAlign: "center",
       labels: {
         colors: "currentColor",
         useSeriesColors: false,
       },
       itemMargin: {
-        horizontal: 5,
-        vertical: 5
+        horizontal: 8,
+        vertical: 4,
       },
       formatter: function (seriesName, opts) {
-        return seriesName + ": " + opts.w.globals.series[opts.seriesIndex];
-      }
+        return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}`;
+      },
+      fontSize: "12px",
+      offsetY: 5,
     },
     dataLabels: {
       enabled: true,
       style: {
         colors: ["#ffffff"],
-        fontSize: '14px',
-        fontWeight: 'bold',
+        fontSize: "10px", // Reduced font size
+        fontWeight: "bold",
       },
       dropShadow: {
-        enabled: false
+        enabled: false,
       },
-      formatter: function (val: any) {
-        return val.toFixed(1) + '%';
+      formatter: function (val: any, { seriesIndex, w }: any) {
+        // Only show value if percentage is > 5% to avoid clutter
+        return val > 5
+          ? `${w.config.series[seriesIndex]}\n(${Math.round(val)}%)`
+          : "";
       },
-      textAnchor: 'middle'
+      textAnchor: "middle",
+      offsetY: 0,
     },
     plotOptions: {
       pie: {
-        customScale: 1,
         dataLabels: {
-          minAngleToShowLabel: 7,
-        }
-      }
+          minAngleToShowLabel: 10, // Only show labels for slices > 10 degrees
+          offset: 0,
+        },
+        donut: {
+          labels: {
+            show: false,
+          },
+        },
+      },
     },
-    responsive: [{
-      breakpoint: 768,
-      options: {
-        chart: {
-          height: 280
+    responsive: [
+      {
+        breakpoint: 768,
+        options: {
+          chart: {
+            height: 300,
+          },
+          title: {
+            style: {
+              fontSize: "14px",
+            },
+          },
+          legend: {
+            fontSize: "10px",
+            itemMargin: {
+              horizontal: 5,
+              vertical: 2,
+            },
+          },
+          dataLabels: {
+            style: {
+              fontSize: "8px", // Even smaller on mobile
+            },
+          },
         },
-        legend: {
-          position: 'bottom',
-          fontSize: '20px',
-          itemMargin: {
-            horizontal: 3,
-            vertical: 2
-          }
-        },
-        dataLabels: {
-          enabled: true,
-          style: {
-            fontSize: '14px'
-          }
-        },
-        plotOptions: {
-          pie: {
-            customScale: 0.85
-          }
-        }
-      }
-    }]
+      },
+    ],
+    tooltip: {
+      enabled: true,
+      y: {
+        formatter: (value: number) => `${value} komplain`,
+      },
+    },
   };
 
   const monthlyComplaintOptions: ApexOptions = {
@@ -230,55 +266,59 @@ export default function Dashboard() {
         formatter: (value: number) => `${value} komplain`,
       },
     },
-    responsive: [{
-      breakpoint: 768,
-      options: {
-        chart: {
-          height: 250,
-          toolbar: {
-            show: false
-          }
-        },
-        title: {
-          style: {
-            fontSize: '14px'
-          }
-        },
-        xaxis: {
-          labels: {
-            style: {
-              fontSize: '10px'
-            }
-          }
-        },
-        yaxis: {
-          labels: {
-            style: {
-              fontSize: '10px'
-            }
+    responsive: [
+      {
+        breakpoint: 768,
+        options: {
+          chart: {
+            height: 250,
+            toolbar: {
+              show: false,
+            },
           },
           title: {
             style: {
-              fontSize: '12px'
-            }
-          }
-        }
-      }
-    }]
+              fontSize: "14px",
+            },
+          },
+          xaxis: {
+            labels: {
+              style: {
+                fontSize: "10px",
+              },
+            },
+          },
+          yaxis: {
+            labels: {
+              style: {
+                fontSize: "10px",
+              },
+            },
+            title: {
+              style: {
+                fontSize: "12px",
+              },
+            },
+          },
+        },
+      },
+    ],
   };
 
-  const [monthlyComplaintData, setMonthlyComplaintData] = useState<MonthlyComplaintData[]>([]);
+  const [monthlyComplaintData, setMonthlyComplaintData] = useState<
+    MonthlyComplaintData[]
+  >([]);
   const [isLoadingMonthlyData, setIsLoadingMonthlyData] = useState(false);
   const [countInCall, setCountInCall] = useState(0);
 
   const fetchCountInCall = async () => {
     try {
-      const response = await fetchCall(new Date().toISOString().split('T')[0]);
+      const response = await fetchCall(new Date().toISOString().split("T")[0]);
       setCountInCall(response.data._sum.CountInCall);
     } catch (error) {
       console.error("Failed to fetch count in call:", error);
     }
-  }
+  };
 
   const fetchMonthlyComplaintData = async () => {
     setIsLoadingMonthlyData(true);
@@ -286,11 +326,13 @@ export default function Dashboard() {
       const response = await fetchIssuesMonthly();
       const apiData = response.data;
 
-      const data: MonthlyComplaintData[] = apiData.map((item: { month: string; total: number }) => ({
-        month: item.month,
-        date: item.month + "-01",
-        complaints: item.total,
-      }));
+      const data: MonthlyComplaintData[] = apiData.map(
+        (item: { month: string; total: number }) => ({
+          month: item.month,
+          date: item.month + "-01",
+          complaints: item.total,
+        })
+      );
 
       setMonthlyComplaintData(data);
     } catch (error) {
@@ -356,7 +398,13 @@ export default function Dashboard() {
             <div className="flex flex-col gap-2 sm:flex-row sm:gap-6">
               <div className="text-sm">
                 <span className="text-gray-500">Status: </span>
-                <span className={`font-semibold ${connectionStatus === "Connected" ? "text-green-500" : "text-red-500"}`}>
+                <span
+                  className={`font-semibold ${
+                    connectionStatus === "Connected"
+                      ? "text-green-500"
+                      : "text-red-500"
+                  }`}
+                >
                   {connectionStatus}
                 </span>
               </div>
@@ -418,7 +466,7 @@ export default function Dashboard() {
 
           {/* Pie Chart */}
           <div className="bg-white dark:bg-[#222B36] p-3 sm:p-4 rounded-lg">
-            <div className="w-full h-[250px] sm:h-[300px]">
+            <div className="w-full min-h-[250px] sm:h-[300px]">
               <ReactApexChart
                 options={categoryComplaintOptions}
                 series={categoryComplaintSeries}
@@ -438,13 +486,14 @@ export default function Dashboard() {
               <button
                 key={option.value}
                 onClick={() => setActiveTable(option.value)}
-                className={`cursor-pointer px-3 lg:px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-200 border-b-2 ${activeTable === option.value
-                  ? 'text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                  : 'text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-                  }`}
+                className={`cursor-pointer px-3 lg:px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-200 border-b-2 ${
+                  activeTable === option.value
+                    ? "text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20"
+                    : "text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
+                }`}
               >
                 <span className="hidden lg:inline">{option.label}</span>
-                <span className="lg:hidden">{option.label.split(' ')[0]}</span>
+                <span className="lg:hidden">{option.label.split(" ")[0]}</span>
               </button>
             ))}
           </div>
@@ -453,10 +502,10 @@ export default function Dashboard() {
           <div className="mb-4 md:hidden">
             <select
               value={activeTable}
-              onChange={e => setActiveTable(e.target.value as TableType)}
+              onChange={(e) => setActiveTable(e.target.value as TableType)}
               className="w-full rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#222B36] text-gray-900 dark:text-gray-100 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
             >
-              {tableOptions.map(option => (
+              {tableOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
