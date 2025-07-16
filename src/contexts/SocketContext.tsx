@@ -760,6 +760,7 @@ export function GlobalCallPopup() {
   const inTime = detailGate?.inTime || "-";
   const outTime = detailGate?.outTime || "-";
   const issuerName = detailGate?.issuerName || "-";
+  const gracePeriode = detailGate?.gracePeriod || "-";
   const paymentMethod = detailGate?.paymentMethod || "-";
   console.log(detailGate, "<<<<<detailGate");
   
@@ -1370,6 +1371,12 @@ export function GlobalCallPopup() {
                           <span className="text-s">Issuer Name :</span>
                           <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
                             {issuerName || "-"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-s">Grace Periode :</span>
+                          <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
+                            {gracePeriode ? gracePeriode+" menit" : "-"}
                           </span>
                         </div>
                       </>
