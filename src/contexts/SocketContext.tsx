@@ -1482,7 +1482,7 @@ export function GlobalCallPopup() {
                 </div>
 
                 <div>
-                  <label className="block text-s text-s mb-2">Aksi</label>
+                  <label className="block text-s text-s mb-2">Aksi<span className="text-red-500">*</span></label>
                   <div className="flex gap-4">
                     <label className="flex items-center space-x-2 text-sm">
                       <input
