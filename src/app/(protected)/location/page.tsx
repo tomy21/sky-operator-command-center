@@ -297,12 +297,6 @@ export default function LocationPage() {
 
   return (
     <>
-      {/* <Head>
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1.0, user-scalable=yes"
-        />
-      </Head> */}
       <div className="w-full max-w-8xl mx-auto px-2 sm:px-4 py-6">
         <div className="flex flex-col w-full">
           <div className="flex-1 flex flex-col">

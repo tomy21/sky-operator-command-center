@@ -763,14 +763,18 @@ export function GlobalCallPopup() {
   const gracePeriode = detailGate?.gracePeriod || "-";
   const paymentMethod = detailGate?.paymentMethod || "-";
   console.log(detailGate, "<<<<<detailGate");
-  
 
+  // const fotoInUrl = localActiveCall?.imageFileIn?.trim()
+  //   ? `https://devtest09.skyparking.online/uploads/${localActiveCall?.imageFileIn}`
+  //   : "/images/no-image-found-360x250.png";
   const fotoInUrl = localActiveCall?.imageFileIn?.trim()
-    ? `https://devtest09.skyparking.online/uploads/${localActiveCall?.imageFileIn}`
+    ? `/api/image-proxy?filename=${encodeURIComponent(
+        localActiveCall.imageFileIn
+      )}`
     : "/images/no-image-found-360x250.png";
 
   const photoCaptureUrl = localActiveCall?.imageFile?.filename
-    ? `https://devtest09.skyparking.online/uploads/${localActiveCall?.imageFile?.filename}`
+    ? `/api/image-proxy?filename=${localActiveCall?.imageFile?.filename}`
     : "/images/no-image-found-360x250.png";
 
   const handleCreateIssue = async () => {
@@ -1247,8 +1251,8 @@ export function GlobalCallPopup() {
                     <div className="flex justify-between items-start">
                       <span className="text-s">Waktu Keluar :</span>
                       <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                        {outTime && outTime!== ""
-                         ? formatTanggalLocal(outTime?.toString())
+                        {outTime && outTime !== ""
+                          ? formatTanggalLocal(outTime?.toString())
                           : "-"}
                       </span>
                     </div>
@@ -1364,7 +1368,7 @@ export function GlobalCallPopup() {
                         <div className="flex justify-between items-center">
                           <span className="text-s">Metode Pembayaran :</span>
                           <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                              {paymentMethod || "-"}
+                            {paymentMethod || "-"}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
@@ -1376,7 +1380,7 @@ export function GlobalCallPopup() {
                         <div className="flex justify-between items-center">
                           <span className="text-s">Grace Periode :</span>
                           <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                            {gracePeriode ? gracePeriode+" menit" : "-"}
+                            {gracePeriode ? gracePeriode + " menit" : "-"}
                           </span>
                         </div>
                       </>
