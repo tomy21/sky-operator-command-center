@@ -770,7 +770,7 @@ export function GlobalCallPopup() {
     : "/images/no-image-found-360x250.png";
 
   const photoCaptureUrl = localActiveCall?.imageFile?.filename
-    ? `/api/image-proxy?filename=${localActiveCall?.imageFile?.filename}`
+    ? `/api/image-proxy?filename=${encodeURIComponent(localActiveCall?.imageFile?.filename)}`
     : "/images/no-image-found-360x250.png";
 
   const handleCreateIssue = async () => {
