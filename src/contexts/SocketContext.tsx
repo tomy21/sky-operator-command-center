@@ -1763,11 +1763,11 @@ export function GlobalCallPopup() {
                   <div className="text-center">
                     <p className="text-sm text-s mb-2">
                       Foto Capture
-                      {activeCall?.imageFile?.filename && (
+                      {/* {activeCall?.imageFile?.filename && (
                         <span className="text-s text-green-600 ml-1">
                           (Live)
                         </span>
-                      )}
+                      )} */}
                     </p>
                     <div className="bg-gray-600 rounded-lg inline-block">
                       {!imageErrors.photoCapture ? (
