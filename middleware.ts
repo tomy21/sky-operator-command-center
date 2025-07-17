@@ -7,26 +7,21 @@ export function middleware(request: NextRequest) {
     "/location",
     "/master",
     "/reports",
-    // tambahkan path lain jika perlu
   ];
 
   const { pathname } = request.nextUrl;
 
-  // Cek apakah path perlu proteksi
   const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
 
   if (!isProtected) return NextResponse.next();
 
-  // Ambil token dari cookies
   const token = request.cookies.get("token")?.value;
-  // Jika tidak ada token, redirect ke login
   if (!token) {
     const loginUrl = new URL("/login", request.url);
     return NextResponse.redirect(loginUrl);
   }
 
   if (pathname.startsWith("/login") && token) {
-    // Sudah login, redirect ke halaman sebelumnya jika ada
     const redirectTo = request.nextUrl.searchParams.get("redirect") || "/";
     return NextResponse.redirect(new URL(redirectTo, request.url));
   }
@@ -36,7 +31,6 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Aktifkan middleware hanya untuk path tertentu
 export const config = {
   matcher: [
     "/dashboard/:path*",
