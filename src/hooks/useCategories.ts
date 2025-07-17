@@ -1,3 +1,5 @@
+import { unauthorizedAPI } from "@/utils/unauthorizedURL";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface Category {
   id: number;
@@ -44,8 +46,8 @@ export const fetchCategories = async (page = 1, limit = 5) => {
 
   } catch (err) {
     console.error('Error fetching categories: ', err);
+    unauthorizedAPI(err);
     throw err;
-
   }
 };
 
@@ -103,7 +105,7 @@ export const editCategory = async (category: any) => {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({name: category.name})
+      body: JSON.stringify({ name: category.name })
     });
 
     if (!response.ok) {

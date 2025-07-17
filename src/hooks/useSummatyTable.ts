@@ -1,4 +1,5 @@
 import { CallQuantityParams, CallQuantityResponse } from "@/types/callQuantity";
+import { unauthorizedAPI } from "@/utils/unauthorizedURL";
 import { useEffect, useState } from "react";
 // Fetch function
 export const fetchCallQuantity = async (params?: CallQuantityParams): Promise<CallQuantityResponse> => {
@@ -22,6 +23,7 @@ export const fetchCallQuantity = async (params?: CallQuantityParams): Promise<Ca
         return data;
     } catch (err) {
         console.error("Error fetching call quantity data: ", err);
+        unauthorizedAPI(err);
         throw err;
     }
 };
