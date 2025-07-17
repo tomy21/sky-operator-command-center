@@ -762,11 +762,7 @@ export function GlobalCallPopup() {
   const issuerName = detailGate?.issuerName || "-";
   const gracePeriode = detailGate?.gracePeriod || "-";
   const paymentMethod = detailGate?.paymentMethod || "-";
-  console.log(detailGate, "<<<<<detailGate");
 
-  // const fotoInUrl = localActiveCall?.imageFileIn?.trim()
-  //   ? `https://devtest09.skyparking.online/uploads/${localActiveCall?.imageFileIn}`
-  //   : "/images/no-image-found-360x250.png";
   const fotoInUrl = localActiveCall?.imageFileIn?.trim()
     ? `/api/image-proxy?filename=${encodeURIComponent(
         localActiveCall.imageFileIn
