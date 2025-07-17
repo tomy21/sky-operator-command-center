@@ -183,3 +183,19 @@ export const LocationIcon2 = ({ className }: { className?: string }) => (
     <circle cx="12" cy="9" r="2.5" fill="white" />
   </svg>
 );
+
+export const CloseIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={`${className} w-5 h-5 sm:w-6 sm:h-6`}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M6 18L18 6M6 6l12 12"
+    />
+  </svg>
+);

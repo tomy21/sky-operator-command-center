@@ -13,6 +13,7 @@ import { getStatusColor } from "@/utils/statusColorBedge";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { CloseIcon } from "@/public/icons/Icons";
 
 interface Location {
   Code: string;
@@ -239,19 +240,7 @@ export default function CheckTicketModal({
             onClick={handleClose}
             className="cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1"
           >
-            <svg
-              className="w-5 h-5 sm:w-6 sm:h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <CloseIcon/>
           </button>
         </div>
 
