@@ -115,8 +115,8 @@ export const CalenderIcon = ({ className }: { className?: string }) => (
       x2="16"
       y2="6"
       stroke="#374151"
-      stroke-width="1.5"
-      stroke-linecap="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
     />
     <line
       x1="8"
@@ -124,10 +124,10 @@ export const CalenderIcon = ({ className }: { className?: string }) => (
       x2="8"
       y2="6"
       stroke="#374151"
-      stroke-width="1.5"
-      stroke-linecap="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
     />
-    <line x1="3" y1="10" x2="21" y2="10" stroke="white" stroke-width="1" />
+    <line x1="3" y1="10" x2="21" y2="10" stroke="white" strokeWidth="1" />
     <circle cx="8" cy="14" r="1" fill="white" />
     <circle cx="12" cy="14" r="1" fill="white" />
     <circle cx="16" cy="14" r="1" fill="white" />
@@ -160,8 +160,8 @@ export const TicketIcon = ({ className }: { className?: string }) => (
       x2="12"
       y2="18"
       stroke="white"
-      stroke-width="1"
-      stroke-dasharray="2,2"
+      strokeWidth="1"
+      strokeDasharray="2,2"
     />
   </svg>
 );
