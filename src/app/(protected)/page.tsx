@@ -316,7 +316,7 @@ export default function Dashboard() {
       const response = await fetchCall(new Date().toISOString().split("T")[0]);
       setCountInCall(response.data._sum.CountInCall);
     } catch (error) {
-      console.error("Failed to fetch count in call:", error);
+      console.error("Failed to fetch count in call");
     }
   };
 

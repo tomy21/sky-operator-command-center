@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -129,7 +130,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       setActiveCall(null);
       setCallInTime(null);
     } catch (err) {
-      console.error("Error ending call:", err);
+      console.error("Error ending call");
       toast.error("Failed to end call");
     }
   };
@@ -296,7 +297,7 @@ export function GlobalCallPopup() {
         idDescription: categoryId,
       });
     } catch (error) {
-      console.error("Gagal menambahkan deskripsi:", error);
+      console.error("Gagal menambahkan deskripsi");
       throw error;
     }
   };
@@ -336,7 +337,7 @@ export function GlobalCallPopup() {
       const response = await fetchNewTransaction(plateNumber, locationId);
       return response;
     } catch (error) {
-      console.error("Error fetching transaction:", error);
+      console.error("Error fetching transaction");
       throw error;
     }
   };
@@ -363,7 +364,7 @@ export function GlobalCallPopup() {
         toast.error("Data transaksi tidak ditemukan atau format tidak valid");
       }
     } catch (error) {
-      console.error("Error searching transaction:", error);
+      console.error("Error searching transaction");
       toast.error("Gagal mengambil data transaksi");
     } finally {
       setIsSearchingTransaction(false);
@@ -484,7 +485,7 @@ export function GlobalCallPopup() {
         throw new Error(response.message || "Gagal mengirim WhatsApp");
       }
     } catch (error) {
-      console.error("Error sending WhatsApp:", error);
+      console.error("Error sending WhatsApp");
       toast.error("Gagal mengirim tiket via WhatsApp");
     } finally {
       setIsSendingWhatsApp(false);
@@ -503,7 +504,7 @@ export function GlobalCallPopup() {
       const response = await createTransaction(transactionReqData);
       if (response.success && response.data?.data) {
         const transactionData = response.data.data;
-        console.log(transactionData, "<<<<transactionData");
+        // console.log(transactionData, "<<<<transactionData");
 
         setTransactionSuccessData({
           transactionNo: transactionData.data.transactionNo,
@@ -559,7 +560,7 @@ export function GlobalCallPopup() {
         throw new Error(response.message || "Gagal membuat transaksi");
       }
     } catch (error) {
-      console.error("Error sending WhatsApp:", error);
+      console.error("Error sending WhatsApp");
       setIsModalDetailCreateTransactionOpen(false);
       toast.error("Gagal membuat transaksi baru");
     }
@@ -613,7 +614,7 @@ export function GlobalCallPopup() {
         isLoadingMore: false,
       }));
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      console.error("Error fetching categories");
       toast.error("Gagal memuat kategori");
       setCategoryPagination((prev) => ({ ...prev, isLoadingMore: false }));
     } finally {
@@ -682,7 +683,7 @@ export function GlobalCallPopup() {
 
         setDescriptionOptions(options);
       } catch (error) {
-        console.error("Error fetching description by category ID:", error);
+        console.error("Error fetching description by category ID");
         toast.error("Gagal memuat deskripsi untuk kategori ini");
         setDescriptionOptions([]);
       } finally {
@@ -720,7 +721,7 @@ export function GlobalCallPopup() {
         toast.error("Gagal membuka gate");
       }
     } catch (error) {
-      console.error("Error opening gate:", error);
+      console.error("Error opening gate");
       toast.error("Terjadi kesalahan");
     }
   };
@@ -808,7 +809,7 @@ export function GlobalCallPopup() {
           finalDescription = manualDescription.trim();
           toast.success("Deskripsi baru berhasil ditambahkan");
         } catch (error) {
-          console.error("Error adding description:", error);
+          console.error("Error adding description");
           toast.error("Gagal menambahkan deskripsi baru");
           return;
         } finally {
@@ -849,7 +850,7 @@ export function GlobalCallPopup() {
         toast.error("Gagal membuat issue report");
       }
     } catch (error) {
-      console.error("Error create issue:", error);
+      console.error("Error create issue");
       toast.error("Terjadi kesalahan saat membuat issue report");
     } finally {
       setIsCreateIssue(false);

@@ -216,7 +216,7 @@ export default function MasterPage() {
         searchTerm: search,
       }));
     } catch (error) {
-      console.error("Error loading category options:", error);
+      console.error("Error loading category options");
     } finally {
       setCategorySelectPagination((prev) => ({
         ...prev,
@@ -289,7 +289,7 @@ export default function MasterPage() {
 
       markTabAsLoaded("description");
     } catch (error) {
-      console.error("Error fetching descriptions:", error);
+      console.error("Error fetching descriptions");
     } finally {
       setIsDataLoading(false);
       markTabAsLoaded("description");
@@ -323,7 +323,7 @@ export default function MasterPage() {
         setNewCategoryName({ id: null, categoryName: "" });
       }
     } catch (error) {
-      console.error("Error fetching category detail:", error);
+      console.error("Error fetching category detail");
     } finally {
       setIsDataLoading(false);
     }
@@ -345,7 +345,7 @@ export default function MasterPage() {
       });
       setShowAddModal(true);
     } catch (error) {
-      console.error("Error fetching category detail:", error);
+      console.error("Error fetching category detail");
     } finally {
       setIsDataLoading(false);
     }
@@ -478,9 +478,9 @@ export default function MasterPage() {
     } catch (error) {
       setShowAddModal(false);
       if (isEditing) {
-        console.error("Gagal mengubah kategori:", error);
+        console.error("Gagal mengubah kategori");
       } else {
-        console.error("Gagal menambahkan kategori:", error);
+        console.error("Gagal menambahkan kategori");
       }
     } finally {
       fetchCategoriesData();
@@ -508,9 +508,9 @@ export default function MasterPage() {
     } catch (error) {
       setShowAddModal(false);
       if (isEditing) {
-        console.error("Gagal mengubah deskripsi:", error);
+        console.error("Gagal mengubah deskripsi");
       } else {
-        console.error("Gagal menambahkan deskripsi:", error);
+        console.error("Gagal menambahkan deskripsi");
       }
       setIsEditing(false);
     } finally {

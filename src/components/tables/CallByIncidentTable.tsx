@@ -1282,7 +1282,7 @@ const CallByIncidentTable: React.FC = () => {
     { key: "total", label: "TOTAL", bgColor: "bg-blue-50 dark:bg-blue-900" },
   ];
 
-  console.log(paginatedLocations, "<<<paginatedLocations");
+  // console.log(paginatedLocations, "<<<paginatedLocations");
 
   return (
     <div className="bg-white dark:bg-[#222B36] rounded-lg p-4 md:p-6">

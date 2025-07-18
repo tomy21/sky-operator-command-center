@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -87,7 +88,7 @@ export const ComplaintModal: React.FC<ComplaintModalProps> = ({
                 setComplaintDetails(dummyComplaintData[category] || []);
             }
         } catch (error) {
-            console.error('Error fetching complaint data:', error);
+            console.error('Error fetching complaint data');
             // Fallback to dummy data on error
             setComplaintDetails(dummyComplaintData[category] || []);
         } finally {

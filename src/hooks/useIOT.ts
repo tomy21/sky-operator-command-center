@@ -20,7 +20,7 @@ export const changeStatusGate = async (gateId: string | number, status: "OPEN" |
 
         return await response.json();
     } catch (error) {
-        console.error('Error change gate status:', error);
+        console.error('Error change gate status');
         throw error;
     }
 };
@@ -45,7 +45,7 @@ export const pingArduino = async (dataId: number) => {
 
         return await response.json();
     } catch (error) {
-        console.error('Error ping arduino:', error);
+        console.error('Error ping arduino');
         throw error;
     }
 };
@@ -70,7 +70,7 @@ export const pushGetId = async (data: any) => {
 
         return await response.json();
     } catch (error) {
-        console.error('Error ping arduino:', error);
+        console.error('Error ping arduino');
         throw error;
     }
 };
@@ -95,7 +95,7 @@ export const endCall = async (data: any) => {
 
         return await response.json();
     } catch (error) {
-        console.error('Error end call:', error);
+        console.error('Error end call');
         throw error;
     }
 };

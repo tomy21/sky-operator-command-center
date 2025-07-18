@@ -72,7 +72,7 @@ export default function Login() {
       router.push("/?loginSuccess=1");
       window.dispatchEvent(new Event("loginSuccess"));
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Login error");
       let errorMessage = "Terjadi kesalahan saat login";
 
       if (error instanceof Error) {

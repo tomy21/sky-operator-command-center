@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { fetchLocation } from "@/hooks/useLocation";
@@ -88,7 +89,7 @@ export default function CheckTicketModal({
         setLocations(locationData.data);
       }
     } catch (error) {
-      console.error("Error fetching locations:", error);
+      console.error("Error fetching locations");
       toast.error("Gagal memuat data lokasi");
     } finally {
       setLoadingLocations(false);
@@ -157,7 +158,7 @@ export default function CheckTicketModal({
       setTicketData(data.data);
       setNotFound(false);
     } catch (error) {
-      console.error("Error fetching transaction:", error);
+      console.error("Error fetching transaction");
       toast.error("Data tidak ditemukan");
       setNotFound(true);
       setTicketData(null);

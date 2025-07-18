@@ -71,7 +71,7 @@ export const fetchIssues = async (page = 1, limit = 5, search = '', date = '', l
       throw new Error("Format data tidak valid");
     }
   } catch (err) {
-    console.error("Error fetching issues: ", err);
+    console.error("Error fetching issues");
     throw err;
   }
 };
@@ -88,7 +88,7 @@ export const fetchIssueDetail = async (id: number) => {
 
     return data;
   } catch (err) {
-    console.error("Error fetching descriptions: ", err);
+    console.error("Error fetching descriptions");
     throw err;
   }
 };
@@ -121,7 +121,7 @@ export const addIssue = async (issue: any) => {
 
     return await response.json();
   } catch (error) {
-    console.error("Error adding issue / report:", error);
+    console.error("Error adding issue / report");
     throw error;
   }
 };
@@ -142,7 +142,7 @@ export const fetchIssuesMonthly = async () => {
       throw new Error("Format data tidak valid");
     }
   } catch (err) {
-    console.error("Error fetching descriptions: ", err);
+    console.error("Error fetching descriptions");
     throw err;
   }
 };

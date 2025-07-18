@@ -9,7 +9,7 @@ export const fetchCall = async (date: string) => {
 
         return await response.json();
     } catch (error) {
-        console.error('Error get call data:', error);
+        console.error('Error get call data');
         throw error;
     }
 };

@@ -45,7 +45,7 @@ export const fetchCategories = async (page = 1, limit = 5) => {
     }
 
   } catch (err) {
-    console.error('Error fetching categories: ', err);
+    console.error('Error fetching categories');
     unauthorizedAPI(err);
     throw err;
   }
@@ -61,7 +61,7 @@ export const fetchCategoryDetail = async (id: number) => {
     const data: CategoryResponse = await response.json();
     return data.data;
   } catch (error) {
-    console.error('Error get detail category:', error);
+    console.error('Error get detail category');
     throw error;
   }
 };
@@ -92,7 +92,7 @@ export const addCategory = async (category: any) => {
 
     return await response.json();
   } catch (error) {
-    console.error('Error adding category:', error);
+    console.error('Error adding category');
     throw error;
   }
 };
@@ -115,7 +115,7 @@ export const editCategory = async (category: any) => {
 
     return await response.json();
   } catch (error) {
-    console.error('Error editing category:', error);
+    console.error('Error editing category');
     throw error;
   }
 };
@@ -136,7 +136,7 @@ export const deleteCategory = async (id: number): Promise<void> => {
       throw new Error(errorData.message || 'Gagal menghapus kategori');
     }
   } catch (error) {
-    console.error('Error deleting category:', error);
+    console.error('Error deleting category');
     throw error;
   }
 };

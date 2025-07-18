@@ -22,7 +22,7 @@ export const fetchCallQuantity = async (params?: CallQuantityParams): Promise<Ca
         const data: CallQuantityResponse = await response.json();
         return data;
     } catch (err) {
-        console.error("Error fetching call quantity data: ", err);
+        console.error("Error fetching call quantity data");
         unauthorizedAPI(err);
         throw err;
     }

@@ -63,7 +63,7 @@ export const fetchTransaction = async (
       throw new Error("Format data tidak valid");
     }
   } catch (err) {
-    console.error("Error fetching transaction: ", err);
+    console.error("Error fetching transaction");
     throw err;
   }
 };
@@ -121,7 +121,7 @@ export const fetchNewTransaction = async (
       throw new Error("Format data tidak valid");
     }
   } catch (err) {
-    console.error("Error fetching transaction: ", err);
+    console.error("Error fetching transaction");
     throw err;
   }
 };
@@ -151,7 +151,7 @@ export const sendWhatsApp = async (data: any) => {
 
     return await response.json();
   } catch (error) {
-    console.error("Error send whatsapp message: ", error);
+    console.error("Error send whatsapp message");
     throw error;
   }
 };
@@ -174,7 +174,7 @@ export const createTransaction = async (data: any) => {
 
     return await response.json();
   } catch (error) {
-    console.error("Error send whatsapp message: ", error);
+    console.error("Error send whatsapp message");
     throw error;
   }
 };
@@ -194,7 +194,7 @@ export const generateTicket = async (
 
     return response;
   } catch (err) {
-    console.error("Error generate transaction: ", err);
+    console.error("Error generate transaction");
     throw err;
   }
 };

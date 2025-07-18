@@ -36,12 +36,12 @@ export default function Register() {
       //   credentialCode: formData.credentialCode,
       // });
 
-      console.log("Register data:", formData);
+      // console.log("Register data:", formData);
       
       router.push("/login?registerSuccess=1");
       
     } catch (error) {
-      console.error("Register error:", error);
+      console.error("Register error");
       let errorMessage = "Terjadi kesalahan saat registrasi";
 
       if (error instanceof Error) {

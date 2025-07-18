@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -177,7 +178,7 @@ export default function ReportsPage() {
         });
       }
     } catch (error) {
-      console.error("Error fetching issues:", error);
+      console.error("Error fetching issues");
     } finally {
       setIsDataLoading(false);
     }
@@ -223,7 +224,7 @@ export default function ReportsPage() {
         isLoading: false,
       }));
     } catch (error) {
-      console.error("Error fetching locations:", error);
+      console.error("Error fetching locations");
       setLocationPagination((prev) => ({ ...prev, isLoading: false }));
     }
   };
@@ -261,7 +262,7 @@ export default function ReportsPage() {
         isLoading: false,
       }));
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      console.error("Error fetching categories");
       setCategoriesPagination((prev) => ({ ...prev, isLoading: false }));
     }
   };
@@ -307,7 +308,7 @@ export default function ReportsPage() {
         try {
           await fetchAllGates(parseInt(value), 10, true);
         } catch (error) {
-          console.error("Error fetching gates:", error);
+          console.error("Error fetching gates");
         }
       }
 
@@ -321,7 +322,7 @@ export default function ReportsPage() {
         try {
           await fetchAllDescriptions(parseInt(value), 10, true);
         } catch (error) {
-          console.error("Error fetching descriptions:", error);
+          console.error("Error fetching descriptions");
         }
       }
     },
@@ -364,7 +365,7 @@ export default function ReportsPage() {
         }));
       }
     } catch (error) {
-      console.error("Error fetching gates:", error);
+      console.error("Error fetching gates");
       setGateIdData([]);
       setGatesPagination((prev) => ({ ...prev, isLoading: false }));
     }
@@ -413,7 +414,7 @@ export default function ReportsPage() {
         isLoading: false,
       }));
     } catch (error) {
-      console.error("Error fetching descriptions:", error);
+      console.error("Error fetching descriptions");
       setDescriptions([]);
       setDescriptionsPagination((prev) => ({ ...prev, isLoading: false }));
     }
@@ -447,7 +448,7 @@ export default function ReportsPage() {
       });
       await fetchAllDescriptions(categoryId);
     } catch (error) {
-      console.error("Gagal menambahkan deskripsi:", error);
+      console.error("Gagal menambahkan deskripsi");
       throw error;
     }
   };
@@ -467,8 +468,7 @@ export default function ReportsPage() {
           finalDescription = values.customDescription;
         } catch (error) {
           console.error(
-            "Failed to add new description, continuing with custom description",
-            error
+            "Failed to add new description, continuing with custom description"
           );
           finalDescription = values.customDescription;
         }
@@ -495,7 +495,7 @@ export default function ReportsPage() {
       setGateIdData([]);
       setDescriptions([]);
     } catch (error) {
-      console.error("Error creating new report:", error);
+      console.error("Error creating new report");
       toast.error("Failed to create report. Please try again.");
     } finally {
       setIsDataLoading(false);
@@ -803,7 +803,7 @@ export default function ReportsPage() {
                     )}
                   />
                   <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    <CalenderIcon/>
+                    <CalenderIcon />
                   </span>
                 </div>
 
@@ -816,7 +816,7 @@ export default function ReportsPage() {
                     className="px-4 py-2 border rounded-lg pl-10 w-full"
                   />
                   <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    <LocationIcon2/>
+                    <LocationIcon2 />
                   </span>
                 </div>
 
@@ -829,7 +829,7 @@ export default function ReportsPage() {
                     className="px-4 py-2 border rounded-lg pl-10 w-full"
                   />
                   <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    <TicketIcon/>
+                    <TicketIcon />
                   </span>
                 </div>
 

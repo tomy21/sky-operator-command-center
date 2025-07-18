@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 
@@ -99,7 +100,7 @@ export function useCheckTicket(): UseCheckTicketReturn {
         throw new Error(data.message || "Ticket not found");
       }
     } catch (apiError) {
-      console.warn("API call failed, using dummy data:", apiError);
+      console.warn("API call failed, using dummy data");
       setError("Menggunakan data contoh (API tidak tersedia)");
 
       const modifiedDummyData = { ...dummyTicketData };

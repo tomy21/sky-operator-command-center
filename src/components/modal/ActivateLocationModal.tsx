@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
@@ -80,7 +81,7 @@ const ActivateLocationModal: React.FC<ActivateLocationModalProps> = ({
         );
       }
     } catch (error) {
-      console.error("Error fetching locations:", error);
+      console.error("Error fetching locations");
       toast.error("Gagal memuat data lokasi");
     } finally {
       setIsLoading(false);
@@ -114,7 +115,7 @@ const ActivateLocationModal: React.FC<ActivateLocationModalProps> = ({
         onSuccess();
       }
     } catch (error) {
-      console.error("Error activating location:", error);
+      console.error("Error activating location");
       toast.error("Gagal mengaktifkan lokasi");
     } finally {
       setIsSubmitting(false);

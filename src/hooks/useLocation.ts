@@ -89,7 +89,7 @@ export const fetchLocation = async (page = 1, limit = 5) => {
         }
 
     } catch (err) {
-        console.error('Error fetching locations: ', err);
+        console.error('Error fetching locations');
         throw err;
     }
 };
@@ -105,7 +105,7 @@ export const fetchLocationById = async (id: number) => {
         const data: LocationDetailResponse = await response.json();
         return data;
     } catch (err) {
-        console.error('Error fetching location by ID: ', err);
+        console.error('Error fetching location by ID');
         throw err;
     }
 }
@@ -121,7 +121,7 @@ export const fetchGateByLocation = async (locationData: any) => {
         const data: GateByLocationResponse = await response.json();
         return data;
     } catch (err) {
-        console.error('Error fetching location by ID: ', err);
+        console.error('Error fetching location by ID');
         throw err;
     }
 }
@@ -143,7 +143,7 @@ export const fetchLocationActive = async (page = 1, limit = 5) => {
         }
 
     } catch (err) {
-        console.error('Error fetching locations: ', err);
+        console.error('Error fetching locations');
         throw err;
     }
 };
@@ -168,7 +168,7 @@ export const updateLocation = async (location: any) => {
 
         return await response.json();
     } catch (error) {
-        console.error('Error editing location:', error);
+        console.error('Error editing location');
         throw error;
     }
 };
@@ -193,7 +193,7 @@ export const openGate = async (gateId: number | string) => {
 
         return await response.json();
     } catch (error) {
-        console.error('Error open gate:', error);
+        console.error('Error open gate');
         throw error;
     }
 };
@@ -218,7 +218,7 @@ export const createGate = async (gate: any) => {
 
         return await response.json();
     } catch (error) {
-        console.error('Error create gate:', error);
+        console.error('Error create gate');
         throw error;
     }
 };

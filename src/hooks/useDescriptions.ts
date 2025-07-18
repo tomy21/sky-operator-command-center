@@ -44,7 +44,7 @@ export const fetchDescriptions = async (page = 1, limit = 5) => {
         }
 
     } catch (err) {
-        console.error('Error fetching descriptions: ', err);
+        console.error('Error fetching descriptions');
         throw err;
     }
 };
@@ -59,7 +59,7 @@ export const fetchDescriptionByCategoryId = async (id: number) => {
         const data: DescriptionDetailResponse = await response.json();
         return data.data;
     } catch (error) {
-        console.error('Error get detail description:', error);
+        console.error('Error get detail description');
         throw error;
     }
 };
@@ -91,7 +91,7 @@ export const addDescription = async (category: any) => {
 
         return await response.json();
     } catch (error) {
-        console.error('Error adding employee:', error);
+        console.error('Error adding employee');
         throw error;
     }
 };
@@ -117,7 +117,7 @@ export const editDescription = async (description: any) => {
 
         return await response.json();
     } catch (error) {
-        console.error('Error editing description:', error);
+        console.error('Error editing description');
         throw error;
     }
 };
@@ -137,7 +137,7 @@ export const deleteDescription = async (id: number): Promise<void> => {
             throw new Error(errorData.message || 'Gagal menghapus kategori');
         }
     } catch (error) {
-        console.error('Error deleting category:', error);
+        console.error('Error deleting category');
         throw error;
     }
 };

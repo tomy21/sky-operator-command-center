@@ -22,7 +22,7 @@ export const LoginAuth = async (loginRequest: LoginRequest) => {
 
         return await response.json();
     } catch (error) {
-        console.error('Error login:', error);
+        console.error('Error login');
         throw error;
     }
 };
