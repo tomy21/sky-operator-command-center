@@ -1,6 +1,6 @@
 const nextConfig = {
   images: {
-    domains: ['devtest09.skyparking.online'],
+    domains: [process.env.NEXT_PUBLIC_API_BASE_URL],
   },
   async rewrites() {
     if (!process.env.NEXT_PUBLIC_API_BASE_URL) {

@@ -32,6 +32,7 @@ import { validateWhatsAppNumber } from "@/utils/formatPhoneNumber";
 import { getStatusColor } from "@/utils/statusColorBedge";
 import { Eye, X, User, Mail, Car } from "lucide-react";
 import { CountdownCircle } from "@/components/Countdown";
+import ImageWithLoader from "@/components/ImageLoader";
 interface SocketContextType {
   socket: any;
   connectionStatus: string;
@@ -771,7 +772,9 @@ export function GlobalCallPopup() {
     : "/images/no-image-found-360x250.png";
 
   const photoCaptureUrl = localActiveCall?.imageFile?.filename
-    ? `/api/image-proxy?filename=${encodeURIComponent(localActiveCall?.imageFile?.filename)}`
+    ? `/api/image-proxy?filename=${encodeURIComponent(
+        localActiveCall?.imageFile?.filename
+      )}`
     : "/images/no-image-found-360x250.png";
 
   const handleCreateIssue = async () => {
@@ -1483,7 +1486,9 @@ export function GlobalCallPopup() {
                 </div>
 
                 <div>
-                  <label className="block text-s text-s mb-2">Aksi<span className="text-red-500">*</span></label>
+                  <label className="block text-s text-s mb-2">
+                    Aksi<span className="text-red-500">*</span>
+                  </label>
                   <div className="flex gap-4">
                     <label className="flex items-center space-x-2 text-sm">
                       <input
@@ -1723,7 +1728,7 @@ export function GlobalCallPopup() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Foto In */}
                   <div className="text-center">
-                    <p className="text-sm text-s mb-2">Foto In</p>
+                    {/* <p className="text-sm text-s mb-2">Foto In</p>
                     <div className="bg-gray-600 rounded-lg inline-block">
                       {!imageErrors.photoIn ? (
                         <Image
@@ -1757,52 +1762,34 @@ export function GlobalCallPopup() {
                           <span className="text-sm">Foto In</span>
                         </div>
                       )}
+                    </div> */}
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                      Foto In
+                    </p>
+                    <div className="flex justify-center">
+                      <ImageWithLoader
+                        src={fotoInUrl}
+                        alt="Foto In"
+                        width={420}
+                        height={220}
+                        className="w-full max-w-[420px]"
+                      />
                     </div>
                   </div>
 
                   {/* Foto Capture - Now using base64 image */}
                   <div className="text-center">
-                    <p className="text-sm text-s mb-2">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
                       Foto Capture
-                      {/* {activeCall?.imageFile?.filename && (
-                        <span className="text-s text-green-600 ml-1">
-                          (Live)
-                        </span>
-                      )} */}
                     </p>
-                    <div className="bg-gray-600 rounded-lg inline-block">
-                      {!imageErrors.photoCapture ? (
-                        <Image
-                          src={photoCaptureUrl}
-                          alt="Foto Capture"
-                          width={420}
-                          height={220}
-                          className="w-[420px] h-[220px] object-cover rounded-lg"
-                          onError={() => {
-                            setImageErrors((prev) => ({
-                              ...prev,
-                              photoCapture: true,
-                            }));
-                          }}
-                        />
-                      ) : (
-                        <div className="flex flex-col items-center justify-center h-full">
-                          <svg
-                            className="w-12 h-12 text-gray-400 mb-2"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
-                          <span className="text-sm">Foto Capture</span>
-                        </div>
-                      )}
+                    <div className="flex justify-center">
+                      <ImageWithLoader
+                        src={photoCaptureUrl}
+                        alt="Foto Capture"
+                        width={420}
+                        height={220}
+                        className="w-full max-w-[420px]"
+                      />
                     </div>
                   </div>
                 </div>

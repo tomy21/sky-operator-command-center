@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const imageUrl = `https://devtest09.skyparking.online/uploads/${filename}`;
+    const imageUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${filename}`;
     const response = await fetch(imageUrl);
 
     if (!response.ok) throw new Error('Image not found');
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     return new Response(imageBuffer, {
       status: 200,
       headers: {
-        'Content-Type': headers.get('content-type') || 'image/jpeg',
+        'Content-Type': headers.get('content-type') || 'image/jpeg' || 'image/png',
         'Cache-Control': 'public, max-age=31536000, immutable'
       }
     });
