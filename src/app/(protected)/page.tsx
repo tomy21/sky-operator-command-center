@@ -90,7 +90,7 @@ export default function Dashboard() {
     },
     labels: ["Informasi", "Teknikal", "Fasilitas", "Layanan"],
     colors: ["#3B82F6", "#F59E0B", "#10B981", "#EF4444"],
-    series: [15, 0, 25, 20], // Updated with your new data
+    series: [15, 0, 25, 20],
     title: {
       text: "Komplain per Kategori",
       align: "center",
@@ -122,14 +122,13 @@ export default function Dashboard() {
       enabled: true,
       style: {
         colors: ["#ffffff"],
-        fontSize: "10px", // Reduced font size
+        fontSize: "10px",
         fontWeight: "bold",
       },
       dropShadow: {
         enabled: false,
       },
       formatter: function (val: any, { seriesIndex, w }: any) {
-        // Only show value if percentage is > 5% to avoid clutter
         return val > 5
           ? `${w.config.series[seriesIndex]}\n(${Math.round(val)}%)`
           : "";
@@ -140,7 +139,7 @@ export default function Dashboard() {
     plotOptions: {
       pie: {
         dataLabels: {
-          minAngleToShowLabel: 10, // Only show labels for slices > 10 degrees
+          minAngleToShowLabel: 10,
           offset: 0,
         },
         donut: {
@@ -171,7 +170,7 @@ export default function Dashboard() {
           },
           dataLabels: {
             style: {
-              fontSize: "8px", // Even smaller on mobile
+              fontSize: "8px",
             },
           },
         },
@@ -190,7 +189,7 @@ export default function Dashboard() {
       type: "line",
       height: 350,
       background: "transparent",
-      foreColor: "currentColor", // Changed from "#E0E0E0" to "currentColor"
+      foreColor: "currentColor",
       toolbar: {
         show: true,
         tools: {
@@ -453,7 +452,6 @@ export default function Dashboard() {
                       height: "100%",
                       width: "100%",
                     },
-                    // theme: { mode: "dark" },
                   }}
                   series={chartSeries}
                   type="line"
