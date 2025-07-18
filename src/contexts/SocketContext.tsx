@@ -33,6 +33,7 @@ import { getStatusColor } from "@/utils/statusColorBedge";
 import { Eye, X, User, Mail, Car } from "lucide-react";
 import { CountdownCircle } from "@/components/Countdown";
 import ImageWithLoader from "@/components/ImageLoader";
+import { formatDuration } from "@/utils/formatDuration";
 interface SocketContextType {
   socket: any;
   connectionStatus: string;
@@ -409,6 +410,7 @@ export function GlobalCallPopup() {
         duration: transaction.duration || 0,
         tariff: transaction.tariff || 0,
         vehicleType: transaction.vehicleType || "-",
+        gracePeriode: transaction.gracePeriode || 0,
       },
       payment_status: transaction.paymentStatus || "UNPAID",
       payment_method: transaction.paymentMethod || "-",
@@ -753,6 +755,8 @@ export function GlobalCallPopup() {
     return errors;
   };
 
+  console.log(localActiveCall, "<<<<<localActiveCall");
+
   const detailGate =
     localActiveCall?.detailGate?.data || localActiveCall?.detailGate || {};
   const locationName = localActiveCall?.location?.Name || "Unknown Location";
@@ -760,8 +764,12 @@ export function GlobalCallPopup() {
   const ticketNo =
     detailGate?.transactionNo || localActiveCall?.newData?.transactionNo;
   const inTime = detailGate?.inTime || "-";
-  const outTime = detailGate?.outTime || "-";
+  // const outTime = detailGate?.outTime || "-";
+  const duration = detailGate?.duration || "-";
+  
+  const paymentTime = detailGate?.paymentTime || "-";
   const issuerName = detailGate?.issuerName || "-";
+
   const gracePeriode = detailGate?.gracePeriod || "-";
   const paymentMethod = detailGate?.paymentMethod || "-";
 
@@ -1248,14 +1256,32 @@ export function GlobalCallPopup() {
                   </div>
 
                   {!isPMGate && (
-                    <div className="flex justify-between items-start">
-                      <span className="text-s">Waktu Keluar :</span>
-                      <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
-                        {outTime && outTime !== ""
-                          ? formatTanggalLocal(outTime?.toString())
-                          : "-"}
-                      </span>
-                    </div>
+                    <>
+                      {/* <div className="flex justify-between items-start">
+                        <span className="text-s">Waktu Keluar :</span>
+                        <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
+                          {outTime && outTime !== ""
+                            ? formatTanggalLocal(outTime?.toString())
+                            : "-"}
+                        </span>
+                      </div> */}
+                      <div className="flex justify-between items-start">
+                        <span className="text-s">Durasi Parkir :</span>
+                        <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
+                          {duration && duration !== ""
+                            ? formatDuration(duration)
+                            : "-"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-start">
+                        <span className="text-s">Waktu Pembayaran :</span>
+                        <span className="text-gray-600 dark:text-gray-400 flex-1 text-right text-s">
+                          {paymentTime && paymentTime !== ""
+                            ? formatTanggalLocal(paymentTime?.toString())
+                            : "-"}
+                        </span>
+                      </div>
+                    </>
                   )}
 
                   {localActiveCall?.isMemberStyle?.Name && (
