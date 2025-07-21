@@ -542,7 +542,6 @@ export function GlobalCallPopup() {
           };
         });
 
-        // Update editable plate number
         setEditablePlateNumber(transactionData.data.plateNumber);
         setOriginalPlateNumber(transactionData.data.plateNumber);
 
@@ -1703,7 +1702,6 @@ export function GlobalCallPopup() {
                 </div>
               </div>
             ) : (
-              // For non-PM gates - show photos in a better grid layout
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Foto In */}
