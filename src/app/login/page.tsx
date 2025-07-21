@@ -105,7 +105,7 @@ export default function Login() {
             <div className="three-body__dot"></div>
           </div>
           <p className="text-gray-600 dark:text-gray-300 blink-smooth mt-4">
-            Memuat data login...
+            Memproses login...
           </p>
         </div>
       ) : (
