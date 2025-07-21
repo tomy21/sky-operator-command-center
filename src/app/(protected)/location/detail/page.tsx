@@ -16,6 +16,7 @@ import formatTanggalUTC from "@/utils/formatDate";
 import GreenDownArrow from "@/public/icons/GreenDownArrow"
 import RedCross from "@/public/icons/RedCross";
 import NoData from "@/components/NoData";
+import SimplePageLoader from "@/components/PageLoader";
 
 interface PaginationInfo {
   totalItems: number;
@@ -437,16 +438,17 @@ function LocationDetailContent() {
               {/* Content Section */}
               <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg overflow-x-auto">
                 {isDataLoading ? (
-                  <div className="text-center py-8 px-4">
-                    <div className="three-body">
-                      <div className="three-body__dot"></div>
-                      <div className="three-body__dot"></div>
-                      <div className="three-body__dot"></div>
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-300 blink-smooth mt-4">
-                      Memuat data gate...
-                    </p>
-                  </div>
+                  // <div className="text-center py-8 px-4">
+                  //   <div className="three-body">
+                  //     <div className="three-body__dot"></div>
+                  //     <div className="three-body__dot"></div>
+                  //     <div className="three-body__dot"></div>
+                  //   </div>
+                  //   <p className="text-gray-600 dark:text-gray-300 blink-smooth mt-4">
+                  //     Memuat data gate...
+                  //   </p>
+                  // </div>
+                  <SimplePageLoader isLoading={isDataLoading} loadingText={"Memuat data table"} />
                 ) : gates.length === 0 ? (
                   <NoData message="Tidak ada gate ditemukan untuk lokasi ini" />
                 ) : (
