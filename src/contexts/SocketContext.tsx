@@ -395,7 +395,6 @@ export function GlobalCallPopup() {
       };
     }
 
-    // Update detailGate with transaction data
     updatedActiveCall.detailGate = {
       ...updatedActiveCall.detailGate,
       data: {
@@ -418,14 +417,12 @@ export function GlobalCallPopup() {
       payment_time: transaction.paymentTime || "",
     };
 
-    // Update plateNumber
     if (transaction.plateNumber) {
       updatedActiveCall.plateNumber = transaction.plateNumber.toUpperCase();
       setEditablePlateNumber(transaction.plateNumber.toUpperCase());
       setOriginalPlateNumber(transaction.plateNumber.toUpperCase());
     }
 
-    // Update location info
     if (transaction.location) {
       updatedActiveCall.location = {
         ...updatedActiveCall.location,
@@ -433,15 +430,12 @@ export function GlobalCallPopup() {
       };
     }
 
-    // Update the local state
     setLocalActiveCall(updatedActiveCall);
 
-    // Update the activeCall in context if needed
     if (setActiveCall) {
       setActiveCall(updatedActiveCall);
     }
 
-    // Show success message
     toast.success("Data transaksi berhasil diperbarui");
   };
 
@@ -451,13 +445,11 @@ export function GlobalCallPopup() {
     const value = e.target.value;
     setWhatsappNumber(value);
 
-    // Validasi real-time
     const validation = validateWhatsAppNumber(value);
     setWhatsappError(validation.isValid ? null : validation.message || null);
   };
 
   const handleSendWhatsApp = async () => {
-    // Validasi sebelum mengirim
     const validation = validateWhatsAppNumber(whatsappNumber);
     if (!validation.isValid) {
       setWhatsappError(validation.message || "Nomor WhatsApp tidak valid");
@@ -471,7 +463,6 @@ export function GlobalCallPopup() {
 
     setIsSendingWhatsApp(true);
     try {
-      // Send WhatsApp
       const whatsappData = {
         numberWhatsapp: whatsappNumber,
         plate_number: editablePlateNumber,
@@ -516,7 +507,6 @@ export function GlobalCallPopup() {
         });
 
         setIsModalDetailCreateTransactionOpen(true);
-        // Update activeCall dengan type safety
         if (setActiveCall && activeCall) {
           const updatedActiveCall: GateStatusUpdate = {
             ...activeCall,
@@ -535,7 +525,6 @@ export function GlobalCallPopup() {
           setActiveCall(updatedActiveCall);
         }
 
-        // Update localActiveCall dengan type safety
         setLocalActiveCall((prev: GateStatusUpdate | null) => {
           if (!prev) return prev;
 
