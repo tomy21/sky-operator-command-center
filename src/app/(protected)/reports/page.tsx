@@ -35,6 +35,7 @@ import {
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { validateIndonesianLicensePlate } from "@/utils/validationNumberPlat";
 import { CalenderIcon, LocationIcon2, TicketIcon } from "@/public/icons/Icons";
+import SimplePageLoader from "@/components/PageLoader";
 
 interface Report {
   no?: number;
@@ -898,16 +899,20 @@ export default function ReportsPage() {
           <Suspense fallback={<LoadingSpinner />}>
             <div className="bg-white dark:bg-[#222B36] rounded-lg p-6">
               {isDataLoading ? (
-                <div className="text-center py-4">
-                  <div className="three-body">
-                    <div className="three-body__dot"></div>
-                    <div className="three-body__dot"></div>
-                    <div className="three-body__dot"></div>
-                  </div>{" "}
-                  <p className="text-gray-600 dark:text-gray-300 blink-smooth">
-                    Memuat data laporan...
-                  </p>
-                </div>
+                // <div className="text-center py-4">
+                //   <div className="three-body">
+                //     <div className="three-body__dot"></div>
+                //     <div className="three-body__dot"></div>
+                //     <div className="three-body__dot"></div>
+                //   </div>{" "}
+                //   <p className="text-gray-600 dark:text-gray-300 blink-smooth">
+                //     Memuat data laporan...
+                //   </p>
+                // </div>
+                <SimplePageLoader
+                  isLoading={isDataLoading}
+                  loadingText={"Memuat data laporan"}
+                />
               ) : reports.length === 0 && hasPerformedSearch ? (
                 <div className="text-center py-8">
                   <div className="text-gray-500 dark:text-gray-400">

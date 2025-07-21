@@ -296,6 +296,8 @@ export default function LocationPage() {
     initializeData();
   }, [fetchLocationActiveData]);
 
+  // const locationsTry = []
+
   return (
     <>
       <div className="w-full max-w-8xl mx-auto px-2 sm:px-4 py-6">
