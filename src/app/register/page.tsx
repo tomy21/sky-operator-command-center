@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import SimplePageLoader from "@/components/PageLoader";
 
 export default function Register() {
   const router = useRouter();
@@ -23,7 +24,11 @@ export default function Register() {
       setError("");
 
       // Validasi form
-      if (!formData.username || !formData.password || !formData.credentialCode) {
+      if (
+        !formData.username ||
+        !formData.password ||
+        !formData.credentialCode
+      ) {
         setError("Semua field harus diisi");
         setIsLoading(false);
         return;
@@ -37,9 +42,8 @@ export default function Register() {
       // });
 
       // console.log("Register data:", formData);
-      
+
       router.push("/login?registerSuccess=1");
-      
     } catch (error) {
       console.error("Register error");
       let errorMessage = "Terjadi kesalahan saat registrasi";
@@ -68,16 +72,20 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
       {isLoading ? (
-        <div className="text-center py-4 p-6">
-          <div className="three-body">
-            <div className="three-body__dot"></div>
-            <div className="three-body__dot"></div>
-            <div className="three-body__dot"></div>
-          </div>
-          <p className="text-gray-600 dark:text-gray-300 blink-smooth mt-4">
-            Memproses registrasi...
-          </p>
-        </div>
+        // <div className="text-center py-4 p-6">
+        //   <div className="three-body">
+        //     <div className="three-body__dot"></div>
+        //     <div className="three-body__dot"></div>
+        //     <div className="three-body__dot"></div>
+        //   </div>
+        //   <p className="text-gray-600 dark:text-gray-300 blink-smooth mt-4">
+        //     Memproses registrasi...
+        //   </p>
+        // </div>
+        <SimplePageLoader
+          isLoading={isLoading}
+          loadingText={"Memuat data table"}
+        />
       ) : (
         <div
           id="card-register"
@@ -98,7 +106,7 @@ export default function Register() {
               Daftar sebagai user baru OCC
             </p>
           </div>
-          
+
           {error && (
             <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-500">
               {error}
@@ -124,7 +132,7 @@ export default function Register() {
                   }
                 />
               </div>
-              
+
               <div className="relative">
                 <label htmlFor="password" className="sr-only">
                   Password
@@ -176,7 +184,7 @@ export default function Register() {
                   }
                 />
               </div>
-              
+
               <Link href={"/login"} className="text-sm text-blue-500 underline">
                 Sudah punya akun? Login di sini
               </Link>

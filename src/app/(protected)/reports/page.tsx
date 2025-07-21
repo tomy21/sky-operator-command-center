@@ -911,7 +911,7 @@ export default function ReportsPage() {
                 // </div>
                 <SimplePageLoader
                   isLoading={isDataLoading}
-                  loadingText={"Memuat data laporan"}
+                  loadingText={"Memuat data table"}
                 />
               ) : reports.length === 0 && hasPerformedSearch ? (
                 <div className="text-center py-8">

@@ -6,6 +6,7 @@ import { LoginAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
 import { Eye, EyeOff } from "lucide-react";
+import SimplePageLoader from "@/components/PageLoader";
 // import Link from "next/link";
 
 export default function Login() {
@@ -27,7 +28,9 @@ export default function Login() {
       const loginSuccess = urlParams.get("loginSuccess");
 
       if (registerSuccess === "1") {
-        setSuccessMessage("Registrasi berhasil! Silakan login dengan akun baru Anda.");
+        setSuccessMessage(
+          "Registrasi berhasil! Silakan login dengan akun baru Anda."
+        );
         const newUrl = window.location.pathname;
         window.history.replaceState({}, document.title, newUrl);
       }
@@ -98,16 +101,20 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
       {isLoading ? (
-        <div className="text-center py-4 p-6">
-          <div className="three-body">
-            <div className="three-body__dot"></div>
-            <div className="three-body__dot"></div>
-            <div className="three-body__dot"></div>
-          </div>
-          <p className="text-gray-600 dark:text-gray-300 blink-smooth mt-4">
-            Memproses login...
-          </p>
-        </div>
+        // <div className="text-center py-4 p-6">
+        //   <div className="three-body">
+        //     <div className="three-body__dot"></div>
+        //     <div className="three-body__dot"></div>
+        //     <div className="three-body__dot"></div>
+        //   </div>
+        //   <p className="text-gray-600 dark:text-gray-300 blink-smooth mt-4">
+        //     Memproses login...
+        //   </p>
+        // </div>
+        <SimplePageLoader
+          isLoading={isLoading}
+          loadingText={"Memuat data table"}
+        />
       ) : (
         <div
           id="card-login"
