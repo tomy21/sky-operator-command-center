@@ -755,8 +755,6 @@ export function GlobalCallPopup() {
     return errors;
   };
 
-  console.log(localActiveCall, "<<<<<localActiveCall");
-
   const detailGate =
     localActiveCall?.detailGate?.data || localActiveCall?.detailGate || {};
   const locationName = localActiveCall?.location?.Name || "Unknown Location";
