@@ -13,7 +13,6 @@ import { useSocket } from "@/hooks/useSocket";
 import { GateStatusUpdate } from "@/types/gate";
 import { toast } from "react-toastify";
 import { changeStatusGate, endCall } from "@/hooks/useIOT";
-import Image from "next/image";
 import { fetchCategories } from "@/hooks/useCategories";
 import {
   addDescription,
