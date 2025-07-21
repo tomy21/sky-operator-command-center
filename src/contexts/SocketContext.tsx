@@ -243,28 +243,22 @@ export function GlobalCallPopup() {
   });
   const [localActiveCall, setLocalActiveCall] =
     useState<GateStatusUpdate | null>(null);
-
   const [isMuted, setIsMuted] = useState(false);
-
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [isLoadingDescriptions, setIsLoadingDescriptions] = useState(false);
-
   const [categoryPagination, setCategoryPagination] = useState({
     page: 1,
     hasMore: true,
     isLoadingMore: false,
   });
-
   const [manualDescription, setManualDescription] = useState("");
   const [isAddingDescription, setIsAddingDescription] = useState(false);
   const [isSearchingTransaction, setIsSearchingTransaction] = useState(false);
   const [transactionData, setTransactionData] = useState<any>(null);
-
   const [whatsappNumber, setWhatsappNumber] = useState("");
   const [isSendingWhatsApp, setIsSendingWhatsApp] = useState(false);
   const [showWhatsAppInput, setShowWhatsAppInput] = useState(false);
   const [whatsappError, setWhatsappError] = useState<string | null>(null);
-
   const [isModalDetailMemberOpen, setIsModalDetailMemberOpen] = useState(false);
   const [
     isModalDetailCreateTransactionOpen,
@@ -275,7 +269,6 @@ export function GlobalCallPopup() {
     inTime: string;
     plateNumber: string;
   } | null>(null);
-
   // const [newTransactionData, setNewTransactionData] = useState<{
   //   transactionNo: string;
   //   inTime: string;
@@ -358,7 +351,6 @@ export function GlobalCallPopup() {
     try {
       setIsSearchingTransaction(true);
       const response = await getTransaction(editablePlateNumber, locationId);
-
       if (response?.data?.data) {
         updateActiveCallWithTransactionData(response);
       } else {
