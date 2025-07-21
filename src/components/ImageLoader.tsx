@@ -63,7 +63,7 @@ const ImageWithLoader = ({
               />
             </svg>
             <span className="text-sm text-gray-600 dark:text-gray-300">
-              Gagal memuat gambar
+              Gagal memuat gambar <br /> Tidak ada gambar ditemukan
             </span>
           </div>
         </div>

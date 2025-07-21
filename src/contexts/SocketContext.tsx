@@ -757,17 +757,13 @@ export function GlobalCallPopup() {
   const gracePeriode = detailGate?.gracePeriod || "-";
   const paymentMethod = detailGate?.paymentMethod || "-";
 
-  const fotoInUrl = localActiveCall?.imageFileIn?.trim()
-    ? `/api/image-proxy?filename=${encodeURIComponent(
-        localActiveCall.imageFileIn
-      )}`
-    : "/images/no-image-found-360x250.png";
+  const fotoInUrl = `/api/image-proxy?filename=${encodeURIComponent(
+    localActiveCall?.imageFileIn ?? ""
+  )}`;
 
-  const photoCaptureUrl = localActiveCall?.imageFile?.filename
-    ? `/api/image-proxy?filename=${encodeURIComponent(
-        localActiveCall?.imageFile?.filename
-      )}`
-    : "/images/no-image-found-360x250.png";
+  const photoCaptureUrl = `/api/image-proxy?filename=${encodeURIComponent(
+    localActiveCall?.imageFile?.filename ?? ""
+  )}`;
 
   const handleCreateIssue = async () => {
     const validationErrors = validateForm();
@@ -1697,38 +1693,13 @@ export function GlobalCallPopup() {
                 <div className="text-center w-full max-w-md">
                   <p className="text-sm text-s mb-2">Foto Capture</p>
                   <div className="w-full aspect-video bg-gray-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
-                    {!imageErrors.photoCapture ? (
-                      <Image
-                        src={photoCaptureUrl}
-                        alt="Foto Capture"
-                        width={400}
-                        height={225}
-                        className="w-full h-full object-cover rounded-lg"
-                        onError={() => {
-                          setImageErrors((prev) => ({
-                            ...prev,
-                            photoCapture: true,
-                          }));
-                        }}
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center justify-center h-full">
-                        <svg
-                          className="w-12 h-12 text-gray-400 mb-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          />
-                        </svg>
-                        <span className="text-sm">Foto Capture</span>
-                      </div>
-                    )}
+                    <ImageWithLoader
+                      src={photoCaptureUrl}
+                      alt="Foto In"
+                      width={420}
+                      height={220}
+                      className="w-full max-w-[420px]"
+                    />
                   </div>
                 </div>
               </div>
