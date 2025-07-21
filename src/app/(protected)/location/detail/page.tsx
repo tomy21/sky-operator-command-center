@@ -42,7 +42,6 @@ function LocationDetailContent() {
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [actioningGateId, setActioningGateId] = useState<number | null>(null);
 
-  // Modal state
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedGate, setSelectedGate] = useState<GateByLocation | null>(null);
   const [actionType, setActionType] = useState<"open" | "close">("open");
@@ -51,7 +50,6 @@ function LocationDetailContent() {
   const [showLedArrowModal, setShowLedArrowModal] = useState(false);
   const [selectedLedGate, setSelectedLedGate] = useState<GateByLocation | null>(null);
 
-  // Add Gate Modal state
   const [showAddGateModal, setShowAddGateModal] = useState(false);
   const [gateName, setGateName] = useState("");
   const [isAddingGate, setIsAddingGate] = useState(false);

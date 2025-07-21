@@ -26,7 +26,6 @@ export const CountdownCircle: React.FC<CountdownProps> = ({
       return;
     }
 
-    // Reset when duration changes or component becomes active
     setRemaining(duration);
     startTimeRef.current = 0;
     pausedTimeRef.current = 0;

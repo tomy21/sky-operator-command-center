@@ -762,12 +762,9 @@ export function GlobalCallPopup() {
   const ticketNo =
     detailGate?.transactionNo || localActiveCall?.newData?.transactionNo;
   const inTime = detailGate?.inTime || "-";
-  // const outTime = detailGate?.outTime || "-";
   const duration = detailGate?.duration || "-";
-  
   const paymentTime = detailGate?.paymentTime || "-";
   const issuerName = detailGate?.issuerName || "-";
-
   const gracePeriode = detailGate?.gracePeriod || "-";
   const paymentMethod = detailGate?.paymentMethod || "-";
 

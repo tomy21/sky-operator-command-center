@@ -11,7 +11,6 @@
 //     exp?: number;
 // }
 
-// // Fungsi untuk verifikasi token (tetap ada jika diperlukan di tempat lain)
 // export function verifyToken(token: string): JWTPayload | null {
 //     try {
 //         return jwt.verify(token, JWT_SECRET) as JWTPayload;
@@ -20,12 +19,10 @@
 //     }
 // }
 
-// // Fungsi untuk generate token
 // export function generateToken(payload: { userId: string; email: string }): string {
 //     return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 // }
 
-// // Fungsi untuk mengecek apakah user sudah login (hanya cek keberadaan token)
 // export async function isAuthenticated(): Promise<boolean> {
 //     try {
 //         const cookieStore = await cookies();
@@ -37,7 +34,6 @@
 //     }
 // }
 
-// // Fungsi untuk mendapatkan session dengan verifikasi token (jika diperlukan)
 // export async function getServerSession(): Promise<User | null> {
 //     try {
 //         const cookieStore = await cookies();
@@ -59,7 +55,6 @@
 //     }
 // }
 
-// // Fungsi alternatif yang hanya mengecek keberadaan token tanpa verifikasi
 // export async function getBasicSession(): Promise<{ hasToken: boolean }> {
 //     try {
 //         const cookieStore = await cookies();

@@ -51,7 +51,6 @@ const CallQuantityTable: React.FC = () => {
   });
 
   useEffect(() => {
-    // Trigger refetch ketika filter berubah
     // Anda mungkin perlu menambahkan refetch function dari hook Anda
   }, [
     selectedYear,
@@ -61,7 +60,6 @@ const CallQuantityTable: React.FC = () => {
     itemsPerPage,
   ]);
 
-  // Extended data with full year (adding Jul-Dec with sample data)
   const carData: CallData[] = [
     {
       location: "HPM LKU",
@@ -452,7 +450,6 @@ const CallQuantityTable: React.FC = () => {
     },
   ];
 
-  // Calculate total data by combining car and bike data
   const totalData: CallData[] = carData.map((carRow, index) => {
     const bikeRow = bikeData[index];
     return {
@@ -474,9 +471,7 @@ const CallQuantityTable: React.FC = () => {
   });
 
   const getCurrentData = () => {
-    // Jika ada data dari API, gunakan data tersebut
     if (apiData && apiData.data && apiData.data.length > 0) {
-      // Transformasi data API ke format yang sesuai
       const transformedData = apiData.data.map((item) => ({
         location: item.location,
         jan: item.jan,
@@ -494,12 +489,9 @@ const CallQuantityTable: React.FC = () => {
         total: item.total,
       }));
 
-      // Filter berdasarkan activeTab jika diperlukan
-      // Untuk sementara return semua data karena API belum ada pembagian car/bike
       return transformedData;
     }
 
-    // Jika tidak ada data dari API, gunakan data dummy
     switch (activeTab) {
       case "car":
         return carData;
@@ -529,12 +521,10 @@ const CallQuantityTable: React.FC = () => {
   //   !apiData || !apiData.data || apiData.data.length === 0;
 
   const getPaginatedData = (data: CallData[]) => {
-    // Jika menggunakan data dari API, data sudah terpaginasi
     if (apiData && apiData.data && apiData.data.length > 0) {
       return data;
     }
 
-    // Jika menggunakan data dummy, lakukan pagination manual
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return data.slice(startIndex, endIndex);

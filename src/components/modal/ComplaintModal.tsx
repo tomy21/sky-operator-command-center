@@ -31,7 +31,6 @@ export const ComplaintModal: React.FC<ComplaintModalProps> = ({
     // const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
     const [isLoading, setIsLoading] = useState(false);
 
-    // Dummy data sebagai fallback
     const dummyComplaintData: Record<string, ComplaintDetail[]> = {
         "Informasi": [
             { nomor: "1", date: "2025-06-01", location: "Lokasi A1", gate: "Gate PM 1", description: "Kurang informasi jam operasional" },

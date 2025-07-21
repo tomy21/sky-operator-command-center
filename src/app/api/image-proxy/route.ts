@@ -14,7 +14,6 @@ export async function GET(request: Request) {
 
     if (!response.ok) throw new Error('Image not found');
 
-    // Create a new response with the image data
     const imageBuffer = await response.arrayBuffer();
     const headers = new Headers(response.headers);
     

@@ -58,7 +58,6 @@ const CallByGateTable: React.FC = () => {
 
   const gateNames = generateGateNames();
 
-  // Generate sample locations (this would be hundreds in real scenario)
   const generateLocations = (): LocationGateData[] => {
     const locations = [];
     const locationTypes = [
