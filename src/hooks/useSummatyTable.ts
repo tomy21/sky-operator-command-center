@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { CallQuantityParams, CallQuantityResponse } from "@/types/callQuantity";
 import { unauthorizedAPI } from "@/utils/unauthorizedURL";
 import { useEffect, useState } from "react";
