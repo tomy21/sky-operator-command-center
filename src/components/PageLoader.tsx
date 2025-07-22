@@ -1,4 +1,3 @@
-// components/SimplePageLoader.tsx
 "use client";
 import { useEffect, useState } from "react";
 
