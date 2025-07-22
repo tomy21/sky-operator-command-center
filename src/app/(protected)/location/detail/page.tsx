@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -38,11 +39,6 @@ function LocationDetailContent() {
     currentPage: 1,
     itemsPerPage: 5,
   });
-  const reqParams = {
-    id: locationId,
-    page: gatePagination.currentPage,
-    limit: gatePagination.itemsPerPage,
-  };
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [actioningGateId, setActioningGateId] = useState<number | null>(null);
@@ -90,6 +86,11 @@ function LocationDetailContent() {
 
     try {
       setIsDataLoading(true);
+      const reqParams = {
+        id: locationId,
+        page: gatePagination.currentPage,
+        limit: gatePagination.itemsPerPage,
+      };
       const gatesData = await fetchGateByLocation(reqParams);
 
       if (gatesData && gatesData.data && gatesData.meta) {
@@ -215,7 +216,7 @@ function LocationDetailContent() {
     if (locationId) {
       fetchGatesData();
     }
-  }, [locationId]);
+  }, [locationId, gatePagination.currentPage, gatePagination.itemsPerPage]);
 
   const getStatusBadge = (status: number) => {
     return status === 1 ? (

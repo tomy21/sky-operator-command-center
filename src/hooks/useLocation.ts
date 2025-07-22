@@ -112,7 +112,7 @@ export const fetchLocationById = async (id: number) => {
 
 export const fetchGateByLocation = async (locationData: any) => {
     try {
-        const response = await fetch(`/api/location/get-gate-by-location/${locationData.id}?page=${locationData.page}limit=${locationData.limit}`);
+        const response = await fetch(`/api/location/get-gate-by-location/${locationData.id}?page=${locationData.page}&limit=${locationData.limit}`);
 
         if (!response.ok) {
             throw new Error(`Error: ${response.status}`);
