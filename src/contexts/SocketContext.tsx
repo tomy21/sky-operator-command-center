@@ -236,11 +236,11 @@ export function GlobalCallPopup() {
   const [isPlateNumberValid, setIsPlateNumberValid] = useState(true);
   const [isEditingPlateNumber, setIsEditingPlateNumber] = useState(false);
   const [originalPlateNumber, setOriginalPlateNumber] = useState("");
-  const [imageErrors, setImageErrors] = useState({
-    photoIn: false,
-    photoOut: false,
-    photoCapture: false,
-  });
+  // const [imageErrors, setImageErrors] = useState({
+  //   photoIn: false,
+  //   photoOut: false,
+  //   photoCapture: false,
+  // });
   const [localActiveCall, setLocalActiveCall] =
     useState<GateStatusUpdate | null>(null);
   const [isMuted, setIsMuted] = useState(false);
@@ -623,11 +623,11 @@ export function GlobalCallPopup() {
       setEditablePlateNumber(numberPlate);
       setOriginalPlateNumber(numberPlate);
       setIsEditingPlateNumber(false);
-      setImageErrors({
-        photoIn: false,
-        photoOut: false,
-        photoCapture: false,
-      });
+      // setImageErrors({
+      //   photoIn: false,
+      //   photoOut: false,
+      //   photoCapture: false,
+      // });
       setIsMuted(false);
     }
   }, [activeCall]);
