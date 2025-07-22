@@ -250,8 +250,12 @@ export default function LocationPage() {
         header: "No",
         accessor: "id",
         render: (value, item) => {
-          const index = locations.findIndex((cat) => cat.id === item.id);
-          return index + 1;
+          const index = locations.findIndex((loc) => loc.id === loc.id);
+          return (
+            (locationPagination.currentPage - 1) * locationPagination.itemsPerPage +
+            index +
+            1
+          );
         },
       },
       { header: "Nama Lokasi", accessor: "name" },

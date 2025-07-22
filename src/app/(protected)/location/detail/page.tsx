@@ -296,7 +296,11 @@ function LocationDetailContent() {
       accessor: "id",
       render: (value, item) => {
         const index = gates.findIndex((gate) => gate.id === item.id);
-        return index + 1;
+        return (
+          (gatePagination.currentPage - 1) * gatePagination.itemsPerPage +
+          index +
+          1
+        );
       },
     },
     {

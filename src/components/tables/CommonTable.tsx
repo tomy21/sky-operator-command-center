@@ -28,6 +28,7 @@ interface TableProps<T> {
   totalItems?: number;
   showPagination?: boolean;
   onItemsPerPageChange?: (itemsPerPage: number) => void;
+  enablePaginationNumbering?: boolean;
 }
 
 export default function CommonTable<T>({
@@ -41,6 +42,7 @@ export default function CommonTable<T>({
   totalItems,
   showPagination = false,
   onItemsPerPageChange,
+  enablePaginationNumbering = false,
 }: TableProps<T>) {
   const renderPagination = () => {
     if (!showPagination || !currentPage || !totalPages || !onPageChange) {
@@ -371,6 +373,23 @@ export default function CommonTable<T>({
                     }`}
                   >
                     {columns.map((column, colIndex) => {
+                      if (
+                        column.accessor === "id" &&
+                        enablePaginationNumbering &&
+                        currentPage &&
+                        itemsPerPage
+                      ) {
+                        const rowNumber =
+                          (currentPage - 1) * itemsPerPage + rowIndex + 1;
+                        return (
+                          <td
+                            key={colIndex}
+                            className="p-4 text-sm text-gray-900 dark:text-gray-100"
+                          >
+                            {rowNumber}
+                          </td>
+                        );
+                      }
                       const cellValue = column.render
                         ? column.render(item[column.accessor], item)
                         : item[column.accessor]?.toString() || "";

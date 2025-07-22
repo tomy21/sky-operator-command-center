@@ -376,9 +376,14 @@ export default function MasterPage() {
     {
       header: "No",
       accessor: "id",
-      render: (value: any, item: Category) => {
+      render: (value, item) => {
         const index = categories.findIndex((cat) => cat.id === item.id);
-        return index + 1;
+        return (
+          (categoryPagination.currentPage - 1) *
+            categoryPagination.itemsPerPage +
+          index +
+          1
+        );
       },
     },
     {
@@ -422,7 +427,12 @@ export default function MasterPage() {
       accessor: "id",
       render: (value: any, item: Description) => {
         const index = descriptions.findIndex((desc) => desc.id === item.id);
-        return index + 1;
+        return (
+          (descriptionPagination.currentPage - 1) *
+            descriptionPagination.itemsPerPage +
+          index +
+          1
+        );
       },
     },
     {

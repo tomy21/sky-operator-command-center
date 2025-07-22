@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
@@ -152,7 +153,11 @@ export default function ReportsPage() {
           const formatDate = formatDateOnly(issue.createdAt);
 
           return {
-            no: index + 1,
+            no:
+              (issuesPagination.currentPage - 1) *
+                issuesPagination.itemsPerPage +
+              index +
+              1,
             formatDate,
             duration: "30 mins",
             ticket: issue.ticket,
