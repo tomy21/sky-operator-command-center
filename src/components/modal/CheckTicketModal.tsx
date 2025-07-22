@@ -15,6 +15,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { CloseIcon } from "@/public/icons/Icons";
+import ThreeDotsLoader from "../ThreeDotsLoader";
 
 interface Location {
   Code: string;
@@ -241,7 +242,7 @@ export default function CheckTicketModal({
             onClick={handleClose}
             className="cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1"
           >
-            <CloseIcon/>
+            <CloseIcon />
           </button>
         </div>
 
@@ -426,16 +427,7 @@ export default function CheckTicketModal({
         {shouldShowResults ? (
           <div className="flex-1 overflow-y-auto p-4 sm:p-4">
             {loading ? (
-              <div className="text-center py-4 p-6">
-                <div className="three-body">
-                  <div className="three-body__dot"></div>
-                  <div className="three-body__dot"></div>
-                  <div className="three-body__dot"></div>
-                </div>
-                <p className="text-gray-600 dark:text-gray-300 blink-smooth">
-                  Memuat data...
-                </p>
-              </div>
+              <ThreeDotsLoader />
             ) : notFound ? (
               <div className="text-center text-red-500 dark:text-red-400 font-semibold py-8">
                 Data tiket tidak ditemukan.

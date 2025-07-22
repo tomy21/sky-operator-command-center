@@ -28,7 +28,7 @@ const ActivateLocationModal = lazy(
 import { createGate, fetchLocationActive } from "@/hooks/useLocation";
 
 import type { Column } from "@/components/tables/CommonTable";
-import SimplePageLoader from "@/components/PageLoader";
+import ThreeDotsLoader from "@/components/ThreeDotsLoader";
 
 interface Location {
   id: number;
@@ -358,17 +358,7 @@ export default function LocationPage() {
                 ) : (
                   <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg w-full">
                     {isDataLoading ? (
-                      // <div className="text-center py-4 p-6">
-                      //   <div className="three-body">
-                      //     <div className="three-body__dot"></div>
-                      //     <div className="three-body__dot"></div>
-                      //     <div className="three-body__dot"></div>
-                      //   </div>
-                      //   <p className="text-gray-600 dark:text-gray-300 blink-smooth">
-                      //     Memuat data table...
-                      //   </p>
-                      // </div>
-                      <SimplePageLoader isLoading={isDataLoading} loadingText={"Memuat data table"} />
+                      <ThreeDotsLoader />
                     ) : locations.length === 0 ? (
                       <div className="text-center py-8 p-6">
                         <svg

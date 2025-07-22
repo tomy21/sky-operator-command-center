@@ -13,10 +13,10 @@ import { toast } from "react-toastify";
 import { changeStatusGate } from "@/hooks/useIOT";
 import { ConfirmationModal } from "@/components/modal/ConfirmationModalV2";
 import formatTanggalUTC from "@/utils/formatDate";
-import GreenDownArrow from "@/public/icons/GreenDownArrow"
+import GreenDownArrow from "@/public/icons/GreenDownArrow";
 import RedCross from "@/public/icons/RedCross";
 import NoData from "@/components/NoData";
-import SimplePageLoader from "@/components/PageLoader";
+import ThreeDotsLoader from "@/components/ThreeDotsLoader";
 
 interface PaginationInfo {
   totalItems: number;
@@ -38,7 +38,11 @@ function LocationDetailContent() {
     currentPage: 1,
     itemsPerPage: 5,
   });
-  const reqParams = { id: locationId, page: gatePagination.currentPage, limit: gatePagination.itemsPerPage };
+  const reqParams = {
+    id: locationId,
+    page: gatePagination.currentPage,
+    limit: gatePagination.itemsPerPage,
+  };
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [actioningGateId, setActioningGateId] = useState<number | null>(null);
@@ -47,9 +51,13 @@ function LocationDetailContent() {
   const [selectedGate, setSelectedGate] = useState<GateByLocation | null>(null);
   const [actionType, setActionType] = useState<"open" | "close">("open");
   const [arrowType, setArrowType] = useState<"open" | "close">("open");
-  const [ledArrowStatus, setLedArrowStatus] = useState<Record<number, boolean>>({});
+  const [ledArrowStatus, setLedArrowStatus] = useState<Record<number, boolean>>(
+    {}
+  );
   const [showLedArrowModal, setShowLedArrowModal] = useState(false);
-  const [selectedLedGate, setSelectedLedGate] = useState<GateByLocation | null>(null);
+  const [selectedLedGate, setSelectedLedGate] = useState<GateByLocation | null>(
+    null
+  );
 
   const [showAddGateModal, setShowAddGateModal] = useState(false);
   const [gateName, setGateName] = useState("");
@@ -63,9 +71,9 @@ function LocationDetailContent() {
 
   const handleConfirmLedArrow = () => {
     if (selectedLedGate) {
-      setLedArrowStatus(prev => ({
+      setLedArrowStatus((prev) => ({
         ...prev,
-        [selectedLedGate.id]: !(prev[selectedLedGate.id] ?? true)
+        [selectedLedGate.id]: !(prev[selectedLedGate.id] ?? true),
       }));
     }
     setShowLedArrowModal(false);
@@ -161,7 +169,7 @@ function LocationDetailContent() {
 
       const gateData = {
         id: parseInt(locationId),
-        name: gateName.trim()
+        name: gateName.trim(),
       };
 
       await createGate(gateData);
@@ -172,7 +180,9 @@ function LocationDetailContent() {
       setShowAddGateModal(false);
       setGateName("");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Gagal menambahkan gate");
+      toast.error(
+        error instanceof Error ? error.message : "Gagal menambahkan gate"
+      );
     } finally {
       setIsAddingGate(false);
     }
@@ -227,10 +237,11 @@ function LocationDetailContent() {
       <button
         onClick={() => handleGateActionClick(gate)}
         disabled={isLoading || showConfirmModal}
-        className={`${isOpen
-          ? "bg-red-500 hover:bg-red-600"
-          : "bg-green-500 hover:bg-green-600"
-          } cursor-pointer text-white px-2 py-1 rounded text-xs font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1 min-w-0`}
+        className={`${
+          isOpen
+            ? "bg-red-500 hover:bg-red-600"
+            : "bg-green-500 hover:bg-green-600"
+        } cursor-pointer text-white px-2 py-1 rounded text-xs font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1 min-w-0`}
       >
         {isLoading ? (
           <>
@@ -299,8 +310,7 @@ function LocationDetailContent() {
     {
       header: "Updated At",
       accessor: "updatedAt",
-      render: (value) =>
-        formatTanggalUTC(value as string) || "Tidak ada data",
+      render: (value) => formatTanggalUTC(value as string) || "Tidak ada data",
     },
     {
       header: "LED Arrow",
@@ -337,8 +347,9 @@ function LocationDetailContent() {
 
     return {
       title: isOpen ? "Tutup Gate" : "Buka Gate",
-      message: `Apakah Anda yakin ingin ${isOpen ? "menutup" : "membuka"
-        } gate "${selectedGate.gate}"?`,
+      message: `Apakah Anda yakin ingin ${
+        isOpen ? "menutup" : "membuka"
+      } gate "${selectedGate.gate}"?`,
       confirmText: isOpen ? "Ya, Tutup Gate" : "Ya, Buka Gate",
       cancelText: "Batal",
     };
@@ -378,27 +389,45 @@ function LocationDetailContent() {
                   </h1>
                   <div className="text-gray-700 dark:text-gray-200 mt-2 space-y-2 text-base sm:text-[1.05rem] leading-relaxed">
                     <p>
-                      Manajemen gate parkir untuk lokasi ini. Anda dapat memantau dan mengontrol status setiap gate secara real-time.
+                      Manajemen gate parkir untuk lokasi ini. Anda dapat
+                      memantau dan mengontrol status setiap gate secara
+                      real-time.
                     </p>
                     <div className="text-xs sm:text-sm bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg space-y-2">
                       <div className="flex items-center gap-2">
                         <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
                         <span className="font-medium">Gate terbuka (Open)</span>
-                        <span className="text-gray-500 dark:text-gray-400">- Kendaraan dapat keluar/masuk</span>
+                        <span className="text-gray-500 dark:text-gray-400">
+                          - Kendaraan dapat keluar/masuk
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="inline-block w-2 h-2 bg-red-500 rounded-full"></span>
-                        <span className="font-medium">Gate tertutup (Closed)</span>
-                        <span className="text-gray-500 dark:text-gray-400">- Akses kendaraan ditutup</span>
+                        <span className="font-medium">
+                          Gate tertutup (Closed)
+                        </span>
+                        <span className="text-gray-500 dark:text-gray-400">
+                          - Akses kendaraan ditutup
+                        </span>
                       </div>
                       <div className="text-gray-700 dark:text-gray-200 text-xs sm:text-sm">
-                        <span className="font-bold">LED Arrow</span> menunjukkan status gate parkir:
+                        <span className="font-bold">LED Arrow</span> menunjukkan
+                        status gate parkir:
                         <br />
                         <span>
-                          Jika <GreenDownArrow className="inline w-4 h-4 text-green-500 align-middle mx-1" />
-                          <span className="font-semibold text-green-600">panah hijau</span>, gate <b>dapat digunakan</b> untuk keluar/masuk kendaraan.
-                          Jika <RedCross className="inline w-4 h-4 text-red-500 align-middle mx-1" />
-                          <span className="font-semibold text-red-500">silang merah</span>, gate sedang <b>trouble</b> (misal: ada masalah pembayaran atau kendaraan tidak bisa keluar/masuk).
+                          Jika{" "}
+                          <GreenDownArrow className="inline w-4 h-4 text-green-500 align-middle mx-1" />
+                          <span className="font-semibold text-green-600">
+                            panah hijau
+                          </span>
+                          , gate <b>dapat digunakan</b> untuk keluar/masuk
+                          kendaraan. Jika{" "}
+                          <RedCross className="inline w-4 h-4 text-red-500 align-middle mx-1" />
+                          <span className="font-semibold text-red-500">
+                            silang merah
+                          </span>
+                          , gate sedang <b>trouble</b> (misal: ada masalah
+                          pembayaran atau kendaraan tidak bisa keluar/masuk).
                           {/* <br />
                           <span className="ml-0 sm:ml-5">
                             Saat gate bermasalah, <b>kendaraan diarahkan ke gate lain</b> agar tidak terjadi antrian panjang.
@@ -434,21 +463,10 @@ function LocationDetailContent() {
                 </button>
               </div>
 
-
               {/* Content Section */}
               <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg overflow-x-auto">
                 {isDataLoading ? (
-                  // <div className="text-center py-8 px-4">
-                  //   <div className="three-body">
-                  //     <div className="three-body__dot"></div>
-                  //     <div className="three-body__dot"></div>
-                  //     <div className="three-body__dot"></div>
-                  //   </div>
-                  //   <p className="text-gray-600 dark:text-gray-300 blink-smooth mt-4">
-                  //     Memuat data gate...
-                  //   </p>
-                  // </div>
-                  <SimplePageLoader isLoading={isDataLoading} loadingText={"Memuat data table"} />
+                  <ThreeDotsLoader />
                 ) : gates.length === 0 ? (
                   <NoData message="Tidak ada gate ditemukan untuk lokasi ini" />
                 ) : (
@@ -492,12 +510,15 @@ function LocationDetailContent() {
           onClose={handleCancelLedArrow}
           onConfirm={handleConfirmLedArrow}
           title={
-            (ledArrowStatus[selectedLedGate.id] ?? true)
+            ledArrowStatus[selectedLedGate.id] ?? true
               ? "Matikan LED Arrow"
               : "Nyalakan LED Arrow"
           }
-          message={`Apakah Anda yakin ingin ${(ledArrowStatus[selectedLedGate.id] ?? true) ? "mematikan" : "menyalakan"
-            } LED Arrow pada gate "${selectedLedGate.gate}"?`}
+          message={`Apakah Anda yakin ingin ${
+            ledArrowStatus[selectedLedGate.id] ?? true
+              ? "mematikan"
+              : "menyalakan"
+          } LED Arrow pada gate "${selectedLedGate.gate}"?`}
           confirmText="Ya, Lanjutkan"
           cancelText="Batal"
           isLoading={false}
