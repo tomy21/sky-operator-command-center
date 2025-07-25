@@ -159,9 +159,10 @@ export default function LocationPage() {
         locationsActiveData.data &&
         locationsActiveData.meta
       ) {
+
         const mappedLocation: Location[] = locationsActiveData.data.map(
           (loc, index) => ({
-            id: loc.id || index + 1,
+            id: index + 1,
             name: loc.Name,
             address: loc.Address,
           })
@@ -250,9 +251,10 @@ export default function LocationPage() {
         header: "No",
         accessor: "id",
         render: (value, item) => {
-          const index = locations.findIndex((loc) => loc.id === loc.id);
+          const index = locations.findIndex((loc) => loc.id === item.id);
           return (
-            (locationPagination.currentPage - 1) * locationPagination.itemsPerPage +
+            (locationPagination.currentPage - 1) *
+              locationPagination.itemsPerPage +
             index +
             1
           );
@@ -344,7 +346,16 @@ export default function LocationPage() {
                     <h2 className="text-lg font-medium text-indigo-700 dark:text-indigo-400 mb-2">
                       Manajemen Lokasi
                     </h2>
-                    <p className="text-indigo-600/80 dark:text-indigo-300/80"> Halaman ini digunakan untuk mengelola informasi lokasi gerbang parkir yang tersedia. Setiap lokasi mencakup detail seperti nama lokasi alamat, dan informasi terkait lainnya. Anda dapat melihat detail lengkap setiap lokasi dengan mengklik tombol lihat detail pada tabel Gunakan tombol &quot;Aktifkan Lokasi&quot; untuk mengaktifkan lokasi yang belum aktif.</p>
+                    <p className="text-indigo-600/80 dark:text-indigo-300/80">
+                      {" "}
+                      Halaman ini digunakan untuk mengelola informasi lokasi
+                      gerbang parkir yang tersedia. Setiap lokasi mencakup
+                      detail seperti nama lokasi alamat, dan informasi terkait
+                      lainnya. Anda dapat melihat detail lengkap setiap lokasi
+                      dengan mengklik tombol lihat detail pada tabel Gunakan
+                      tombol &quot;Aktifkan Lokasi&quot; untuk mengaktifkan
+                      lokasi yang belum aktif.
+                    </p>
                   </div>
                 </div>
 
