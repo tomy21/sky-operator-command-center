@@ -23,7 +23,6 @@ export default function Register() {
       setIsLoading(true);
       setError("");
 
-      // Validasi form
       if (
         !formData.username ||
         !formData.password ||
@@ -33,15 +32,6 @@ export default function Register() {
         setIsLoading(false);
         return;
       }
-
-      // TODO: Implementasikan RegisterAuth function
-      // const response = await RegisterAuth({
-      //   username: formData.username,
-      //   password: formData.password,
-      //   credentialCode: formData.credentialCode,
-      // });
-
-      // console.log("Register data:", formData);
 
       router.push("/login?registerSuccess=1");
     } catch (error) {

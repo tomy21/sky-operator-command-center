@@ -321,7 +321,7 @@ function LocationDetailContent() {
       header: "LED Arrow",
       accessor: "id",
       render: (_, gate) => {
-        const isOn = ledArrowStatus[gate.id] ?? true; // default true (hijau)
+        const isOn = ledArrowStatus[gate.id] ?? true;
         return (
           <button
             className="p-1 cursor-pointer  rounded hover:bg-green-100 transition"

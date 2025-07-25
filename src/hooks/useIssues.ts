@@ -46,13 +46,11 @@ interface IssueDetailResponse {
 
 export const fetchIssues = async (page = 1, limit = 5, search = '', date = '', location = '') => {
   try {
-    // Build query parameters
     const params = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString()
     });
 
-    // Add optional parameters if they exist
     if (search) params.append('search', search);
     if (date) params.append('date', date);
     if (location) params.append('location', location);
@@ -96,11 +94,6 @@ export const fetchIssueDetail = async (id: number) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const addIssue = async (issue: any) => {
   try {
-    // Dapatkan signature terlebih dahulu
-    // const { timestamp, signature } = await getSignature();
-
-    // const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1] || '';
-
     const response = await fetch("/api/issue/create", {
       method: "POST",
       headers: {

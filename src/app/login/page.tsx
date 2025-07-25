@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
 import { Eye, EyeOff } from "lucide-react";
 import ThreeDotsLoader from "@/components/ThreeDotsLoader";
-// import Link from "next/link";
 
 export default function Login() {
   const router = useRouter();

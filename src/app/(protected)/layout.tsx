@@ -42,9 +42,7 @@ export default async function ProtectedLayout({
           newestOnTop={false}
           closeOnClick={true}
           rtl={false}
-          // pauseOnFocusLoss={true}
           draggable={true}
-          // pauseOnHover={true}
           theme="colored"
         />
       </LayoutWrapper>

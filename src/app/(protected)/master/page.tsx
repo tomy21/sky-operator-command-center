@@ -197,7 +197,6 @@ export default function MasterPage() {
         if (reset || page === 1) {
           return newOptions;
         }
-        // Avoid duplicates when loading more
         const existingIds = new Set(prev.map((opt) => opt.value));
         const uniqueNewOptions = newOptions.filter(
           (opt) => !existingIds.has(opt.value)

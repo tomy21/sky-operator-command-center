@@ -8,10 +8,6 @@ export interface GateStatusUpdate {
   gateId: string;
   codeGate: string;
   gateStatus: string;
-  // photoIn?: string;
-  // photoOut?: string;
-  // capture?: string
-  // imageBase64?: string;
   location: {
     Name: string;
     Code: string;

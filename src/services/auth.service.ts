@@ -3,7 +3,6 @@ import apiClient from '@/lib/axios';
 import { LoginCredentials, User, ApiResponse } from '@/types/auth';
 
 const encryptPayload = (data: any) => {
-  // TODO: Implementasikan enkripsi data di sini jika diperlukan
   return data;
 };
 

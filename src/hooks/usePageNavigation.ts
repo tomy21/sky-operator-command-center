@@ -1,4 +1,3 @@
-// hooks/usePageNavigation.ts
 "use client";
 import { useState, useCallback, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -19,10 +18,8 @@ export const usePageNavigation = (): UsePageNavigationReturn => {
     const [progress, setProgress] = useState(0);
     const [isNavigating, setIsNavigating] = useState(false);
 
-    // Reset loading state when pathname changes
     useEffect(() => {
         if (isLoading) {
-            // Simulate final loading steps
             setProgress(90);
             const timer = setTimeout(() => {
                 setProgress(100);
@@ -70,7 +67,6 @@ export const usePageNavigation = (): UsePageNavigationReturn => {
     };
 
     const navigateTo = useCallback(async (href: string, label?: string): Promise<void> => {
-        // Don't navigate if already on the same page
         if (pathname === href) return;
 
         setIsNavigating(true);
@@ -78,14 +74,11 @@ export const usePageNavigation = (): UsePageNavigationReturn => {
         setProgress(0);
         setLoadingText(getLoadingTextByPath(href, label));
 
-        // Start progress simulation
         const cleanup = simulateProgress();
 
         try {
-            // Add small delay for better UX
             await new Promise(resolve => setTimeout(resolve, 100));
 
-            // Navigate to the new page
             router.push(href);
 
         } catch (error) {

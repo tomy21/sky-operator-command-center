@@ -2,7 +2,7 @@
 import { CallQuantityParams, CallQuantityResponse } from "@/types/callQuantity";
 import { unauthorizedAPI } from "@/utils/unauthorizedURL";
 import { useEffect, useState } from "react";
-// Fetch function
+
 export const fetchCallQuantity = async (params?: CallQuantityParams): Promise<CallQuantityResponse> => {
     try {
         const queryParams = new URLSearchParams();

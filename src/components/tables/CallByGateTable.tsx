@@ -139,10 +139,7 @@ const CallByGateTable: React.FC = () => {
         locations: generateLocations(),
       },
     },
-  };
-
-//   console.log(yearlyData, "<<<<<yearlyData");
-  
+  };  
 
   const getCurrentData = (): LocationGateData[] => {
     const currentYearData = yearlyData[selectedYear];

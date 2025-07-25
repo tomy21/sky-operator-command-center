@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
-// import RouteLoader from "@/components/RouteLoader";
 import { LoaderProvider } from "@/contexts/LoaderContext";
 import { UserProvider } from "@/contexts/UserContext";
 
