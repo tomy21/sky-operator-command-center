@@ -4,12 +4,12 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import {
-  GlobalCallPopup,
   SocketProvider,
 
 } from "@/contexts/SocketContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { GlobalCallPopup } from "@/components/GlobalCallPopup";
 
 export default async function ProtectedLayout({
   children,
