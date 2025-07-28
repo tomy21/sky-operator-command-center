@@ -161,8 +161,8 @@ export default function LocationPage() {
       ) {
 
         const mappedLocation: Location[] = locationsActiveData.data.map(
-          (loc, index) => ({
-            id: index + 1,
+          (loc) => ({
+            id: loc.id,
             name: loc.Name,
             address: loc.Address,
           })
