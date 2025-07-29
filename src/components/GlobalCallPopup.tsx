@@ -179,7 +179,10 @@ export function GlobalCallPopup() {
     try {
       setIsSearchingTransaction(true);
       const response = await getTransaction(editablePlateNumber, locationId);
-      if (response?.data?.data && response?.data?.responseStatus === "Success") {
+      if (
+        response?.data?.data &&
+        response?.data?.responseStatus === "Success"
+      ) {
         updateActiveCallWithTransactionData(response);
       } else if (response?.data?.responseStatus !== "Success") {
         toast.error("Data transaksi tidak ditemukan");
@@ -227,7 +230,12 @@ export function GlobalCallPopup() {
         issuerName: transaction.issuerName || "-",
         inTime: transaction.inTime || "-",
         outTime: transaction.outTime || "-",
-        duration: transaction.duration || 0,
+        duration:
+          transaction.duration !== null &&
+          transaction.duration !== undefined &&
+          transaction.duration !== 0
+            ? transaction.duration
+            : updatedActiveCall.detailGate.data?.duration ?? 0,
         tariff: transaction.tariff || 0,
         vehicleType: transaction.vehicleType || "-",
         gracePeriode: transaction.gracePeriode || 0,
