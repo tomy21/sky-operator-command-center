@@ -496,13 +496,13 @@ export default function ReportsPage() {
       await addIssue(newReportData);
 
       await fetchAllIssuesData();
-      toast.success("Report Created successfully!");
+      toast.success("Report Berhasil dibuat!");
       setFormFieldValues({});
       setGateIdData([]);
       setDescriptions([]);
     } catch (error) {
       console.error("Error creating new report");
-      toast.error("Failed to create report. Please try again.");
+      toast.error("Gagal membuat report. Harap coba lagi.");
     } finally {
       setIsDataLoading(false);
     }

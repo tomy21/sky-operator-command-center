@@ -59,7 +59,6 @@ const CallByIncidentTable: React.FC = () => {
     december: "dec",
   };
 
-  // Extended sample data with more locations and regions
   const allLocations: LocationIncidentData[] = [
     {
       location: "HPM LKU",
@@ -651,7 +650,6 @@ const CallByIncidentTable: React.FC = () => {
         },
       },
     },
-    // Additional sample locations
     {
       location: "METRO",
       region: "Region 1",
@@ -1244,13 +1242,11 @@ const CallByIncidentTable: React.FC = () => {
     },
   ];
 
-  // Filter locations based on region
   const filteredLocations = useMemo(() => {
     if (selectedRegion === "all") return allLocations;
     return allLocations.filter((loc) => loc.region === selectedRegion);
   }, [selectedRegion]);
 
-  // Pagination
   const totalPages = Math.ceil(filteredLocations.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -1281,8 +1277,6 @@ const CallByIncidentTable: React.FC = () => {
     { key: "bike", label: "BIKE", bgColor: "bg-yellow-50 dark:bg-yellow-900" },
     { key: "total", label: "TOTAL", bgColor: "bg-blue-50 dark:bg-blue-900" },
   ];
-
-  // console.log(paginatedLocations, "<<<paginatedLocations");
 
   return (
     <div className="bg-white dark:bg-[#222B36] rounded-lg p-4 md:p-6">

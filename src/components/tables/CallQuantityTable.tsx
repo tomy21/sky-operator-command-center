@@ -51,7 +51,6 @@ const CallQuantityTable: React.FC = () => {
   });
 
   useEffect(() => {
-    // Anda mungkin perlu menambahkan refetch function dari hook Anda
   }, [
     selectedYear,
     selectedSemester,

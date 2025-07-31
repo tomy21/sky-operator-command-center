@@ -42,7 +42,6 @@ const SocketContext = createContext<SocketContextType>({
 export const useGlobalSocket = () => useContext(SocketContext);
 
 export function SocketProvider({ children }: { children: ReactNode }) {
-  // Core states
   const socket = useSocket();
   const [connectionStatus, setConnectionStatus] = useState("Connecting...");
   const [activeCall, setActiveCall] = useState<GateStatusUpdate | null>(null);
@@ -51,7 +50,6 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [, setCallInTime] = useState<Date | null>(null);
 
-  // Desktop detection
   useEffect(() => {
     const checkDesktop = () => {
       setIsDesktop(window.innerWidth >= 1024);
@@ -61,7 +59,6 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("resize", checkDesktop);
   }, []);
 
-  // Initialize user number and audio
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedUserNumber = localStorage.getItem("admin_user_number");
@@ -74,7 +71,6 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     }
   }, [isDesktop]);
 
-  // User number management
   const setUserNumber = (num: number) => {
     setUserNumberState(num);
     localStorage.setItem("admin_user_number", num.toString());
@@ -84,7 +80,6 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Audio controls
   const muteRingtone = () => {
     if (audio) {
       audio.volume = 0;
@@ -99,7 +94,6 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // End call function
   const endCallFunction = async () => {
     if (!socket || !activeCall || !isDesktop) return;
     const userId = Number(localStorage.getItem("admin_user_number"));
@@ -117,11 +111,10 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       setCallInTime(null);
     } catch (err) {
       console.error("Error ending call");
-      toast.error("Failed to end call");
+      toast.error("Gagal mengakhiri panggilan");
     }
   };
 
-  // Socket event listeners
   useEffect(() => {
     if (!socket) return;
 

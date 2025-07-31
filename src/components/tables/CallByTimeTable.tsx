@@ -172,7 +172,6 @@ const CallByTimeTable: React.FC = () => {
   const currentMonthData = getCurrentMonthData();
   const filteredLocations = getFilteredLocations();
 
-  // Location pagination
   const totalLocationPages = Math.ceil(
     filteredLocations.length / locationsPerPage
   );

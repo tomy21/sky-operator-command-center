@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import {
   ChevronLeft,
-  // ChevronsLeft,
   ChevronRight,
-  // ChevronsRight
 } from "lucide-react";
 import { CustomSelect } from "../input/CustomSelect";
 import { months, regions, viewSets, years } from "@/utils/filterData";
@@ -40,13 +38,11 @@ const CallByGateTable: React.FC = () => {
 
   const generateGateNames = (): string[] => {
     const gates = [];
-    // Pintu Masuk 1-16
     for (let i = 1; i <= 16; i++) {
       gates.push(`Pintu Masuk ${i}`);
     }
     gates.push("Total PM");
 
-    // Pintu Keluar 1-17
     for (let i = 1; i <= 17; i++) {
       gates.push(`Pintu Keluar ${i}`);
     }
@@ -79,7 +75,6 @@ const CallByGateTable: React.FC = () => {
       const locationNumber = Math.floor(i / locationTypes.length) + 1;
       const region = regionsList[i % regionsList.length];
 
-      // Generate gate data for each location
       const gates: {
         [gateName: string]: { car: GateDataCell; bike: GateDataCell };
       } = {};
@@ -109,7 +104,6 @@ const CallByGateTable: React.FC = () => {
     return locations;
   };
 
-  // Sample yearly data structure
   const yearlyData: { [year: string]: { [month: string]: ApiResponse } } = {
     "2024": {
       january: {
@@ -147,7 +141,6 @@ const CallByGateTable: React.FC = () => {
     const monthData = currentYearData[selectedMonth];
     if (!monthData) return [];
 
-    // Filter by region if not 'all'
     if (selectedRegion === "all") {
       return monthData.locations;
     }
@@ -158,7 +151,6 @@ const CallByGateTable: React.FC = () => {
 
   const allLocations = getCurrentData();
 
-  // Pagination logic for locations
   const totalPages = Math.ceil(allLocations.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -173,7 +165,6 @@ const CallByGateTable: React.FC = () => {
     setCurrentPage(1);
   };
 
-  // Get cell value for gate data (random for demo)
   const getCellValue = (
     location: LocationGateData,
     gateName: string,

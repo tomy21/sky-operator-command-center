@@ -189,7 +189,7 @@ export default function LocationPage() {
       try {
         await createGate(values);
         setIsAddModalOpen(false);
-        toast.success("gate baru berhasil ditambahkan!");
+        toast.success("Gate baru berhasil ditambahkan!");
         fetchLocationActiveData(
           locationPagination.currentPage,
           locationPagination.itemsPerPage

@@ -4,11 +4,9 @@ import { changeStatusGate } from '@/hooks/useIOT';
 import { fetchNewTransaction, createTransaction, sendWhatsApp } from '@/hooks/useTransaction';
 import { addIssue } from '@/hooks/useIssues';
 
-// Remove unused imports
 // import { validateLicensePlate } from '@/utils/validationNumberPlat';
 // import { validateWhatsAppNumber } from '@/utils/formatPhoneNumber';
 
-// Add proper type for issue data
 interface IssueData {
   idCategory?: number;
   idGate?: number;
@@ -85,7 +83,7 @@ export function useCallManagement() {
     try {
       setIsSendingWhatsApp(true);
       const response = await sendWhatsApp(phoneNumber);
-      toast.success('WhatsApp berhasil dikirim');
+      toast.success('Pesan whatsApp berhasil dikirim');
       return response;
     } catch (error: unknown) {
       console.error('Error sending WhatsApp:', error);
