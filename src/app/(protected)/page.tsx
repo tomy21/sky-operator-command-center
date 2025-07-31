@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState, useRef } from "react";
 import { useGlobalSocket } from "@/contexts/SocketContext";
 import dynamic from "next/dynamic";
 import { ApexOptions } from "apexcharts";
@@ -54,7 +54,10 @@ const tableOptions = [
   { value: "traffic-call", label: "Panggilan dan Traffic" },
 ] as const;
 
+// Tambahkan useRef untuk chart
+
 export default function Dashboard() {
+  const chartRef = useRef<any>(null);
   const { connectionStatus, userNumber } = useGlobalSocket();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -86,6 +89,13 @@ export default function Dashboard() {
       foreColor: "inherit",
       events: {
         dataPointSelection: handlePieChartClick,
+        // click: function (event, chartContext, config) {
+        //   setTimeout(() => {
+        //     if (chartContext && chartContext.clearSelection) {
+        //       chartContext.clearSelection();
+        //     }
+        //   }, 100);
+        // },
       },
     },
     labels: ["Informasi", "Teknikal", "Fasilitas", "Layanan"],
@@ -180,6 +190,19 @@ export default function Dashboard() {
       enabled: true,
       y: {
         formatter: (value: number) => `${value} komplain`,
+      },
+    },
+    states: {
+      hover: {
+        filter: {
+          type: "lighten",
+        },
+      },
+      active: {
+        allowMultipleDataPointsSelection: false,
+        filter: {
+          type: "none",
+        },
       },
     },
   };
