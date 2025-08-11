@@ -6,43 +6,14 @@ import {
 import React, { useState } from "react";
 import { CustomSelect } from "../input/CustomSelect";
 import { months, regions, viewSets, years } from "@/utils/filterData";
-
-interface CallData {
-  call: number;
-  noAnswer: number;
-  doublePush: number;
-}
-
-interface TimeSlotData {
-  hour: string;
-  hpm: CallData;
-  lku: CallData;
-  lmp: CallData;
-  pv: CallData;
-  spark: CallData;
-  picon: CallData;
-  ml: CallData;
-  lmn: CallData;
-  shlv: CallData;
-  shkj: CallData;
-  shkd: CallData;
-  uph: CallData;
-  helipad: CallData;
-}
-
-interface MonthlyData {
-  [key: string]: TimeSlotData[];
-}
-
-interface YearlyData {
-  [key: string]: MonthlyData;
-}
-
-interface Location {
-  key: string;
-  label: string;
-  region: string;
-}
+import { 
+  CallData, 
+  TimeSlotData, 
+  allLocations, 
+  generateTimeSlots,
+  mockYearlyData 
+} from "@/data/mock/callByTimeData";
+import { useCallByTimeData } from "@/hooks/useCallByTime";
 
 const CallByTimeTable: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState<string>("2024");
@@ -51,121 +22,36 @@ const CallByTimeTable: React.FC = () => {
   const [locationsPerPage, setLocationsPerPage] = useState<number>(5);
   const [currentLocationPage, setCurrentLocationPage] = useState<number>(1);
 
-  const allLocations: Location[] = [
-    { key: "hpm", label: "HPM", region: "Region 1" },
-    { key: "lku", label: "LKU", region: "Region 1" },
-    { key: "lmp", label: "LMP", region: "Region 2" },
-    { key: "pv", label: "PV", region: "Region 2" },
-    { key: "spark", label: "SPARK", region: "Region 3" },
-    { key: "picon", label: "PICON", region: "Region 3" },
-    { key: "ml", label: "ML", region: "Region 4" },
-    { key: "lmn", label: "LMN", region: "Region 4" },
-    { key: "shlv", label: "SHLV", region: "Region 5" },
-    { key: "shkj", label: "SHKJ", region: "Region 5" },
-    { key: "shkd", label: "SHKD", region: "Region 5" },
-    { key: "uph", label: "UPH", region: "Region 1" },
-    { key: "helipad", label: "HELIPAD", region: "Region 2" },
-  ];
+  const {
+    data: apiData,
+    loading: apiLoading,
+    error: apiError,
+    refetch,
+  } = useCallByTimeData({
+    year: selectedYear,
+    month: selectedMonth,
+    region: selectedRegion,
+    page: currentLocationPage,
+    itemsPerPage: locationsPerPage,
+  });
 
-  const yearlyData: YearlyData = {
-    "2024": {
-      january: [],
-      february: [],
-      march: [],
-      april: [
-        {
-          hour: "00:00-01:00",
-          hpm: { call: 5, noAnswer: 2, doublePush: 1 },
-          lku: { call: 3, noAnswer: 1, doublePush: 0 },
-          lmp: { call: 2, noAnswer: 2, doublePush: 0 },
-          pv: { call: 7, noAnswer: 3, doublePush: 1 },
-          spark: { call: 1, noAnswer: 0, doublePush: 0 },
-          picon: { call: 4, noAnswer: 1, doublePush: 2 },
-          ml: { call: 6, noAnswer: 2, doublePush: 0 },
-          lmn: { call: 2, noAnswer: 1, doublePush: 1 },
-          shlv: { call: 8, noAnswer: 4, doublePush: 2 },
-          shkj: { call: 3, noAnswer: 0, doublePush: 0 },
-          shkd: { call: 5, noAnswer: 2, doublePush: 1 },
-          uph: { call: 1, noAnswer: 1, doublePush: 0 },
-          helipad: { call: 2, noAnswer: 0, doublePush: 0 },
-        },
-      ],
-      may: [],
-      june: [],
-      july: [],
-      august: [],
-      september: [],
-      october: [],
-      november: [],
-      december: [],
-    },
-    "2023": {
-      january: [],
-      february: [],
-      march: [],
-      april: [],
-      may: [],
-      june: [],
-      july: [],
-      august: [],
-      september: [],
-      october: [],
-      november: [],
-      december: [],
-    },
-    "2022": {
-      january: [],
-      february: [],
-      march: [],
-      april: [],
-      may: [],
-      june: [],
-      july: [],
-      august: [],
-      september: [],
-      october: [],
-      november: [],
-      december: [],
-    },
-    "2025": {
-      january: [],
-      february: [],
-      march: [],
-      april: [],
-      may: [],
-      june: [],
-      july: [],
-      august: [],
-      september: [],
-      october: [],
-      november: [],
-      december: [],
-    },
-  };
+  const isUsingDummyData = !apiData || apiData.length === 0;
 
   const getCurrentMonthData = (): TimeSlotData[] => {
-    return yearlyData[selectedYear]?.[selectedMonth] || [];
+    if (apiData && apiData.length > 0) {
+      return apiData;
+    }
+    
+    return mockYearlyData[selectedYear]?.[selectedMonth] || [];
   };
 
-  // Filter locations by region
-  const getFilteredLocations = (): Location[] => {
+  const getFilteredLocations = () => {
     if (selectedRegion === "all") {
       return allLocations;
     }
     return allLocations.filter(
       (location) => location.region === selectedRegion
     );
-  };
-
-  // Generate all 24 hour slots
-  const generateTimeSlots = (): string[] => {
-    const slots = [];
-    for (let i = 0; i < 24; i++) {
-      const startHour = i.toString().padStart(2, "0");
-      const endHour = ((i + 1) % 24).toString().padStart(2, "0");
-      slots.push(`${startHour}:00-${endHour}:00`);
-    }
-    return slots;
   };
 
   const timeSlots = generateTimeSlots();
@@ -182,13 +68,11 @@ const CallByTimeTable: React.FC = () => {
     endLocationIndex
   );
 
-  // Handle view set change
   const handleViewSetChange = (newViewSet: number) => {
     setLocationsPerPage(newViewSet);
-    setCurrentLocationPage(1); // Reset to first page when changing view set
+    setCurrentLocationPage(1);
   };
 
-  // Handle region change
   const handleRegionChange = (newRegion: string) => {
     setSelectedRegion(newRegion);
     setCurrentLocationPage(1);
@@ -202,15 +86,32 @@ const CallByTimeTable: React.FC = () => {
     const timeSlotData = currentMonthData.find(
       (data) => data.hour === timeSlot
     );
+    
     if (timeSlotData && timeSlotData[location as keyof TimeSlotData]) {
       return timeSlotData[location as keyof TimeSlotData] as CallData;
     }
+    
     return {
       call: Math.floor(Math.random() * 10),
       noAnswer: Math.floor(Math.random() * 5),
       doublePush: Math.floor(Math.random() * 3),
     };
   };
+
+  if (apiLoading) {
+    return (
+      <div className="bg-white dark:bg-[#222B36] rounded-lg p-4 md:p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="flex items-center space-x-2">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+            <span className="text-gray-600 dark:text-gray-300">
+              Memuat data...
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white dark:bg-[#222B36] rounded-lg p-4 md:p-6">
@@ -307,6 +208,35 @@ const CallByTimeTable: React.FC = () => {
             {regions.find((r) => r.value === selectedRegion)?.label}
           </span>
         </p>
+        
+        {/* Peringatan data dummy */}
+        {isUsingDummyData && (
+          <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
+            <div className="flex items-center">
+              <svg
+                className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mr-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span className="text-sm text-yellow-800 dark:text-yellow-200">
+                Menampilkan data dummy karena data dari server tidak tersedia
+                {apiError && ` (Error: ${apiError})`}
+              </span>
+              <button
+                onClick={() => refetch()}
+                className="ml-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                Coba lagi
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Table Container */}
