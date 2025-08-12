@@ -3,7 +3,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { viewSets } from "@/utils/filterData";
 import React, { useState, useEffect } from "react";
+import { CustomSelect } from "../input/CustomSelect";
 
 interface ComplaintDetail {
   date: string;
@@ -475,7 +477,7 @@ export const ComplaintModal: React.FC<ComplaintModalProps> = ({
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Tampilkan:
               </span>
-              <select
+              {/* <select
                 value={itemsPerPage}
                 onChange={(e) =>
                   handleItemsPerPageChange(Number(e.target.value))
@@ -486,7 +488,16 @@ export const ComplaintModal: React.FC<ComplaintModalProps> = ({
                 <option value={10}>10</option>
                 <option value={20}>20</option>
                 <option value={50}>50</option>
-              </select>
+              </select> */}
+              <CustomSelect
+                options={viewSets.map((size) => ({
+                  id: size,
+                  name: size.toString(),
+                }))}
+                value={itemsPerPage}
+                onChange={(value) => handleItemsPerPageChange(Number(value))}
+                placeholder="Pilih jumlah item"
+              />
               <span className="text-sm text-gray-600 dark:text-gray-400">
                 per halaman
               </span>

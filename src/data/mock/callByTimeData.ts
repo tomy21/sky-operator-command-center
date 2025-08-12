@@ -1,4 +1,3 @@
-// Definisi tipe data
 export interface CallData {
   call: number;
   noAnswer: number;
@@ -36,7 +35,6 @@ export interface Location {
   region: string;
 }
 
-// Data lokasi
 export const allLocations: Location[] = [
   { key: "hpm", label: "HPM", region: "Region 1" },
   { key: "lku", label: "LKU", region: "Region 1" },
@@ -53,7 +51,6 @@ export const allLocations: Location[] = [
   { key: "helipad", label: "HELIPAD", region: "Region 2" },
 ];
 
-// Fungsi untuk menghasilkan time slots
 export const generateTimeSlots = (): string[] => {
   const slots = [];
   for (let i = 0; i < 24; i++) {
@@ -64,7 +61,6 @@ export const generateTimeSlots = (): string[] => {
   return slots;
 };
 
-// Data dummy untuk panggilan berdasarkan waktu
 export const mockYearlyData: YearlyData = {
   "2024": {
     january: generateMockDataForMonth(),
@@ -87,7 +83,6 @@ export const mockYearlyData: YearlyData = {
         uph: { call: 1, noAnswer: 1, doublePush: 0 },
         helipad: { call: 2, noAnswer: 0, doublePush: 0 },
       },
-      // Tambahkan data untuk jam-jam lainnya
       {
         hour: "01:00-02:00",
         hpm: { call: 3, noAnswer: 1, doublePush: 0 },
@@ -104,7 +99,6 @@ export const mockYearlyData: YearlyData = {
         uph: { call: 0, noAnswer: 0, doublePush: 0 },
         helipad: { call: 1, noAnswer: 0, doublePush: 0 },
       },
-      // Tambahkan data untuk jam-jam lainnya sesuai kebutuhan
     ],
     may: generateMockDataForMonth(),
     june: generateMockDataForMonth(),
@@ -120,7 +114,6 @@ export const mockYearlyData: YearlyData = {
   "2025": generateMockYearData(),
 };
 
-// Fungsi untuk menghasilkan data dummy untuk satu bulan
 function generateMockDataForMonth(): TimeSlotData[] {
   const timeSlots = generateTimeSlots();
   return timeSlots.map(hour => ({
@@ -141,7 +134,6 @@ function generateMockDataForMonth(): TimeSlotData[] {
   }));
 }
 
-// Fungsi untuk menghasilkan data dummy untuk satu tahun
 function generateMockYearData(): MonthlyData {
   return {
     january: generateMockDataForMonth(),
@@ -159,7 +151,6 @@ function generateMockYearData(): MonthlyData {
   };
 }
 
-// Fungsi untuk menghasilkan data panggilan acak
 function generateRandomCallData(): CallData {
   return {
     call: Math.floor(Math.random() * 10),

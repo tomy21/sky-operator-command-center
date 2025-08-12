@@ -529,7 +529,6 @@ const TrafficCallTable: React.FC = () => {
   const allData = generateSampleData();
 
   const getCurrentData = (): LocationData[] => {
-    // Filter by region if not 'all'
     if (selectedRegion === "all") {
       return allData;
     }
@@ -538,7 +537,6 @@ const TrafficCallTable: React.FC = () => {
 
   const filteredData = getCurrentData();
 
-  // Pagination logic
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;

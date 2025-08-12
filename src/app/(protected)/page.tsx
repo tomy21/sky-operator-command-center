@@ -54,8 +54,6 @@ const tableOptions = [
   { value: "traffic-call", label: "Panggilan dan Traffic" },
 ] as const;
 
-// Tambahkan useRef untuk chart
-
 export default function Dashboard() {
   const chartRef = useRef<any>(null);
   const { connectionStatus, userNumber } = useGlobalSocket();
@@ -89,13 +87,6 @@ export default function Dashboard() {
       foreColor: "inherit",
       events: {
         dataPointSelection: handlePieChartClick,
-        // click: function (event, chartContext, config) {
-        //   setTimeout(() => {
-        //     if (chartContext && chartContext.clearSelection) {
-        //       chartContext.clearSelection();
-        //     }
-        //   }, 100);
-        // },
       },
     },
     labels: ["Informasi", "Teknikal", "Fasilitas", "Layanan"],

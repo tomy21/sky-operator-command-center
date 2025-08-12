@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { CustomSelect } from "../input/CustomSelect";
 import { months, regions, viewSets, years } from "@/utils/filterData";
+import { useCallByGateData } from "@/hooks/useCallByGate";
+import { generateGateNames } from "@/data/mock/callByGateData";
 
 interface GateDataCell {
   humanError: number;
@@ -23,11 +22,11 @@ interface LocationGateData {
   };
 }
 
-interface ApiResponse {
-  year: string;
-  month: string;
-  locations: LocationGateData[];
-}
+// interface ApiResponse {
+//   year: string;
+//   month: string;
+//   locations: LocationGateData[];
+// }
 
 const CallByGateTable: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState<string>("january");
@@ -36,125 +35,31 @@ const CallByGateTable: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
 
-  const generateGateNames = (): string[] => {
-    const gates = [];
-    for (let i = 1; i <= 16; i++) {
-      gates.push(`Pintu Masuk ${i}`);
-    }
-    gates.push("Total PM");
-
-    for (let i = 1; i <= 17; i++) {
-      gates.push(`Pintu Keluar ${i}`);
-    }
-    gates.push("Total PK");
-    gates.push("TOTAL");
-
-    return gates;
-  };
+  const {
+    data: apiData,
+    loading: apiLoading,
+    // error: apiError,
+    // refetch,
+    pagination,
+    isUsingDummyData,
+  } = useCallByGateData({
+    year: selectedYear,
+    month: selectedMonth,
+    region: selectedRegion,
+    page: currentPage,
+    itemsPerPage: itemsPerPage,
+  });
 
   const gateNames = generateGateNames();
 
-  const generateLocations = (): LocationGateData[] => {
-    const locations = [];
-    const locationTypes = [
-      "HPM LKU",
-      "LMP",
-      "PV",
-      "Mall A",
-      "Mall B",
-      "Mall C",
-      "Plaza X",
-      "Plaza Y",
-      "Supermarket 1",
-      "Supermarket 2",
-    ];
-    const regionsList = ["Region 1", "Region 2", "Region 3", "Region 4"];
+  const paginatedLocations = apiData || [];
+  const totalPages = pagination?.totalPages || 1;
 
-    for (let i = 0; i < 100; i++) {
-      const locationType = locationTypes[i % locationTypes.length];
-      const locationNumber = Math.floor(i / locationTypes.length) + 1;
-      const region = regionsList[i % regionsList.length];
-
-      const gates: {
-        [gateName: string]: { car: GateDataCell; bike: GateDataCell };
-      } = {};
-
-      gateNames.forEach((gateName) => {
-        gates[gateName] = {
-          car: {
-            humanError: Math.floor(Math.random() * 50),
-            customerBehaviour: Math.floor(Math.random() * 20),
-            assetSystem: Math.floor(Math.random() * 15),
-          },
-          bike: {
-            humanError: Math.floor(Math.random() * 30),
-            customerBehaviour: Math.floor(Math.random() * 10),
-            assetSystem: Math.floor(Math.random() * 10),
-          },
-        };
-      });
-
-      locations.push({
-        location: `${locationType} ${locationNumber}`,
-        region: region,
-        gates: gates,
-      });
-    }
-
-    return locations;
-  };
-
-  const yearlyData: { [year: string]: { [month: string]: ApiResponse } } = {
-    "2024": {
-      january: {
-        year: "2024",
-        month: "january",
-        locations: generateLocations(),
-      },
-    },
-    "2023": {
-      january: {
-        year: "2023",
-        month: "january",
-        locations: generateLocations(),
-      },
-    },
-    "2022": {
-      january: {
-        year: "2022",
-        month: "january",
-        locations: generateLocations(),
-      },
-    },
-    "2025": {
-      january: {
-        year: "2025",
-        month: "january",
-        locations: generateLocations(),
-      },
-    },
-  };  
-
-  const getCurrentData = (): LocationGateData[] => {
-    const currentYearData = yearlyData[selectedYear];
-    if (!currentYearData) return [];
-    const monthData = currentYearData[selectedMonth];
-    if (!monthData) return [];
-
-    if (selectedRegion === "all") {
-      return monthData.locations;
-    }
-    return monthData.locations.filter(
-      (location) => location.region === selectedRegion
-    );
-  };
-
-  const allLocations = getCurrentData();
-
-  const totalPages = Math.ceil(allLocations.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedLocations = allLocations.slice(startIndex, endIndex);
+  const allLocations = pagination?.totalItems
+    ? paginatedLocations
+    : paginatedLocations;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -200,15 +105,34 @@ const CallByGateTable: React.FC = () => {
     return "hover:bg-gray-50 dark:hover:bg-gray-700";
   };
 
+  if (apiLoading) {
+    return (
+      <div className="bg-white dark:bg-[#222B36] rounded-lg p-4 md:p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="flex items-center space-x-2">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+            <span className="text-gray-600 dark:text-gray-300">
+              Memuat data...
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white dark:bg-[#222B36] rounded-lg p-4 md:p-6">
       <div className="mb-6">
-        <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          Call by Gate
-        </h3>
+        <h3 className="text-lg md:text-xl font-semibold mb-4">Call by Gate</h3>
 
-        {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+        {isUsingDummyData && (
+          <div className="mb-4 p-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded-md text-sm">
+            <p>Menggunakan data dummy karena data dari API tidak tersedia.</p>
+          </div>
+        )}
+
+        {/* Year, Month, Region, and View Set Selection */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <div>
             <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
               Bulan:
