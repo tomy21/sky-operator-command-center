@@ -2,51 +2,10 @@ import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { CustomSelect } from "../input/CustomSelect";
 import { periods, regions, viewSets, years } from "@/utils/filterData";
+import { useCallByTrafficData } from "@/hooks/useCallByTraffic";
+import { LocationData } from "@/data/mock/callByTrafficData";
 
-interface MonthlyData {
-  qty: number;
-  percentage: number;
-}
 
-interface VehicleData {
-  traffic: MonthlyData;
-  call: MonthlyData;
-}
-
-interface LocationData {
-  location: string;
-  region: string;
-  car: {
-    jan: VehicleData;
-    feb: VehicleData;
-    mar: VehicleData;
-    apr: VehicleData;
-    mei: VehicleData;
-    juni: VehicleData;
-    juli: VehicleData;
-    agu: VehicleData;
-    sept: VehicleData;
-    okt: VehicleData;
-    nov: VehicleData;
-    des: VehicleData;
-    total: VehicleData;
-  };
-  bike: {
-    jan: VehicleData;
-    feb: VehicleData;
-    mar: VehicleData;
-    apr: VehicleData;
-    mei: VehicleData;
-    juni: VehicleData;
-    juli: VehicleData;
-    agu: VehicleData;
-    sept: VehicleData;
-    okt: VehicleData;
-    nov: VehicleData;
-    des: VehicleData;
-    total: VehicleData;
-  };
-}
 
 type MonthKey =
   | "jan"
@@ -62,7 +21,6 @@ type MonthKey =
   | "nov"
   | "des"
   | "total";
-// type MonthKey = typeof MONTH_KEYS[number];
 
 const TrafficCallTable: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<string>("semester1");
@@ -71,414 +29,34 @@ const TrafficCallTable: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
 
-  // Generate sample data with regions
-  const generateSampleData = (): LocationData[] => {
-    const baseData = [
-      {
-        location: "HPM LKU",
-        region: "Region 1",
-        car: {
-          jan: {
-            traffic: { qty: 1779, percentage: 2.4 },
-            call: { qty: 91, percentage: 0 },
-          },
-          feb: {
-            traffic: { qty: 363, percentage: 0 },
-            call: { qty: 67, percentage: 0 },
-          },
-          mar: {
-            traffic: { qty: 6453, percentage: 1.8 },
-            call: { qty: 115, percentage: 0 },
-          },
-          apr: {
-            traffic: { qty: 342, percentage: 1.9 },
-            call: { qty: 74, percentage: 0 },
-          },
-          mei: {
-            traffic: { qty: 565, percentage: 1.1 },
-            call: { qty: 83, percentage: 0 },
-          },
-          juni: {
-            traffic: { qty: 1, percentage: 1.3 },
-            call: { qty: 55, percentage: 0 },
-          },
-          juli: {
-            traffic: { qty: 1200, percentage: 1.5 },
-            call: { qty: 45, percentage: 0 },
-          },
-          agu: {
-            traffic: { qty: 890, percentage: 1.2 },
-            call: { qty: 38, percentage: 0 },
-          },
-          sept: {
-            traffic: { qty: 1450, percentage: 1.8 },
-            call: { qty: 62, percentage: 0 },
-          },
-          okt: {
-            traffic: { qty: 980, percentage: 1.4 },
-            call: { qty: 41, percentage: 0 },
-          },
-          nov: {
-            traffic: { qty: 1100, percentage: 1.6 },
-            call: { qty: 52, percentage: 0 },
-          },
-          des: {
-            traffic: { qty: 760, percentage: 1.1 },
-            call: { qty: 35, percentage: 0 },
-          },
-
-          total: {
-            traffic: { qty: 9503, percentage: 1.5 },
-            call: { qty: 485, percentage: 0 },
-          },
-        },
-        bike: {
-          jan: {
-            traffic: { qty: 523, percentage: 2.1 },
-            call: { qty: 8, percentage: 0 },
-          },
-          feb: {
-            traffic: { qty: 4316, percentage: 1.5 },
-            call: { qty: 67, percentage: 0 },
-          },
-          mar: {
-            traffic: { qty: 6172, percentage: 1.8 },
-            call: { qty: 115, percentage: 0 },
-          },
-          apr: {
-            traffic: { qty: 3883, percentage: 1.9 },
-            call: { qty: 74, percentage: 0 },
-          },
-          mei: {
-            traffic: { qty: 7770, percentage: 1.1 },
-            call: { qty: 83, percentage: 0 },
-          },
-          juni: {
-            traffic: { qty: 3476, percentage: 1.3 },
-            call: { qty: 55, percentage: 0 },
-          },
-          juli: {
-            traffic: { qty: 1200, percentage: 1.5 },
-            call: { qty: 45, percentage: 0 },
-          },
-          agu: {
-            traffic: { qty: 890, percentage: 1.2 },
-            call: { qty: 38, percentage: 0 },
-          },
-          sept: {
-            traffic: { qty: 1450, percentage: 1.8 },
-            call: { qty: 62, percentage: 0 },
-          },
-          okt: {
-            traffic: { qty: 980, percentage: 1.4 },
-            call: { qty: 41, percentage: 0 },
-          },
-          nov: {
-            traffic: { qty: 1100, percentage: 1.6 },
-            call: { qty: 52, percentage: 0 },
-          },
-          des: {
-            traffic: { qty: 760, percentage: 1.1 },
-            call: { qty: 35, percentage: 0 },
-          },
-          total: {
-            traffic: { qty: 26140, percentage: 1.5 },
-            call: { qty: 502, percentage: 0 },
-          },
-        },
-      },
-      {
-        location: "LMP",
-        region: "Region 2",
-        car: {
-          jan: {
-            traffic: { qty: 271879, percentage: 0.3 },
-            call: { qty: 840, percentage: 0 },
-          },
-          feb: {
-            traffic: { qty: 231129, percentage: 0.5 },
-            call: { qty: 1178, percentage: 0 },
-          },
-          mar: {
-            traffic: { qty: 278249, percentage: 0.6 },
-            call: { qty: 1721, percentage: 0 },
-          },
-          apr: {
-            traffic: { qty: 252020, percentage: 0.5 },
-            call: { qty: 1306, percentage: 0 },
-          },
-          mei: {
-            traffic: { qty: 263380, percentage: 0.4 },
-            call: { qty: 956, percentage: 0 },
-          },
-          juni: {
-            traffic: { qty: 99954, percentage: 0.4 },
-            call: { qty: 395, percentage: 0 },
-          },
-          juli: {
-            traffic: { qty: 1200, percentage: 1.5 },
-            call: { qty: 45, percentage: 0 },
-          },
-          agu: {
-            traffic: { qty: 890, percentage: 1.2 },
-            call: { qty: 38, percentage: 0 },
-          },
-          sept: {
-            traffic: { qty: 1450, percentage: 1.8 },
-            call: { qty: 62, percentage: 0 },
-          },
-          okt: {
-            traffic: { qty: 980, percentage: 1.4 },
-            call: { qty: 41, percentage: 0 },
-          },
-          nov: {
-            traffic: { qty: 1100, percentage: 1.6 },
-            call: { qty: 52, percentage: 0 },
-          },
-          des: {
-            traffic: { qty: 760, percentage: 1.1 },
-            call: { qty: 35, percentage: 0 },
-          },
-          total: {
-            traffic: { qty: 1397061, percentage: 0.5 },
-            call: { qty: 6396, percentage: 0 },
-          },
-        },
-        bike: {
-          jan: {
-            traffic: { qty: 0, percentage: 0.0 },
-            call: { qty: 0, percentage: 0 },
-          },
-          feb: {
-            traffic: { qty: 0, percentage: 0.0 },
-            call: { qty: 0, percentage: 0 },
-          },
-          mar: {
-            traffic: { qty: 0, percentage: 0.0 },
-            call: { qty: 0, percentage: 0 },
-          },
-          apr: {
-            traffic: { qty: 0, percentage: 0.0 },
-            call: { qty: 0, percentage: 0 },
-          },
-          mei: {
-            traffic: { qty: 0, percentage: 0.0 },
-            call: { qty: 0, percentage: 0 },
-          },
-          juni: {
-            traffic: { qty: 0, percentage: 0.0 },
-            call: { qty: 0, percentage: 0 },
-          },
-          juli: {
-            traffic: { qty: 1200, percentage: 1.5 },
-            call: { qty: 45, percentage: 0 },
-          },
-          agu: {
-            traffic: { qty: 890, percentage: 1.2 },
-            call: { qty: 38, percentage: 0 },
-          },
-          sept: {
-            traffic: { qty: 1450, percentage: 1.8 },
-            call: { qty: 62, percentage: 0 },
-          },
-          okt: {
-            traffic: { qty: 980, percentage: 1.4 },
-            call: { qty: 41, percentage: 0 },
-          },
-          nov: {
-            traffic: { qty: 1100, percentage: 1.6 },
-            call: { qty: 52, percentage: 0 },
-          },
-          des: {
-            traffic: { qty: 760, percentage: 1.1 },
-            call: { qty: 35, percentage: 0 },
-          },
-          total: {
-            traffic: { qty: 0, percentage: 0.0 },
-            call: { qty: 0, percentage: 0 },
-          },
-        },
-      },
-      {
-        location: "PV",
-        region: "Region 1",
-        car: {
-          jan: {
-            traffic: { qty: 127347, percentage: 0.3 },
-            call: { qty: 437, percentage: 0 },
-          },
-          feb: {
-            traffic: { qty: 135155, percentage: 0.7 },
-            call: { qty: 990, percentage: 0 },
-          },
-          mar: {
-            traffic: { qty: 116451, percentage: 0.9 },
-            call: { qty: 1056, percentage: 0 },
-          },
-          apr: {
-            traffic: { qty: 140845, percentage: 0.6 },
-            call: { qty: 785, percentage: 0 },
-          },
-          mei: {
-            traffic: { qty: 170391, percentage: 0.5 },
-            call: { qty: 796, percentage: 0 },
-          },
-          juni: {
-            traffic: { qty: 62131, percentage: 0.4 },
-            call: { qty: 241, percentage: 0 },
-          },
-          juli: {
-            traffic: { qty: 1200, percentage: 1.5 },
-            call: { qty: 45, percentage: 0 },
-          },
-          agu: {
-            traffic: { qty: 890, percentage: 1.2 },
-            call: { qty: 38, percentage: 0 },
-          },
-          sept: {
-            traffic: { qty: 1450, percentage: 1.8 },
-            call: { qty: 62, percentage: 0 },
-          },
-          okt: {
-            traffic: { qty: 980, percentage: 1.4 },
-            call: { qty: 41, percentage: 0 },
-          },
-          nov: {
-            traffic: { qty: 1100, percentage: 1.6 },
-            call: { qty: 52, percentage: 0 },
-          },
-          des: {
-            traffic: { qty: 760, percentage: 1.1 },
-            call: { qty: 35, percentage: 0 },
-          },
-          total: {
-            traffic: { qty: 752320, percentage: 0.6 },
-            call: { qty: 4305, percentage: 0 },
-          },
-        },
-        bike: {
-          jan: {
-            traffic: { qty: 6456, percentage: 1.5 },
-            call: { qty: 99, percentage: 0 },
-          },
-          feb: {
-            traffic: { qty: 17556, percentage: 1.8 },
-            call: { qty: 326, percentage: 0 },
-          },
-          mar: {
-            traffic: { qty: 22671, percentage: 1.6 },
-            call: { qty: 349, percentage: 0 },
-          },
-          apr: {
-            traffic: { qty: 21298, percentage: 1.6 },
-            call: { qty: 352, percentage: 0 },
-          },
-          mei: {
-            traffic: { qty: 27051, percentage: 1.2 },
-            call: { qty: 316, percentage: 0 },
-          },
-          juni: {
-            traffic: { qty: 9783, percentage: 1.3 },
-            call: { qty: 133, percentage: 0 },
-          },
-          juli: {
-            traffic: { qty: 1200, percentage: 1.5 },
-            call: { qty: 45, percentage: 0 },
-          },
-          agu: {
-            traffic: { qty: 890, percentage: 1.2 },
-            call: { qty: 38, percentage: 0 },
-          },
-          sept: {
-            traffic: { qty: 1450, percentage: 1.8 },
-            call: { qty: 62, percentage: 0 },
-          },
-          okt: {
-            traffic: { qty: 980, percentage: 1.4 },
-            call: { qty: 41, percentage: 0 },
-          },
-          nov: {
-            traffic: { qty: 1100, percentage: 1.6 },
-            call: { qty: 52, percentage: 0 },
-          },
-          des: {
-            traffic: { qty: 760, percentage: 1.1 },
-            call: { qty: 35, percentage: 0 },
-          },
-          total: {
-            traffic: { qty: 104815, percentage: 1.5 },
-            call: { qty: 1575, percentage: 0 },
-          },
-        },
-      },
-    ];
-
-    // Generate additional sample locations for demonstration
-    const additionalLocations: LocationData[] = [];
-    const locationTypes = [
-      "Mall A",
-      "Mall B",
-      "Plaza X",
-      "Plaza Y",
-      "Supermarket",
-    ];
-    const regionsList = ["Region 1", "Region 2", "Region 3", "Region 4"];
-
-    for (let i = 0; i < 20; i++) {
-      const locationType = locationTypes[i % locationTypes.length];
-      const locationNumber = Math.floor(i / locationTypes.length) + 1;
-      const region = regionsList[i % regionsList.length];
-
-      const generateRandomData = (): VehicleData => ({
-        traffic: {
-          qty: Math.floor(Math.random() * 50000),
-          percentage: Math.random() * 3,
-        },
-        call: { qty: Math.floor(Math.random() * 500), percentage: 0 },
-      });
-
-      const carData = {
-        jan: generateRandomData(),
-        feb: generateRandomData(),
-        mar: generateRandomData(),
-        apr: generateRandomData(),
-        mei: generateRandomData(),
-        juni: generateRandomData(),
-        juli: generateRandomData(),
-        agu: generateRandomData(),
-        sept: generateRandomData(),
-        okt: generateRandomData(),
-        nov: generateRandomData(),
-        des: generateRandomData(),
-        total: generateRandomData(),
-      };
-
-      const bikeData = {
-        jan: generateRandomData(),
-        feb: generateRandomData(),
-        mar: generateRandomData(),
-        apr: generateRandomData(),
-        mei: generateRandomData(),
-        juni: generateRandomData(),
-        juli: generateRandomData(),
-        agu: generateRandomData(),
-        sept: generateRandomData(),
-        okt: generateRandomData(),
-        nov: generateRandomData(),
-        des: generateRandomData(),
-        total: generateRandomData(),
-      };
-
-      additionalLocations.push({
-        location: `${locationType} ${locationNumber}`,
-        region: region,
-        car: carData,
-        bike: bikeData,
-      });
+  const getPeriodMonth = (period: string): string => {
+    switch (period) {
+      case "semester1":
+        return "january";
+      case "semester2":
+        return "july";
+      case "yearly":
+        return "yearly";
+      default:
+        return "january";
     }
-
-    return [...baseData, ...additionalLocations];
   };
+
+  const {
+    data: apiData,
+    // loading,
+    error,
+    pagination: apiPagination,
+    isUsingDummyData,
+    // refetch,
+  } = useCallByTrafficData({
+    year: selectedYear,
+    month: getPeriodMonth(selectedPeriod),
+    period: selectedPeriod,
+    region: selectedRegion,
+    page: currentPage,
+    itemsPerPage: itemsPerPage,
+  });
 
   const getMonthsForPeriod = (period: string) => {
     if (period === "semester1") {
@@ -526,21 +104,22 @@ const TrafficCallTable: React.FC = () => {
     }
   };
 
-  const allData = generateSampleData();
+  // const allData = generateSampleData();
 
   const getCurrentData = (): LocationData[] => {
-    if (selectedRegion === "all") {
-      return allData;
-    }
-    return allData.filter((location) => location.region === selectedRegion);
+    return apiData || [];
   };
 
   const filteredData = getCurrentData();
 
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const totalPages =
+    apiPagination?.totalPages ||
+    Math.ceil((apiData?.length || 0) / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedData = filteredData.slice(startIndex, endIndex);
+  const paginatedData = isUsingDummyData
+    ? filteredData.slice(startIndex, endIndex)
+    : filteredData;
 
   const formatNumber = (num: number): string => {
     return num.toLocaleString();
@@ -669,6 +248,14 @@ const TrafficCallTable: React.FC = () => {
             </select> */}
           </div>
         </div>
+        {isUsingDummyData && (
+          <div className="mb-4 p-3 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 rounded-md">
+            <div className="text-sm text-yellow-800 dark:text-yellow-200">
+              API data not available. Showing sample data.
+              {error && <span className="ml-2">({error})</span>}
+            </div>
+          </div>
+        )}
 
         <p className="text-sm text-gray-600 dark:text-gray-300">
           Menampilkan data untuk:{" "}
@@ -892,8 +479,24 @@ const TrafficCallTable: React.FC = () => {
       {/* Pagination */}
       <div className="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="text-sm text-gray-600 dark:text-gray-300">
-          Menampilkan {startIndex + 1} -{" "}
-          {Math.min(endIndex, filteredData.length)} dari {filteredData.length}{" "}
+          Menampilkan{" "}
+          {isUsingDummyData
+            ? startIndex + 1
+            : ((apiPagination?.page || 1) - 1) *
+                (apiPagination?.itemsPerPage || itemsPerPage) +
+              1}{" "}
+          -{" "}
+          {isUsingDummyData
+            ? Math.min(endIndex, filteredData.length)
+            : Math.min(
+                (apiPagination?.page || 1) *
+                  (apiPagination?.itemsPerPage || itemsPerPage),
+                apiPagination?.totalItems || 0
+              )}{" "}
+          dari{" "}
+          {isUsingDummyData
+            ? filteredData.length
+            : apiPagination?.totalItems || 0}{" "}
           hasil
         </div>
 
