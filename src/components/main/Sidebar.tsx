@@ -11,14 +11,14 @@ import {
   MasterIcon,
   ReportsIcon,
 } from "@/public/icons/Icons";
-import PageLoader from "@/components/PageLoader";
+// import PageLoader from "@/components/PageLoader";
 import { usePageNavigation } from "@/hooks/usePageNavigation";
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const { isLoading, loadingText, navigateTo, isNavigating } =
+  const { navigateTo, isNavigating } =
     usePageNavigation();
 
   const menuItems = [
@@ -88,7 +88,7 @@ export default function Sidebar() {
   return (
     <>
       {/* Page Loader */}
-      <PageLoader isLoading={isLoading} loadingText={loadingText} />
+      {/* <PageLoader isLoading={isLoading} loadingText={loadingText} /> */}
 
       {isMobile && isOpen && (
         <div
