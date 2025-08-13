@@ -125,12 +125,6 @@ const CallByGateTable: React.FC = () => {
       <div className="mb-6">
         <h3 className="text-lg md:text-xl font-semibold mb-4">Call by Gate</h3>
 
-        {isUsingDummyData && (
-          <div className="mb-4 p-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded-md text-sm">
-            <p>Menggunakan data dummy karena data dari API tidak tersedia.</p>
-          </div>
-        )}
-
         {/* Year, Month, Region, and View Set Selection */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <div>
@@ -202,6 +196,12 @@ const CallByGateTable: React.FC = () => {
             />
           </div>
         </div>
+
+        {isUsingDummyData && (
+          <div className="mb-4 p-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded-md text-sm">
+            <p>Menggunakan data dummy karena data dari API tidak tersedia.</p>
+          </div>
+        )}
 
         <p className="text-sm text-gray-600 dark:text-gray-300">
           Menampilkan data untuk:{" "}

@@ -6,12 +6,12 @@ import {
 import React, { useState } from "react";
 import { CustomSelect } from "../input/CustomSelect";
 import { months, regions, viewSets, years } from "@/utils/filterData";
-import { 
-  CallData, 
-  TimeSlotData, 
-  allLocations, 
+import {
+  CallData,
+  TimeSlotData,
+  allLocations,
   generateTimeSlots,
-  mockYearlyData 
+  mockYearlyData,
 } from "@/data/mock/callByTimeData";
 import { useCallByTimeData } from "@/hooks/useCallByTime";
 
@@ -25,8 +25,8 @@ const CallByTimeTable: React.FC = () => {
   const {
     data: apiData,
     loading: apiLoading,
-    error: apiError,
-    refetch,
+    // error: apiError,
+    // refetch,
   } = useCallByTimeData({
     year: selectedYear,
     month: selectedMonth,
@@ -41,7 +41,7 @@ const CallByTimeTable: React.FC = () => {
     if (apiData && apiData.length > 0) {
       return apiData;
     }
-    
+
     return mockYearlyData[selectedYear]?.[selectedMonth] || [];
   };
 
@@ -86,11 +86,11 @@ const CallByTimeTable: React.FC = () => {
     const timeSlotData = currentMonthData.find(
       (data) => data.hour === timeSlot
     );
-    
+
     if (timeSlotData && timeSlotData[location as keyof TimeSlotData]) {
       return timeSlotData[location as keyof TimeSlotData] as CallData;
     }
-    
+
     return {
       call: Math.floor(Math.random() * 10),
       noAnswer: Math.floor(Math.random() * 5),
@@ -198,6 +198,11 @@ const CallByTimeTable: React.FC = () => {
             />
           </div>
         </div>
+        {isUsingDummyData && (
+          <div className="mb-4 p-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded-md text-sm">
+          <p>Menggunakan data dummy karena data dari API tidak tersedia.</p>
+        </div>
+        )}
         <p className="text-sm text-gray-600 dark:text-gray-300">
           Menampilkan data untuk:{" "}
           <span className="font-semibold text-gray-900 dark:text-white">
@@ -208,35 +213,6 @@ const CallByTimeTable: React.FC = () => {
             {regions.find((r) => r.value === selectedRegion)?.label}
           </span>
         </p>
-        
-        {/* Peringatan data dummy */}
-        {isUsingDummyData && (
-          <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
-            <div className="flex items-center">
-              <svg
-                className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mr-2"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className="text-sm text-yellow-800 dark:text-yellow-200">
-                Menampilkan data dummy karena data dari server tidak tersedia
-                {apiError && ` (Error: ${apiError})`}
-              </span>
-              <button
-                onClick={() => refetch()}
-                className="ml-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
-              >
-                Coba lagi
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Table Container */}

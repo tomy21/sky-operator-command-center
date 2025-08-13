@@ -17,7 +17,7 @@ const CallByIncidentTable: React.FC = () => {
   const {
     data: apiData,
     loading: apiLoading,
-    error: apiError,
+    // error: apiError,
     pagination,
     isUsingDummyData,
   } = useCallByIncidentData({
@@ -148,7 +148,10 @@ const CallByIncidentTable: React.FC = () => {
       {/* Data Source Indicator */}
       {isUsingDummyData && (
         <div className="mb-4 p-2 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-md text-sm">
-          <p>Menggunakan data dummy karena API tidak tersedia atau tidak mengembalikan data.</p>
+          <p>
+            Menggunakan data dummy karena API tidak tersedia atau tidak
+            mengembalikan data.
+          </p>
         </div>
       )}
 
@@ -171,81 +174,85 @@ const CallByIncidentTable: React.FC = () => {
       )}
 
       {/* Error State */}
-      {apiError && !apiLoading && (
+      {/* {apiError && !apiLoading && (
         <div className="mb-4 p-4 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-md">
           <p>{apiError}</p>
         </div>
-      )}
+      )} */}
 
       {/* Table */}
       {!apiLoading && paginatedLocations.length > 0 && (
         <div className="overflow-x-auto thin-scrollbar">
-        <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-600">
-          <thead>
-            <tr className="bg-gray-100 dark:bg-gray-800">
-              <th
-                rowSpan={2}
-                className="border border-gray-300 dark:border-gray-600 px-4 py-3 text-left font-medium text-black dark:text-white sticky left-0 z-20 bg-gray-100 dark:bg-gray-800 min-w-[180px]"
-              >
-                LOCATION
-              </th>
-              {/* Hapus kolom REGION */}
-              {vehicleTypes.map((vehicleType) => (
+          <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-600">
+            <thead>
+              <tr className="bg-gray-100 dark:bg-gray-800">
                 <th
-                  key={vehicleType.key}
-                  colSpan={incidentTypes.length}
-                  className={`border border-gray-300 dark:border-gray-600 px-2 py-2 text-center font-medium text-black dark:text-white ${vehicleType.bgColor}`}
+                  rowSpan={2}
+                  className="border border-gray-300 dark:border-gray-600 px-4 py-3 text-left font-medium text-black dark:text-white sticky left-0 z-20 bg-gray-100 dark:bg-gray-800 min-w-[180px]"
                 >
-                  {vehicleType.label}
+                  LOCATION
                 </th>
-              ))}
-            </tr>
-            <tr className="bg-gray-50 dark:bg-gray-700">
-              {vehicleTypes.map((vehicleType) =>
-                incidentTypes.map((incident) => (
+                {/* Hapus kolom REGION */}
+                {vehicleTypes.map((vehicleType) => (
                   <th
-                    key={`${vehicleType.key}-${incident.key}`}
-                    className={`border border-gray-300 dark:border-gray-600 px-2 py-2 text-center text-xs font-medium text-black dark:text-white ${vehicleType.bgColor} min-w-[100px]`}
+                    key={vehicleType.key}
+                    colSpan={incidentTypes.length}
+                    className={`border border-gray-300 dark:border-gray-600 px-2 py-2 text-center font-medium text-black dark:text-white ${vehicleType.bgColor}`}
                   >
-                    {incident.label}
+                    {vehicleType.label}
                   </th>
-                ))
-              )}
-            </tr>
-          </thead>
-          <tbody className="text-black dark:text-white">
-            {paginatedLocations.map((location, index) => (
-              <tr
-                key={location.location}
-                className={
-                  index % 2 === 0
-                    ? "bg-white dark:bg-[#222B36]"
-                    : "bg-gray-50 dark:bg-gray-800"
-                }
-              >
-                <td className="border border-gray-300 dark:border-gray-600 px-4 py-3 font-medium sticky left-0 z-10 bg-white dark:bg-[#222B36]">
-                  {location.location}
-                </td>
-                {/* Hapus kolom region */}
+                ))}
+              </tr>
+              <tr className="bg-gray-50 dark:bg-gray-700">
                 {vehicleTypes.map((vehicleType) =>
                   incidentTypes.map((incident) => (
-                    <td
-                      key={`${location.location}-${vehicleType.key}-${incident.key}`}
-                      className="border border-gray-300 dark:border-gray-600 px-2 py-3 text-right text-sm"
+                    <th
+                      key={`${vehicleType.key}-${incident.key}`}
+                      className={`border border-gray-300 dark:border-gray-600 px-2 py-2 text-center text-xs font-medium text-black dark:text-white ${vehicleType.bgColor} min-w-[100px]`}
                     >
-                      {formatNumber(
-                        location[vehicleType.key][
-incident.key as 'trafficHumanError' | 'trafficSystem' | 'customerBehaviour' | 'assetSystem'
-                        ][monthToDataKey[selectedMonth]] || 0
-                      )}
-                    </td>
+                      {incident.label}
+                    </th>
                   ))
                 )}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="text-black dark:text-white">
+              {paginatedLocations.map((location, index) => (
+                <tr
+                  key={location.location}
+                  className={
+                    index % 2 === 0
+                      ? "bg-white dark:bg-[#222B36]"
+                      : "bg-gray-50 dark:bg-gray-800"
+                  }
+                >
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-3 font-medium sticky left-0 z-10 bg-white dark:bg-[#222B36]">
+                    {location.location}
+                  </td>
+                  {/* Hapus kolom region */}
+                  {vehicleTypes.map((vehicleType) =>
+                    incidentTypes.map((incident) => (
+                      <td
+                        key={`${location.location}-${vehicleType.key}-${incident.key}`}
+                        className="border border-gray-300 dark:border-gray-600 px-2 py-3 text-right text-sm"
+                      >
+                        {formatNumber(
+                          location[vehicleType.key][
+                            incident.key as
+                              | "trafficHumanError"
+                              | "trafficSystem"
+                              | "customerBehaviour"
+                              | "assetSystem"
+                          ][monthToDataKey[selectedMonth]] || 0
+                        )}
+                      </td>
+                    ))
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {/* No Data State */}
@@ -259,7 +266,8 @@ incident.key as 'trafficHumanError' | 'trafficSystem' | 'customerBehaviour' | 'a
       {paginatedLocations.length > 0 && (
         <div className="flex flex-col md:flex-row justify-between items-center mt-4 gap-4">
           <div className="text-sm text-gray-600 dark:text-gray-300">
-            Menampilkan {paginatedLocations.length} dari {pagination?.totalItems || filteredLocations.length} lokasi
+            Menampilkan {paginatedLocations.length} dari{" "}
+            {pagination?.totalItems || filteredLocations.length} lokasi
           </div>
           <div className="flex items-center space-x-2">
             <button
@@ -272,18 +280,21 @@ incident.key as 'trafficHumanError' | 'trafficSystem' | 'customerBehaviour' | 'a
 
             {/* Page Numbers */}
             <div className="flex items-center space-x-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`px-3 py-1 rounded-md ${page === currentPage
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-3 py-1 rounded-md ${
+                      page === currentPage
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
                     }`}
-                >
-                  {page}
-                </button>
-              ))}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
             </div>
 
             <button
