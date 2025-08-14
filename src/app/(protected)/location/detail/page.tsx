@@ -3,7 +3,7 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import CommonTable, { Column } from "@/components/tables/CommonTable";
 import {
   fetchGateByLocation,
@@ -28,9 +28,8 @@ interface PaginationInfo {
 
 function LocationDetailContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const locationId = searchParams.get("id");
-  const locationName = searchParams.get("name");
+  const [locationId, setLocationId] = useState<string | null>(null);
+  const [locationName, setLocationName] = useState<string | null>(null);
 
   const [gates, setGates] = useState<GateByLocation[]>([]);
   const [gatePagination, setGatePagination] = useState<PaginationInfo>({
@@ -207,6 +206,22 @@ function LocationDetailContent() {
       currentPage: 1,
     }));
   };
+
+  useEffect(() => {
+    const storedLocationId = localStorage.getItem("selectedLocationId");
+    const storedLocationName = localStorage.getItem("selectedLocationName");
+
+    if (storedLocationId) {
+      setLocationId(storedLocationId);
+    } else {
+      router.push("/location");
+      return;
+    }
+
+    if (storedLocationName) {
+      setLocationName(storedLocationName);
+    }
+  }, [router]);
 
   const handleBack = () => {
     router.back();

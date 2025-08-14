@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { ChevronDown, Lock, LogOut } from 'lucide-react';
+import { ChevronDown, Lock } from 'lucide-react';
 import CheckTicketModal from '@/components/modal/CheckTicketModal';
 import { useUser } from '@/contexts/UserContext';
 
@@ -33,14 +33,6 @@ export default function Header({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('id');
-    localStorage.removeItem('admin_user_number');
-    router.push('/login');
-  };
 
   const handleChangePassword = () => {
     setIsProfileDropdownOpen(false);
@@ -113,13 +105,13 @@ export default function Header({
                     Ganti Password
                   </button>
                   
-                  <button
+                  {/* <button
                     onClick={handleLogout}
                     className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   >
                     <LogOut className="w-4 h-4 mr-3" />
                     Logout
-                  </button>
+                  </button> */}
                 </div>
               )}
             </div>

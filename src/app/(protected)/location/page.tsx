@@ -115,11 +115,10 @@ export default function LocationPage() {
   const handleViewDetail = useCallback(
     async (location: Location) => {
       try {
-        router.push(
-          `/location/detail?id=${location.id}&name=${encodeURIComponent(
-            location.name
-          )}`
-        );
+        localStorage.setItem("selectedLocationId", location.id.toString());
+        localStorage.setItem("selectedLocationName", location.name);
+
+        router.push(`/location/detail`);
       } catch (error) {
         toast.error("Gagal membuka detail lokasi");
       }
@@ -159,7 +158,6 @@ export default function LocationPage() {
         locationsActiveData.data &&
         locationsActiveData.meta
       ) {
-
         const mappedLocation: Location[] = locationsActiveData.data.map(
           (loc) => ({
             id: loc.id,
