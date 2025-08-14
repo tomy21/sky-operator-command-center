@@ -7,6 +7,8 @@ export function middleware(request: NextRequest) {
     "/location",
     "/master",
     "/reports",
+    "/change-password",
+
   ];
 
   const { pathname } = request.nextUrl;
