@@ -556,15 +556,15 @@ export default function ReportsPage() {
   const columns: Column<Report>[] = [
     { header: "No.", accessor: "no" },
     {
-      header: "DAY",
+      header: "Hari",
       accessor: "dayName",
     },
     {
-      header: "DATE",
+      header: "Tanggal",
       accessor: "date",
     },
     {
-      header: "TIME",
+      header: "Waktu",
       accessor: "time",
     },
     { header: "Durasi", accessor: "duration" },
