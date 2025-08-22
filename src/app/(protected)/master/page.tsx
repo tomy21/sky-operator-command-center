@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-"use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 
 import { useState, useEffect, lazy, Suspense } from "react";
 import { FiEdit2, FiTrash2, FiX } from "react-icons/fi";
@@ -442,6 +442,10 @@ export default function MasterPage() {
     {
       header: "Kategori",
       accessor: "id_category",
+      render: (value: any, item: Description) => {
+        const category = categories.find(cat => cat.id === item.id_category);
+        return category ? category.category : value;
+      },
     },
     {
       header: "Tanggal Dibuat",

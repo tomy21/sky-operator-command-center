@@ -12,7 +12,7 @@ interface FieldOption {
 export interface Field {
   id: string;
   label: string;
-  type: "text" | "number" | "select" | "textarea" | "radio";
+  type: "text" | "number" | "select" | "textarea" | "radio" | "time";
   value: string;
   placeholder?: string;
   options?: FieldOption[];
@@ -146,7 +146,7 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
     const isDisabled = field.disabled || false;
     const hasError = !!validationErrors[field.id];
     const inputClassName = getInputClassName(hasError, isDisabled, isReadonly);
-
+  
     switch (field.type) {
       case "select":
         return (
@@ -243,6 +243,28 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
                 </span>
               </label>
             ))}
+          </div>
+        );
+
+      case "time":
+        return (
+          <div>
+            <input
+              type="time"
+              value={value}
+              onChange={(e) => handleInputChange(field.id, e.target.value)}
+              placeholder={field.placeholder}
+              className={inputClassName}
+              readOnly={isReadonly}
+              disabled={isDisabled}
+              required={field.required}
+              step="1"
+            />
+            {hasError && (
+              <div className="mt-1 text-sm text-red-600 dark:text-red-400 transition-opacity duration-200">
+                {validationErrors[field.id]}
+              </div>
+            )}
           </div>
         );
 

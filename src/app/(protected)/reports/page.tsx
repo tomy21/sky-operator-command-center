@@ -26,7 +26,7 @@ import {
   fetchDescriptionByCategoryId,
 } from "@/hooks/useDescriptions";
 import { toast } from "react-toastify";
-import { formatDateOnly } from "@/utils/formatDate";
+import { formatDayDateTime } from "@/utils/formatDate";
 import {
   fetchGateByLocation,
   fetchLocationActive,
@@ -41,12 +41,14 @@ import ThreeDotsLoader from "@/components/ThreeDotsLoader";
 interface Report {
   no?: number;
   duration?: string;
-  ticket: string;
+  pk_id: string;
   location: string;
   category: string;
   description: string;
   solution: string;
-  formatDate: string;
+  dayName: string;
+  date: string;
+  time: string;
   rawDate: Date;
 }
 
@@ -66,6 +68,8 @@ interface NewReportData {
   foto: string;
   number_plate: string;
   TrxNo: string;
+  duration: string;
+  solution: string;
 }
 
 interface DataPagination {
@@ -150,7 +154,7 @@ export default function ReportsPage() {
       if (issuesData && issuesData.data && issuesData.meta) {
         const mappedReports: Report[] = issuesData.data.map((issue, index) => {
           const createdDate = new Date(issue.createdAt);
-          const formatDate = formatDateOnly(issue.createdAt);
+          const { dayName, date, time } = formatDayDateTime(issue.createdAt);
 
           return {
             no:
@@ -158,9 +162,12 @@ export default function ReportsPage() {
                 issuesPagination.itemsPerPage +
               index +
               1,
-            formatDate,
+            dayName,
+            date,
+            time,
+            rawDate: createdDate,
             duration: "30 mins",
-            ticket: issue.ticket,
+            pk_id: issue.gate,
             location: issue.lokasi && issue.lokasi !== "" ? issue.lokasi : "-",
             category:
               issue.category && issue.category !== "" ? issue.category : "-",
@@ -169,7 +176,7 @@ export default function ReportsPage() {
                 ? issue.description
                 : "-",
             solution: issue.action || "-",
-            rawDate: createdDate,
+            // rawDate: createdDate,
           };
         });
 
@@ -462,9 +469,9 @@ export default function ReportsPage() {
   const handleNewReportSubmit = async (values: Record<string, string>) => {
     try {
       setIsDataLoading(true);
-
+  
       let finalDescription = values.description;
-
+  
       if (values.description === "other" && values.customDescription) {
         try {
           await handleAddDescription(
@@ -481,7 +488,7 @@ export default function ReportsPage() {
       } else if (values.description !== "other") {
         finalDescription = values.description;
       }
-
+  
       const newReportData: NewReportData = {
         idLocation: parseInt(values.idLocation),
         idCategory: parseInt(values.idCategory),
@@ -491,8 +498,10 @@ export default function ReportsPage() {
         foto: values.foto || "-",
         number_plate: values.number_plate || "-",
         TrxNo: values.TrxNo || "-",
+        duration: values.duration || "00:00:00",
+        solution: values.solution || "-",
       };
-
+  
       await addIssue(newReportData);
 
       await fetchAllIssuesData();
@@ -546,8 +555,20 @@ export default function ReportsPage() {
 
   const columns: Column<Report>[] = [
     { header: "No.", accessor: "no" },
-    { header: "Tanggat", accessor: "formatDate", width: 100 },
-    { header: "Tiket", accessor: "ticket" },
+    {
+      header: "DAY",
+      accessor: "dayName",
+    },
+    {
+      header: "DATE",
+      accessor: "date",
+    },
+    {
+      header: "TIME",
+      accessor: "time",
+    },
+    { header: "Durasi", accessor: "duration" },
+    { header: "PK/ID", accessor: "pk_id" },
     { header: "Lokasi", accessor: "location" },
     { header: "Kategori", accessor: "category" },
     { header: "Deskripsi", accessor: "description" },
@@ -655,6 +676,24 @@ export default function ReportsPage() {
         placeholder: "Enter transaction number",
         required: true,
         onChange: (value) => handleFieldValueChange("TrxNo", value),
+      },
+      {
+        id: "duration",
+        label: "Durasi",
+        type: "time" as const,
+        value: formFieldValues.duration || "00:00:00",
+        placeholder: "Format: 00:00:00",
+        required: true,
+        onChange: (value) => handleFieldValueChange("duration", value),
+      },
+      {
+        id: "solution",
+        label: "Solusi",
+        type: "textarea" as const,
+        value: formFieldValues.solution || "",
+        placeholder: "Masukkan solusi...",
+        required: true,
+        onChange: (value) => handleFieldValueChange("solution", value),
       },
     ];
 

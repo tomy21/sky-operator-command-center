@@ -80,3 +80,22 @@ export function formatDateOnly(input: string): string {
 
   return `${day} ${month} ${year}`;
 }
+
+export function formatDayDateTime(input: string): { dayName: string; date: string; time: string } {
+  const date = new Date(input);
+  const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  const day = days[date.getDay()];
+  const dateNum = date.getDate();
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const seconds = date.getSeconds().toString().padStart(2, '0');
+  
+  return {
+    dayName: day,
+    date: `${dateNum} ${month} ${year}`,
+    time: `${hours}:${minutes}:${seconds}`
+  };
+}
