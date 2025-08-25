@@ -146,7 +146,7 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
     const isDisabled = field.disabled || false;
     const hasError = !!validationErrors[field.id];
     const inputClassName = getInputClassName(hasError, isDisabled, isReadonly);
-  
+
     switch (field.type) {
       case "select":
         return (
@@ -158,7 +158,9 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
               placeholder={field.placeholder}
               disabled={isDisabled || isReadonly}
               error={validationErrors[field.id]}
-              onLoadMore={field.onLoadMore ? () => handleLoadMore(field.id) : undefined}
+              onLoadMore={
+                field.onLoadMore ? () => handleLoadMore(field.id) : undefined
+              }
               hasMoreData={field.hasMore || false}
               isLoadingMore={field.loading || false}
               showLoadMoreInfo={true}
@@ -374,9 +376,7 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
           message: `${field.label} wajib diisi`,
         };
         isValid = false;
-      }
-
-      else if (field.validation) {
+      } else if (field.validation) {
         const validationResult = field.validation(value);
         newValidationStates[field.id] = validationResult;
         if (!validationResult.isValid) {

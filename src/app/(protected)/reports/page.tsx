@@ -37,6 +37,8 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { validateIndonesianLicensePlate } from "@/utils/validationNumberPlat";
 import { CalenderIcon, LocationIcon2, TicketIcon } from "@/public/icons/Icons";
 import ThreeDotsLoader from "@/components/ThreeDotsLoader";
+import { DownloadIcon, PlusIcon } from "lucide-react";
+import ExportModalProps from "@/components/modal/ExportModalProps";
 
 interface Report {
   no?: number;
@@ -81,6 +83,7 @@ interface DataPagination {
 }
 
 export default function ReportsPage() {
+  const [mounted, setMounted] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
   const [isNewReportModalOpen, setIsNewReportModalOpen] = useState(false);
@@ -100,6 +103,11 @@ export default function ReportsPage() {
   // const [searchCategory, setSearchCategory] = useState("");
   const [searchTicket, setSearchTicket] = useState("");
   const [hasPerformedSearch, setHasPerformedSearch] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [error, setError] = useState("");
 
   const [formFieldValues, setFormFieldValues] = useState<
     Record<string, string>
@@ -137,6 +145,10 @@ export default function ReportsPage() {
       isLoading: false,
     });
 
+  useEffect(() => {
+    setMounted(true); // ✅ hanya setelah client render
+  }, []);
+
   const fetchAllIssuesData = async () => {
     try {
       setIsDataLoading(true);
@@ -166,7 +178,7 @@ export default function ReportsPage() {
             date,
             time,
             rawDate: createdDate,
-            duration: "30 mins",
+            duration: issue.duration ?? "-",
             pk_id: issue.gate,
             location: issue.lokasi && issue.lokasi !== "" ? issue.lokasi : "-",
             category:
@@ -175,7 +187,7 @@ export default function ReportsPage() {
               issue.description && issue.description !== ""
                 ? issue.description
                 : "-",
-            solution: issue.action || "-",
+            solution: issue.solusi || "-",
             // rawDate: createdDate,
           };
         });
@@ -469,9 +481,9 @@ export default function ReportsPage() {
   const handleNewReportSubmit = async (values: Record<string, string>) => {
     try {
       setIsDataLoading(true);
-  
+
       let finalDescription = values.description;
-  
+
       if (values.description === "other" && values.customDescription) {
         try {
           await handleAddDescription(
@@ -488,7 +500,7 @@ export default function ReportsPage() {
       } else if (values.description !== "other") {
         finalDescription = values.description;
       }
-  
+
       const newReportData: NewReportData = {
         idLocation: parseInt(values.idLocation),
         idCategory: parseInt(values.idCategory),
@@ -499,9 +511,9 @@ export default function ReportsPage() {
         number_plate: values.number_plate || "-",
         TrxNo: values.TrxNo || "-",
         duration: values.duration || "00:00:00",
-        solution: values.solution || "-",
+        solution: values.solusi || "-",
       };
-  
+
       await addIssue(newReportData);
 
       await fetchAllIssuesData();
@@ -542,6 +554,13 @@ export default function ReportsPage() {
     setGateIdData([]);
     setDescriptions([]);
     setIsNewReportModalOpen(true);
+  };
+
+  const handleModalExport = () => {
+    setIsExportModalOpen(true);
+  };
+  const handleCloseModalExport = () => {
+    setIsExportModalOpen(false);
   };
 
   useEffect(() => {
@@ -687,13 +706,13 @@ export default function ReportsPage() {
         onChange: (value) => handleFieldValueChange("duration", value),
       },
       {
-        id: "solution",
+        id: "solusi",
         label: "Solusi",
         type: "textarea" as const,
-        value: formFieldValues.solution || "",
+        value: formFieldValues.solusi || "",
         placeholder: "Masukkan solusi...",
         required: true,
-        onChange: (value) => handleFieldValueChange("solution", value),
+        onChange: (value) => handleFieldValueChange("solusi", value),
       },
     ];
 
@@ -716,7 +735,7 @@ export default function ReportsPage() {
         type: "text",
         value: formFieldValues.number_plate || "",
         placeholder: "Contoh: B1234XYZ",
-        required: true,
+        required: false,
         validation: validateIndonesianLicensePlate,
         onChange: (value: string) => {
           const cleanValue = value.toUpperCase().substring(0, 11);
@@ -751,6 +770,13 @@ export default function ReportsPage() {
     descriptionsPagination,
   ]);
 
+  const handleSubmitExport = (values: { startDate: Date; endDate: Date }) => {
+    console.log("Export range:", values.startDate, values.endDate);
+    // Lanjutkan ke API export, dll.
+  };
+
+  if (!mounted) return;
+
   return (
     <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
       <main className="flex-1 overflow-hidden bg-white rounded-lg shadow-lg dark:bg-[#222B36]">
@@ -759,13 +785,26 @@ export default function ReportsPage() {
           <div className="px-6">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-bold">Laporan</h1>
-              <button
-                onClick={handleModalOpen}
-                className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2 whitespace-nowrap"
-              >
-                <span>➕</span>
-                <span>Tambah Laporan</span>
-              </button>
+              <div className="flex flex-row justify-end space-x-2">
+                <button
+                  onClick={handleModalOpen}
+                  className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2 whitespace-nowrap"
+                >
+                  <span>
+                    <PlusIcon className="w-4 h-4" />
+                  </span>
+                  <span>Tambah Laporan</span>
+                </button>
+                <button
+                  onClick={handleModalExport}
+                  className="cursor-pointer bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2 whitespace-nowrap"
+                >
+                  <span>
+                    <DownloadIcon className="w-4 h-4" />
+                  </span>
+                  <span>Export Data</span>
+                </button>
+              </div>
             </div>
             {/* Wrap DatePicker with Suspense */}
             <div className="flex flex-col space-y-4 mb-4">
@@ -981,6 +1020,17 @@ export default function ReportsPage() {
               fields={newReportFields}
               confirmText="Submit"
               cancelText="Cancel"
+            />
+          </Suspense>
+
+          <Suspense fallback={null}>
+            <ExportModalProps
+              isOpen={isExportModalOpen}
+              onClose={handleCloseModalExport}
+              onSubmit={handleSubmitExport}
+              title="Export Data"
+              confirmText="Export"
+              cancelText="Batal"
             />
           </Suspense>
         </div>

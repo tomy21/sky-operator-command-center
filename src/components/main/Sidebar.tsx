@@ -16,10 +16,10 @@ import { usePageNavigation } from "@/hooks/usePageNavigation";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const { navigateTo, isNavigating } =
-    usePageNavigation();
+  const { navigateTo, isNavigating } = usePageNavigation();
 
   const menuItems = [
     { href: "/", label: "Dashboard", icon: DashboardIcon },
@@ -29,6 +29,11 @@ export default function Sidebar() {
   ];
 
   useEffect(() => {
+    setMounted(true); // ✅ hanya setelah client render
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     const checkScreenSize = () => {
       const isMobileView = window.innerWidth < 768; // md breakpoint
       setIsMobile(isMobileView);

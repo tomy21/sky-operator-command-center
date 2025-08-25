@@ -70,7 +70,7 @@ const ImageWithLoader = ({
 
       {/* Actual Image */}
       <Image
-        src={error ? fallbackSrc : currentSrc}
+        src={error ? fallbackSrc : currentSrc || ""}
         alt={alt}
         width={width}
         height={height}

@@ -6,9 +6,12 @@ export interface Issue {
   description: string;
   gate: string;
   action: string;
-  foto: string;
+  foto_in: string;
+  foto_out: string;
   number_plate: string;
+  duration: string;
   TrxNo: string;
+  solusi: string;
   status: string;
   createdBy: string;
   modifiedBy: string;
@@ -44,16 +47,22 @@ interface IssueDetailResponse {
   data: Issue;
 }
 
-export const fetchIssues = async (page = 1, limit = 5, search = '', date = '', location = '') => {
+export const fetchIssues = async (
+  page = 1,
+  limit = 5,
+  search = "",
+  date = "",
+  location = ""
+) => {
   try {
     const params = new URLSearchParams({
       page: page.toString(),
-      limit: limit.toString()
+      limit: limit.toString(),
     });
 
-    if (search) params.append('search', search);
-    if (date) params.append('date', date);
-    if (location) params.append('location', location);
+    if (search) params.append("search", search);
+    if (date) params.append("date", date);
+    if (location) params.append("location", location);
 
     const response = await fetch(`/api/issue/get-all?${params.toString()}`);
 
@@ -137,5 +146,39 @@ export const fetchIssuesMonthly = async () => {
   } catch (err) {
     console.error("Error fetching descriptions");
     throw err;
+  }
+};
+
+export const exportIssues = async (startDate: string, endDate: string) => {
+  try {
+    const response = await fetch(
+      `/api/issue/export?startDate=${encodeURIComponent(
+        startDate
+      )}&endDate=${encodeURIComponent(endDate)}`,
+      {
+        method: "GET",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Gagal export data");
+    }
+
+    // ambil hasil response (Excel) sebagai blob
+    const blob = await response.blob();
+
+    // bikin link download otomatis
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `occ_issues_${startDate}_${endDate}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    return true;
+  } catch (error) {
+    console.error("Error exporting issues:", error);
+    throw error;
   }
 };
