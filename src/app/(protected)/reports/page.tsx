@@ -68,8 +68,6 @@ interface NewReportData {
   description: string;
   action: string;
   foto: string;
-  number_plate: string;
-  TrxNo: string;
   duration: string;
   solution: string;
 }
@@ -508,8 +506,6 @@ export default function ReportsPage() {
         description: finalDescription,
         action: values.action,
         foto: values.foto || "-",
-        number_plate: values.number_plate || "-",
-        TrxNo: values.TrxNo || "-",
         duration: values.duration || "00:00:00",
         solution: values.solusi || "-",
       };
@@ -688,15 +684,6 @@ export default function ReportsPage() {
         onLoadMore: handleLoadMoreDescriptions,
       },
       {
-        id: "TrxNo",
-        label: "Transaction Number",
-        type: "text" as const,
-        value: formFieldValues.TrxNo || "",
-        placeholder: "Enter transaction number",
-        required: true,
-        onChange: (value) => handleFieldValueChange("TrxNo", value),
-      },
-      {
         id: "duration",
         label: "Durasi",
         type: "time" as const,
@@ -729,19 +716,6 @@ export default function ReportsPage() {
     }
 
     baseFields.push(
-      {
-        id: "number_plate",
-        label: "Number Plate",
-        type: "text",
-        value: formFieldValues.number_plate || "",
-        placeholder: "Contoh: B1234XYZ",
-        required: false,
-        validation: validateIndonesianLicensePlate,
-        onChange: (value: string) => {
-          const cleanValue = value.toUpperCase().substring(0, 11);
-          handleFieldValueChange("number_plate", cleanValue);
-        },
-      },
       {
         id: "action",
         label: "Action",
