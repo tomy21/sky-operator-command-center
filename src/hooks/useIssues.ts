@@ -108,22 +108,34 @@ export const addIssue = async (issue: any) => {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        // 'x-timestamp': timestamp,
-        // 'x-signature': signature,
-        // 'Authorization': `Bearer ${token}`
       },
-      // credentials: "include",
+      credentials: "include",
       body: JSON.stringify(issue),
     });
-
+    // Kalau status bukan 2xx
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Gagal menambahkan issue / report");
+      let errorMessage = `Error ${response.status} ${response.statusText}`;
+
+      const rawText = await response.text(); // ✅ baca body sekali saja
+      try {
+        const errorData = JSON.parse(rawText);
+        if (errorData?.message) {
+          errorMessage = errorData.message;
+        }
+      } catch {
+        if (rawText) {
+          errorMessage = rawText;
+        }
+      }
+
+      throw new Error(errorMessage);
     }
 
+    // kalau sukses, balikin data JSON
     return await response.json();
-  } catch (error) {
-    console.error("Error adding issue / report");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    console.error("Error adding issue / report:", error.message || error);
     throw error;
   }
 };

@@ -71,7 +71,7 @@ interface NewReportData {
   number_plate: string;
   TrxNo: string;
   duration: string;
-  solution: string;
+  solusi: string;
 }
 
 interface DataPagination {
@@ -511,7 +511,7 @@ export default function ReportsPage() {
         number_plate: values.number_plate || "-",
         TrxNo: values.TrxNo || "-",
         duration: values.duration || "00:00:00",
-        solution: values.solusi || "-",
+        solusi: values.solusi || "-",
       };
 
       await addIssue(newReportData);
@@ -736,7 +736,7 @@ export default function ReportsPage() {
         value: formFieldValues.number_plate || "",
         placeholder: "Contoh: B1234XYZ",
         required: false,
-        validation: validateIndonesianLicensePlate,
+        // validation: validateIndonesianLicensePlate,
         onChange: (value: string) => {
           const cleanValue = value.toUpperCase().substring(0, 11);
           handleFieldValueChange("number_plate", cleanValue);

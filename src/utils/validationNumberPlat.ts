@@ -23,7 +23,8 @@ export function validateIndonesianLicensePlate(value: string): {
   if (!plateRegex.test(normalizedPlate)) {
     return {
       isValid: false,
-      message: "Format tidak valid. Contoh: B1234ABC, B 1, RI 1, atau AB 1234 ABC",
+      message:
+        "Format tidak valid. Contoh: B1234ABC, B 1, RI 1, atau AB 1234 ABC",
     };
   }
 
