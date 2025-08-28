@@ -29,4 +29,4 @@ RUN yarn build
 EXPOSE 3000
 
 # ✅ Jalankan aplikasi
-CMD ["yarn", "start",]
+CMD ["yarn","start",]
