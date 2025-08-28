@@ -68,6 +68,8 @@ interface NewReportData {
   description: string;
   action: string;
   foto: string;
+  number_plate: string;
+  TrxNo: string;
   duration: string;
   solusi: string;
 }
@@ -506,6 +508,8 @@ export default function ReportsPage() {
         description: finalDescription,
         action: values.action,
         foto: values.foto || "-",
+        number_plate: values.number_plate || "-",
+        TrxNo: values.TrxNo || "-",
         duration: values.duration || "00:00:00",
         solusi: values.solusi || "-",
       };
@@ -682,6 +686,15 @@ export default function ReportsPage() {
         hasMore: descriptionsPagination.hasMore,
         loading: descriptionsPagination.isLoading,
         onLoadMore: handleLoadMoreDescriptions,
+      },
+      {
+        id: "TrxNo",
+        label: "Transaction Number",
+        type: "text" as const,
+        value: formFieldValues.TrxNo || "",
+        placeholder: "Enter transaction number",
+        required: true,
+        onChange: (value) => handleFieldValueChange("TrxNo", value),
       },
       {
         id: "duration",
