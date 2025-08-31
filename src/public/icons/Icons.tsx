@@ -74,6 +74,28 @@ export const ReportsIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+export const GearIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.002c1.532-.89 3.36.938 2.47 2.47a1.724 1.724 0 001.002 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.002 2.573c.89 1.532-.938 3.36-2.47 2.47a1.724 1.724 0 00-2.573 1.002c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.002c-1.532.89-3.36-.938-2.47-2.47a1.724 1.724 0 00-1.002-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.002-2.573c-.89-1.532.938-3.36 2.47-2.47.89.517 2.074.25 2.573-1.002z"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+    />
+  </svg>
+);
+
 export const LogoutIcon = ({ className }: { className?: string }) => (
   <svg
     className={className}

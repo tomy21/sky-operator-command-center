@@ -6,6 +6,7 @@ import Image from "next/image";
 import { HiOutlineBars3 } from "react-icons/hi2";
 import {
   DashboardIcon,
+  GearIcon,
   LocationIcon,
   LogoutIcon,
   MasterIcon,
@@ -26,6 +27,7 @@ export default function Sidebar() {
     { href: "/location", label: "Lokasi", icon: LocationIcon },
     { href: "/master", label: "Master", icon: MasterIcon },
     { href: "/reports", label: "Laporan", icon: ReportsIcon },
+    { href: "/config", label: "Config", icon: GearIcon },
   ];
 
   useEffect(() => {
