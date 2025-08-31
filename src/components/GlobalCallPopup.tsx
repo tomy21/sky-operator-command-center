@@ -589,6 +589,10 @@ export function GlobalCallPopup() {
     localActiveCall?.imageFileIn ?? ""
   )}`;
 
+  const fotoFaceIn = `/api/image-proxy?filename=${encodeURIComponent(
+    localActiveCall?.imageFace.filename ?? ""
+  )}`;
+
   const photoCaptureUrl = `/api/image-proxy?filename=${encodeURIComponent(
     localActiveCall?.imageFile?.filename ?? ""
   )}`;
@@ -1517,13 +1521,25 @@ export function GlobalCallPopup() {
           {/* Bottom Section - Photos - Enhanced with base64 support */}
           <div className="border-t pt-2">
             {isPMGate ? (
-              <div className="flex justify-center">
+              <div className="flex justify-center space-x-2">
                 <div className="text-center w-full max-w-md">
-                  <p className="text-sm text-s mb-2">Foto Capture</p>
+                  <p className="text-sm text-s mb-2">Foto Plat Nomor</p>
                   <div className="w-full aspect-video bg-gray-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
                     <ImageWithLoader
                       src={photoCaptureUrl}
-                      alt="Foto In"
+                      alt="Foto Plat Nomor"
+                      width={420}
+                      height={220}
+                      className="w-full max-w-[420px]"
+                    />
+                  </div>
+                </div>
+                <div className="text-center w-full max-w-md">
+                  <p className="text-sm text-s mb-2">Foto Wajah</p>
+                  <div className="w-full aspect-video bg-gray-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
+                    <ImageWithLoader
+                      src={fotoFaceIn}
+                      alt="Foto Wajah"
                       width={420}
                       height={220}
                       className="w-full max-w-[420px]"

@@ -24,6 +24,16 @@ export interface GateStatusUpdate {
     path: string;
     size: number;
   };
+  imageFace: {
+    fieldname: string;
+    originalname: string;
+    encoding: string;
+    mimetype: string;
+    destination: string;
+    filename: string;
+    path: string;
+    size: number;
+  };
   detailGate: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: any;
@@ -42,7 +52,7 @@ export interface GateStatusUpdate {
     PlateNumber: string;
     Name: string;
     Email: string;
-  }
+  };
   newData?: {
     transactionNo: string;
     transactionStatus: string;
@@ -60,7 +70,7 @@ export interface GateStatusUpdate {
     paymentMethod: string;
     issuerName: string;
     issuerCode: string;
-  }
+  };
 }
 
 export interface CallEndResponse {
