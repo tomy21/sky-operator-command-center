@@ -112,6 +112,9 @@ export const addIssue = async (issue: any) => {
       credentials: "include",
       body: JSON.stringify(issue),
     });
+
+    console.log(response);
+
     // Kalau status bukan 2xx
     if (!response.ok) {
       let errorMessage = `Error ${response.status} ${response.statusText}`;

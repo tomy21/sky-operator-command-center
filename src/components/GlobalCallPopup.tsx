@@ -36,6 +36,7 @@ interface DataIssue {
   foto?: string;
   number_plate?: string;
   TrxNo?: string;
+  solusi?: string;
 }
 
 export function GlobalCallPopup() {
@@ -647,9 +648,24 @@ export function GlobalCallPopup() {
         action: dataIssue.action || "",
         number_plate: editablePlateNumber,
         TrxNo: ticketNo,
+        solusi: "test",
       };
 
+      // const newReportData: NewReportData = {
+      //   idLocation: parseInt(values.idLocation),
+      //   idCategory: parseInt(values.idCategory),
+      //   idGate: parseInt(values.idGate) || 0,
+      //   description: finalDescription,
+      //   action: values.action,
+      //   foto: values.foto || "-",
+      //   number_plate: values.number_plate || "-",
+      //   TrxNo: values.TrxNo || "-",
+      //   duration: values.duration || "00:00:00",
+      //   solusi: values.solusi || "-",
+      // };
+
       const response = await addIssue(issueData);
+      console.log("Response:", response);
 
       if (response && response.message.includes("created")) {
         toast.success("Issue berhasil dibuat");
@@ -668,6 +684,7 @@ export function GlobalCallPopup() {
           foto: "",
           number_plate: "",
           TrxNo: "",
+          solusi: "",
         });
       } else {
         toast.error("Gagal membuat issue report");
@@ -701,7 +718,7 @@ export function GlobalCallPopup() {
   return (
     <>
       <div className="modal fixed inset-0 backdrop-blur-md flex items-center justify-center z-100 p-2">
-        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-xl w-full max-w-5xl relative">
+        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-xl w-full max-w-6xl relative">
           {/* Header Controls - Close Button and Mute Button */}
           <div className="absolute top-4 right-4 z-10 flex space-x-2">
             {/* Mute Ringtone Button */}
@@ -1249,78 +1266,98 @@ export function GlobalCallPopup() {
               </h3>
 
               <div className="space-y-3">
-                <div>
-                  <label className="block text-s text-s mb-1">
-                    Kategori <span className="text-red-500">*</span>
-                  </label>
-                  <SearchableSelect
-                    options={categoryOptions}
-                    value={selectedCategory}
-                    onChange={setSelectedCategory}
-                    placeholder="-- Pilih Kategori --"
-                    disabled={isLoadingCategories}
-                    className="text-sm"
-                    onLoadMore={handleLoadMoreCategories}
-                    hasMoreData={categoryPagination.hasMore}
-                    isLoadingMore={categoryPagination.isLoadingMore}
-                    // onSearch={handleSearchCategories}
-                    isSearching={isLoadingCategories}
-                    showLoadMoreInfo={true}
-                    loadMoreText="Memuat kategori..."
-                  />
-                  {isLoadingCategories && (
-                    <div className="flex items-center mt-1 text-s text-blue-600">
-                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
-                      Memuat data kategori...
-                    </div>
-                  )}
+                <div className="grid grid-cols-2 gap-x-2">
+                  <div>
+                    <label className="block text-s text-s mb-1">
+                      Kategori <span className="text-red-500">*</span>
+                    </label>
+                    <SearchableSelect
+                      options={categoryOptions}
+                      value={selectedCategory}
+                      onChange={setSelectedCategory}
+                      placeholder="-- Pilih Kategori --"
+                      disabled={isLoadingCategories}
+                      className="text-sm"
+                      onLoadMore={handleLoadMoreCategories}
+                      hasMoreData={categoryPagination.hasMore}
+                      isLoadingMore={categoryPagination.isLoadingMore}
+                      // onSearch={handleSearchCategories}
+                      isSearching={isLoadingCategories}
+                      showLoadMoreInfo={true}
+                      loadMoreText="Memuat kategori..."
+                    />
+                    {isLoadingCategories && (
+                      <div className="flex items-center mt-1 text-s text-blue-600">
+                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
+                        Memuat data kategori...
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-s text-s mb-1">
+                      Deskripsi <span className="text-red-500">*</span>
+                    </label>
+
+                    <SearchableSelect
+                      options={descriptionOptions}
+                      value={selectedDescription}
+                      onChange={(value) => {
+                        setSelectedDescription(value);
+                        if (value !== "OTHER_MANUAL") {
+                          setManualDescription("");
+                        }
+                      }}
+                      placeholder={
+                        isLoadingDescriptions
+                          ? "Memuat data deskripsi..."
+                          : !selectedCategory
+                          ? "-- Pilih kategori terlebih dahulu --"
+                          : descriptionOptions.length === 0
+                          ? "-- Tidak ada deskripsi tersedia --"
+                          : "-- Pilih Deskripsi --"
+                      }
+                      disabled={isLoadingDescriptions || !selectedCategory}
+                      className="text-sm"
+                    />
+
+                    {/* Manual input field - hanya muncul jika "Other (Input Manual)" dipilih */}
+                    {selectedDescription === "OTHER_MANUAL" && (
+                      <div className="mt-2">
+                        <input
+                          type="text"
+                          value={manualDescription}
+                          onChange={(e) => setManualDescription(e.target.value)}
+                          placeholder="Masukkan deskripsi baru..."
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          autoFocus
+                        />
+                        {manualDescription.trim() && (
+                          <p className="text-s text-blue-600 mt-1">
+                            Deskripsi baru akan dibuat:{" "}
+                            {manualDescription.trim()}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-s text-s mb-1">
-                    Deskripsi <span className="text-red-500">*</span>
+                  <label className="block text-s text-s mb-2">
+                    Solusi<span className="text-red-500">*</span>
                   </label>
-
-                  <SearchableSelect
-                    options={descriptionOptions}
-                    value={selectedDescription}
-                    onChange={(value) => {
-                      setSelectedDescription(value);
-                      if (value !== "OTHER_MANUAL") {
-                        setManualDescription("");
-                      }
-                    }}
-                    placeholder={
-                      isLoadingDescriptions
-                        ? "Memuat data deskripsi..."
-                        : !selectedCategory
-                        ? "-- Pilih kategori terlebih dahulu --"
-                        : descriptionOptions.length === 0
-                        ? "-- Tidak ada deskripsi tersedia --"
-                        : "-- Pilih Deskripsi --"
+                  <textarea
+                    value={dataIssue.solusi}
+                    onChange={(e) =>
+                      setDataIssue((prev) => ({
+                        ...prev,
+                        solution: e.target.value,
+                      }))
                     }
-                    disabled={isLoadingDescriptions || !selectedCategory}
-                    className="text-sm"
-                  />
-
-                  {/* Manual input field - hanya muncul jika "Other (Input Manual)" dipilih */}
-                  {selectedDescription === "OTHER_MANUAL" && (
-                    <div className="mt-2">
-                      <input
-                        type="text"
-                        value={manualDescription}
-                        onChange={(e) => setManualDescription(e.target.value)}
-                        placeholder="Masukkan deskripsi baru..."
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        autoFocus
-                      />
-                      {manualDescription.trim() && (
-                        <p className="text-s text-blue-600 mt-1">
-                          Deskripsi baru akan dibuat: {manualDescription.trim()}
-                        </p>
-                      )}
-                    </div>
-                  )}
+                    placeholder="Masukkan solusi..."
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  ></textarea>
                 </div>
 
                 <div>
