@@ -590,6 +590,10 @@ export function GlobalCallPopup() {
     localActiveCall?.imageFileIn ?? ""
   )}`;
 
+  const fotoFaceInUrl = `/api/image-proxy?filename=${encodeURIComponent(
+    localActiveCall?.imageFileIn ?? ""
+  )}`;
+
   const fotoFaceIn = `/api/image-proxy?filename=${encodeURIComponent(
     localActiveCall?.imageFace.filename ?? ""
   )}`;
@@ -718,7 +722,7 @@ export function GlobalCallPopup() {
   return (
     <>
       <div className="modal fixed inset-0 backdrop-blur-md flex items-center justify-center z-100 p-2">
-        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-xl w-full max-w-6xl relative">
+        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-xl w-full max-w-7xl relative">
           {/* Header Controls - Close Button and Mute Button */}
           <div className="absolute top-4 right-4 z-10 flex space-x-2">
             {/* Mute Ringtone Button */}
@@ -1586,71 +1590,69 @@ export function GlobalCallPopup() {
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
                   {/* Foto In */}
-                  <div className="text-center">
-                    {/* <p className="text-sm text-s mb-2">Foto In</p>
-                      <div className="bg-gray-600 rounded-lg inline-block">
-                        {!imageErrors.photoIn ? (
-                          <Image
-                            src={fotoInUrl}
-                            alt="Foto In"
-                            width={420}
-                            height={220}
-                            className="w-[420px] h-[220px] object-cover rounded-lg"
-                            onError={() => {
-                              setImageErrors((prev) => ({
-                                ...prev,
-                                photoIn: true,
-                              }));
-                            }}
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center justify-center h-full">
-                            <svg
-                              className="w-12 h-12 text-gray-400 mb-2"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                              />
-                            </svg>
-                            <span className="text-sm">Foto In</span>
-                          </div>
-                        )}
-                      </div> */}
-                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
-                      Foto In
-                    </p>
-                    <div className="flex justify-center">
-                      <ImageWithLoader
-                        src={fotoInUrl}
-                        alt="Foto In"
-                        width={420}
-                        height={220}
-                        className="w-full max-w-[420px]"
-                      />
+                  <div className="bg-cyan-300 grid grid-cols-2 gap-4 p-3 rounded shadow-2xl">
+                    <div className="text-center">
+                      <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                        Foto In Plat Nomor
+                      </p>
+                      <div className="flex justify-center">
+                        <ImageWithLoader
+                          src={fotoInUrl}
+                          alt="Foto In"
+                          width={300}
+                          height={220}
+                          className="w-full max-w-[420px]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="text-center">
+                      <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                        Foto In Wajah
+                      </p>
+                      <div className="flex justify-center">
+                        <ImageWithLoader
+                          src={fotoFaceInUrl}
+                          alt="Foto Capture"
+                          width={300}
+                          height={220}
+                          className="w-full max-w-[420px]"
+                        />
+                      </div>
                     </div>
                   </div>
 
                   {/* Foto Capture - Now using base64 image */}
-                  <div className="text-center">
-                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
-                      Foto Capture
-                    </p>
-                    <div className="flex justify-center">
-                      <ImageWithLoader
-                        src={photoCaptureUrl}
-                        alt="Foto Capture"
-                        width={420}
-                        height={220}
-                        className="w-full max-w-[420px]"
-                      />
+                  <div className="bg-green-300 grid grid-cols-2 gap-4 p-3 rounded shadow-2xl">
+                    <div className="text-center">
+                      <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                        Foto Plat Nomor
+                      </p>
+                      <div className="flex justify-center">
+                        <ImageWithLoader
+                          src={photoCaptureUrl}
+                          alt="Foto Capture"
+                          width={300}
+                          height={220}
+                          className="w-full max-w-[420px]"
+                        />
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                        Foto Wajah
+                      </p>
+                      <div className="flex justify-center">
+                        <ImageWithLoader
+                          src={fotoFaceIn}
+                          alt="Foto Capture"
+                          width={300}
+                          height={220}
+                          className="w-full max-w-[420px]"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

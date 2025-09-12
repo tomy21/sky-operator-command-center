@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
@@ -34,6 +35,8 @@ const ActivateLocationModal: React.FC<ActivateLocationModalProps> = ({
   const [currentLimit, setCurrentLimit] = useState(5);
   const [hasMoreData, setHasMoreData] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
+  const [search, setSearch] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -45,25 +48,36 @@ const ActivateLocationModal: React.FC<ActivateLocationModalProps> = ({
     }
   }, [isOpen]);
 
-  
+  const handleSearch = async (term: string) => {
+    setSearch(term);
+    setCurrentLimit(5);
+    setIsSearching(true);
+
+    await fetchAllLocations(5, false, term, true); // pakai flag search
+    setIsSearching(false);
+  };
 
   const fetchAllLocations = async (
     limit: number,
-    isInitial: boolean = false
+    isInitial: boolean = false,
+    searchTerm: string = search,
+    isSearch: boolean = false
   ) => {
     try {
       if (isInitial) {
-        setIsLoading(true);
-      } else {
-        setIsLoadingMore(true);
+        setIsLoading(true); // spinner utama
+      } else if (!isSearch) {
+        setIsLoadingMore(true); // load more
       }
 
-      const locationData = await fetchLocation(1, limit);
+      const locationData = await fetchLocation(1, limit, searchTerm);
 
       if (locationData && locationData.data) {
-        if (isInitial) {
+        if (isInitial || isSearch) {
+          // 🔹 kalau initial load atau search, replace data lama
           setLocations(locationData.data);
         } else {
+          // 🔹 kalau load more, append
           setLocations((prev) => {
             const existingIds = new Set(prev.map((loc) => loc.id));
             const newItems = locationData.data.filter(
@@ -93,7 +107,7 @@ const ActivateLocationModal: React.FC<ActivateLocationModalProps> = ({
     if (!isLoadingMore && hasMoreData && locations.length < totalItems) {
       const newLimit = currentLimit + 5;
       setCurrentLimit(newLimit);
-      fetchAllLocations(newLimit, false);
+      fetchAllLocations(newLimit, false, search);
     }
   };
 
@@ -179,6 +193,8 @@ const ActivateLocationModal: React.FC<ActivateLocationModalProps> = ({
                 onChange={(val) => setSelectedLocationId(Number(val))}
                 placeholder="-- Pilih Lokasi --"
                 disabled={isSubmitting}
+                onSearch={handleSearch}
+                isSearching={isSearching} // 🔹 ini beda dari isLoading
                 onLoadMore={handleLoadMore}
                 hasMoreData={hasMoreData}
                 isLoadingMore={isLoadingMore}

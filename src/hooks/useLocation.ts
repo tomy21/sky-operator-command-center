@@ -77,10 +77,10 @@ interface GateByLocationResponse {
   };
 }
 
-export const fetchLocation = async (page = 1, limit = 5) => {
+export const fetchLocation = async (page = 1, limit = 5, search = "") => {
   try {
     const response = await fetch(
-      `/api/location/get-all?page=${page}&limit=${limit}`
+      `/api/location/get-all?page=${page}&limit=${limit}&search=${search}`
     );
 
     if (!response.ok) {
@@ -134,10 +134,10 @@ export const fetchGateByLocation = async (locationData: any) => {
   }
 };
 
-export const fetchLocationActive = async (page = 1, limit = 5) => {
+export const fetchLocationActive = async (page = 1, limit = 5, search = "") => {
   try {
     const response = await fetch(
-      `/api/location/get-all-location-active?page=${page}&limit=${limit}`
+      `/api/location/get-all-location-active?page=${page}&limit=${limit}&search=${search}`
     );
 
     if (!response.ok) {

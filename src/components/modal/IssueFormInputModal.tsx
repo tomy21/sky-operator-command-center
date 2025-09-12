@@ -26,6 +26,10 @@ export interface Field {
   hasMore?: boolean;
   loading?: boolean;
   validation?: (value: string) => { isValid: boolean; message: string };
+
+  onSearch?: (term: string) => void;
+  isSearching?: boolean;
+  searchDebounceMs?: number;
 }
 
 interface IssueInputFormModalProps {
@@ -167,6 +171,13 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
               loadMoreText={`Memuat lebih banyak... (${
                 field.options?.length || 0
               }${field.hasMore ? "+" : ""})`}
+              // 🔹 ini kuncinya
+              onSearch={(term) => {
+                if (field.onSearch) {
+                  field.onSearch(term); // lempar ke parent
+                }
+              }}
+              searchDebounceMs={300} // biar ga spam API
             />
           </div>
         );

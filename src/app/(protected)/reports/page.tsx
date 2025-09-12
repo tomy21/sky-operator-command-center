@@ -82,6 +82,11 @@ interface DataPagination {
   isLoading: boolean;
 }
 
+export interface FieldOption {
+  value: string;
+  label: string;
+}
+
 export default function ReportsPage() {
   const [mounted, setMounted] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(false);
@@ -104,6 +109,8 @@ export default function ReportsPage() {
   const [searchTicket, setSearchTicket] = useState("");
   const [hasPerformedSearch, setHasPerformedSearch] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [locations, setLocations] = useState<FieldOption[]>([]);
+  const [search, setSearch] = useState("");
 
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
@@ -229,12 +236,14 @@ export default function ReportsPage() {
 
   const fetchAllLocations = async (
     limit: number = 5,
-    reset: boolean = true
+    reset: boolean = true,
+    searchTerm: string = ""
   ) => {
     try {
       setLocationPagination((prev) => ({ ...prev, isLoading: true }));
 
-      const response = await fetchLocationActive(1, limit);
+      // 🔹 tambahkan searchTerm
+      const response = await fetchLocationActive(1, limit, searchTerm);
 
       if (reset) {
         setLocationData(response.data);
@@ -252,6 +261,11 @@ export default function ReportsPage() {
       console.error("Error fetching locations");
       setLocationPagination((prev) => ({ ...prev, isLoading: false }));
     }
+  };
+
+  const handleSearchLocation = (term: string) => {
+    setSearch(term);
+    fetchAllLocations(5, true, term); // reset data + kirim search
   };
 
   const handleLoadMoreLocations = useCallback(() => {
@@ -547,6 +561,7 @@ export default function ReportsPage() {
     setFormFieldValues({});
     setGateIdData([]);
     setDescriptions([]);
+    fetchAllLocations();
   };
 
   const handleModalOpen = () => {
@@ -602,16 +617,17 @@ export default function ReportsPage() {
         type: "select" as const,
         value: formFieldValues.idLocation || "",
         placeholder: "-- Pilih Location --",
-        options:
-          locationData?.map((loc) => ({
-            value: loc.id.toString(),
-            label: loc.Name,
-          })) || [],
-        required: true,
-        onChange: (value) => handleFieldValueChange("idLocation", value),
+        options: locationData.map((loc) => ({
+          label: loc.Name,
+          value: String(loc.id),
+        })),
+        searchable: true,
+        onSearch: handleSearchLocation,
+        onLoadMore: () =>
+          fetchAllLocations(locationData.length + 5, false, search),
         hasMore: locationPagination.hasMore,
         loading: locationPagination.isLoading,
-        onLoadMore: handleLoadMoreLocations,
+        onChange: (value) => handleFieldValueChange("idLocation", value), // ✅ tambahkan ini
       },
       {
         id: "idCategory",

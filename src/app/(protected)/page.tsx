@@ -491,9 +491,9 @@ export default function Dashboard() {
         </div>
 
         {/* Table Section with Horizontal Tab Bar */}
-        <div className="bg-white dark:bg-[#222B36] rounded-lg p-3 sm:p-4 lg:p-6">
-          {/* Horizontal Tab Bar (desktop/tablet) */}
-          <div className="hidden md:flex flex-wrap gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
+        {/* <div className="bg-white dark:bg-[#222B36] rounded-lg p-3 sm:p-4 lg:p-6"> */}
+        {/* Horizontal Tab Bar (desktop/tablet) */}
+        {/* <div className="hidden md:flex flex-wrap gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
             {tableOptions.map((option) => (
               <button
                 key={option.value}
@@ -508,10 +508,10 @@ export default function Dashboard() {
                 <span className="lg:hidden">{option.label.split(" ")[0]}</span>
               </button>
             ))}
-          </div>
+          </div> */}
 
-          {/* Select Input (mobile) */}
-          <div className="mb-4 md:hidden">
+        {/* Select Input (mobile) */}
+        {/* <div className="mb-4 md:hidden">
             <select
               value={activeTable}
               onChange={(e) => setActiveTable(e.target.value as TableType)}
@@ -523,13 +523,13 @@ export default function Dashboard() {
                 </option>
               ))}
             </select>
-          </div>
+          </div> */}
 
-          {/* Table Content */}
-          <div className="min-h-[300px] sm:min-h-[400px]">
+        {/* Table Content */}
+        {/* <div className="min-h-[300px] sm:min-h-[400px]">
             {renderActiveTable()}
           </div>
-        </div>
+        </div> */}
       </div>
       <ComplaintModal
         isOpen={isModalOpen}
