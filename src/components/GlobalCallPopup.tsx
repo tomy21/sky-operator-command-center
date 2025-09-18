@@ -595,7 +595,7 @@ export function GlobalCallPopup() {
   )}`;
 
   const fotoFaceIn = `/api/image-proxy?filename=${encodeURIComponent(
-    localActiveCall?.imageFace.filename ?? ""
+    localActiveCall?.imageFace?.filename ?? ""
   )}`;
 
   const photoCaptureUrl = `/api/image-proxy?filename=${encodeURIComponent(

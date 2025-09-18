@@ -443,7 +443,7 @@ export default function MasterPage() {
       header: "Kategori",
       accessor: "id_category",
       render: (value: any, item: Description) => {
-        const category = categories.find(cat => cat.id === item.id_category);
+        const category = categories.find((cat) => cat.id === item.id_category);
         return category ? category.category : value;
       },
     },
@@ -745,7 +745,7 @@ export default function MasterPage() {
           {/* Modal Add Category/Description */}
           {showAddModal && (
             <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-1050">
-              <div className="bg-white dark:bg-[#222B36] rounded-lg p-6 w-96 shadow-lg">
+              <div className="bg-white dark:bg-[#222B36] rounded-lg p-6 w-96 shadow-lg z-9999">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white">
                     {isEditing ? "Ubah" : "Tambah"}{" "}
@@ -857,8 +857,8 @@ export default function MasterPage() {
 
           {/* Modal Delete Category/Description */}
           {isConfirmationOpen && (
-            <div className="fixed inset-0 backdrop-blur-sm bg-opacity-500 flex items-center justify-center">
-              <div className="bg-white dark:bg-[#222B36] rounded-lg p-6 w-96 shadow-lg">
+            <div className="fixed inset-0 backdrop-blur-sm bg-opacity-500 flex items-center justify-center z-50">
+              <div className="bg-white dark:bg-[#222B36] rounded-lg p-6 w-96 shadow-lg z-999">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white">
                     Hapus {activeTab === "category" ? "Kategori" : "Deskripsi"}
