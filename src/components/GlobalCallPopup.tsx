@@ -652,7 +652,7 @@ export function GlobalCallPopup() {
         action: dataIssue.action || "",
         number_plate: editablePlateNumber,
         TrxNo: ticketNo,
-        solusi: "test",
+        solusi: dataIssue.solusi || "",
       };
 
       // const newReportData: NewReportData = {
