@@ -1356,7 +1356,7 @@ export function GlobalCallPopup() {
                     onChange={(e) =>
                       setDataIssue((prev) => ({
                         ...prev,
-                        solution: e.target.value,
+                        solusi: e.target.value,
                       }))
                     }
                     placeholder="Masukkan solusi..."

@@ -65,21 +65,21 @@ export default function Login() {
         password: formData.password,
         remember: true,
       });
-
-      setUser({ username: response.user.username });
-      localStorage.setItem("username", response.user.username);
-      localStorage.setItem("id", response.user.id);
-      if (response.user.id) {
-        localStorage.setItem("admin_user_number", response.user.id.toString());
+      console.log(response.data.id);
+      setUser({ username: response.data.username });
+      localStorage.setItem("username", response.data.username);
+      localStorage.setItem("id", response.data.id);
+      if (response.data.id) {
+        localStorage.setItem("admin_user_number", response.data.id.toString());
       }
-      if (response.token) {
-        localStorage.setItem("token", response.token);
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
       }
 
       router.push("/?loginSuccess=1");
       window.dispatchEvent(new Event("loginSuccess"));
     } catch (error) {
-      console.error("Login error");
+      console.error("Login error", error);
       let errorMessage = "Terjadi kesalahan saat login";
 
       if (error instanceof Error) {

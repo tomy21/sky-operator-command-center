@@ -288,11 +288,11 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
             ) : (
               <>
                 {/* Options List */}
-                {filteredOptions.map((opt) => {
+                {filteredOptions.map((opt, index) => {
                   const isSelected = value === opt.value;
                   return (
                     <button
-                      key={opt.value}
+                      key={index}
                       ref={isSelected ? selectedRef : null}
                       type="button"
                       onClick={() => handleOptionClick(opt.value)}
