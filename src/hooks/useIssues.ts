@@ -6,13 +6,14 @@ export interface Issue {
   description: string;
   gate: string;
   action: string;
-  foto_in: string;
-  foto_out: string;
+  foto_lpr: string;
+  foto_face: string;
   number_plate: string;
   duration: string;
   TrxNo: string;
   solusi: string;
   status: string;
+  foto_bukti_pembayaran: string;
   createdBy: string;
   modifiedBy: string;
   createdAt: string;
@@ -113,8 +114,6 @@ export const addIssue = async (issue: any) => {
       body: JSON.stringify(issue),
     });
 
-    console.log(response);
-
     // Kalau status bukan 2xx
     if (!response.ok) {
       let errorMessage = `Error ${response.status} ${response.statusText}`;
@@ -194,6 +193,54 @@ export const exportIssues = async (startDate: string, endDate: string) => {
     return true;
   } catch (error) {
     console.error("Error exporting issues:", error);
+    throw error;
+  }
+};
+
+export const updateDuration = async (id: number, duration: string) => {
+  try {
+    const response = await fetch(`/api/issue/input-duration/${id}`, {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ duration }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating duration:", error);
+    throw error;
+  }
+};
+
+export const snapshotImage = async (idGate: number, urlServer: string) => {
+  try {
+    const response = await fetch(
+      `${urlServer}/api/cctv/snapshot-image/${Number(idGate)}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating duration:", error);
     throw error;
   }
 };

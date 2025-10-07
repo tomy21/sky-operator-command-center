@@ -1,42 +1,61 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use client';
-import { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { ChevronDown, Lock } from 'lucide-react';
-import CheckTicketModal from '@/components/modal/CheckTicketModal';
-import { useUser } from '@/contexts/UserContext';
+"use client";
+import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
+// import { useRouter } from "next/navigation";
+import { ChevronDown, Lock } from "lucide-react";
+import CheckTicketModal from "@/components/modal/CheckTicketModal";
+import { useUser } from "@/contexts/UserContext";
+import ChangePasswordModal from "../modal/ChangePassword";
+import { changePassword } from "@/hooks/useAuth";
+import { toast } from "react-toastify";
 
 interface HeaderProps {
   notifications: any[];
 }
 
-export default function Header({
-  // notifications
-}: HeaderProps) {
+export default function Header({}: // notifications
+HeaderProps) {
   const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const { user } = useUser();
-  const router = useRouter();
+  // const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [modalChangePassword, setModalChangePassword] = useState(false);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsProfileDropdownOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   const handleChangePassword = () => {
     setIsProfileDropdownOpen(false);
-    router.push('/change-password');
+    setModalChangePassword(true);
+  };
+
+  const submitChangePassword = async (oldPass: string, newPass: string) => {
+    try {
+      await changePassword({
+        oldPassword: oldPass,
+        newPassword: newPass,
+      });
+
+      toast.success("Password berhasil diubah");
+    } catch (err: any) {
+      toast.error(err.message);
+    }
   };
 
   return (
@@ -76,12 +95,12 @@ export default function Header({
                   />
                 </div>
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {user?.username || 'Admin'}
+                  {user?.username || "Admin"}
                 </span>
-                <ChevronDown 
+                <ChevronDown
                   className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
-                    isProfileDropdownOpen ? 'rotate-180' : ''
-                  }`} 
+                    isProfileDropdownOpen ? "rotate-180" : ""
+                  }`}
                 />
               </button>
 
@@ -90,13 +109,13 @@ export default function Header({
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
                   <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {user?.username || 'Admin'}
+                      {user?.username || "Admin"}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       Administrator
                     </p>
                   </div>
-                  
+
                   <button
                     onClick={handleChangePassword}
                     className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -104,14 +123,6 @@ export default function Header({
                     <Lock className="w-4 h-4 mr-3" />
                     Ganti Password
                   </button>
-                  
-                  {/* <button
-                    onClick={handleLogout}
-                    className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <LogOut className="w-4 h-4 mr-3" />
-                    Logout
-                  </button> */}
                 </div>
               )}
             </div>
@@ -123,6 +134,12 @@ export default function Header({
       <CheckTicketModal
         isOpen={isCheckModalOpen}
         onClose={() => setIsCheckModalOpen(false)}
+      />
+
+      <ChangePasswordModal
+        isOpen={modalChangePassword}
+        onClose={() => setModalChangePassword(false)}
+        onSubmit={submitChangePassword}
       />
     </>
   );

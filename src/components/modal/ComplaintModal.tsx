@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -8,10 +7,13 @@ import React, { useState, useEffect } from "react";
 import { CustomSelect } from "../input/CustomSelect";
 
 interface ComplaintDetail {
-  date: string;
-  location: string;
-  gate: string;
+  id: number;
+  ticket: string;
+  category: string;
+  lokasi: string;
   description: string;
+  gate: string;
+  createdAt: string;
 }
 
 interface ComplaintModalProps {
@@ -30,292 +32,48 @@ export const ComplaintModal: React.FC<ComplaintModalProps> = ({
   const [complaintDetails, setComplaintDetails] = useState<ComplaintDetail[]>(
     []
   );
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
   // const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
   const [isLoading, setIsLoading] = useState(false);
 
-  const dummyComplaintData: Record<string, ComplaintDetail[]> = {
-    Informasi: [
-      {
-        date: "2025-06-01",
-        location: "Lokasi A1",
-        gate: "Gate PM 1",
-        description: "Kurang informasi jam operasional",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi B2",
-        gate: "Gate PM 2",
-        description: "Papan informasi tidak jelas",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi C3",
-        gate: "Gate PK 3",
-        description: "Tidak ada petunjuk arah yang memadai",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi D1",
-        gate: "Gate PM 4",
-        description: "Informasi tarif tidak update",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi E2",
-        gate: "Gate PK 5",
-        description: "Kurang sosialisasi aturan baru",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi A1",
-        gate: "Gate PM 1",
-        description: "Kurang informasi jam operasional",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi B2",
-        gate: "Gate PM 2",
-        description: "Papan informasi tidak jelas",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi C3",
-        gate: "Gate PK 3",
-        description: "Tidak ada petunjuk arah yang memadai",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi D1",
-        gate: "Gate PM 4",
-        description: "Informasi tarif tidak update",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi E2",
-        gate: "Gate PK 5",
-        description: "Kurang sosialisasi aturan baru",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi A1",
-        gate: "Gate PM 1",
-        description: "Kurang informasi jam operasional",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi B2",
-        gate: "Gate PM 2",
-        description: "Papan informasi tidak jelas",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi C3",
-        gate: "Gate PK 3",
-        description: "Tidak ada petunjuk arah yang memadai",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi D1",
-        gate: "Gate PM 4",
-        description: "Informasi tarif tidak update",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi E2",
-        gate: "Gate PK 5",
-        description: "Kurang sosialisasi aturan baru",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi A1",
-        gate: "Gate PM 1",
-        description: "Kurang informasi jam operasional",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi B2",
-        gate: "Gate PM 2",
-        description: "Papan informasi tidak jelas",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi C3",
-        gate: "Gate PK 3",
-        description: "Tidak ada petunjuk arah yang memadai",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi D1",
-        gate: "Gate PM 4",
-        description: "Informasi tarif tidak update",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi E2",
-        gate: "Gate PK 5",
-        description: "Kurang sosialisasi aturan baru",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi A1",
-        gate: "Gate PM 1",
-        description: "Kurang informasi jam operasional",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi B2",
-        gate: "Gate PM 2",
-        description: "Papan informasi tidak jelas",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi C3",
-        gate: "Gate PK 3",
-        description: "Tidak ada petunjuk arah yang memadai",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi D1",
-        gate: "Gate PM 4",
-        description: "Informasi tarif tidak update",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi E2",
-        gate: "Gate PK 5",
-        description: "Kurang sosialisasi aturan baru",
-      },
-    ],
-    Teknikal: [
-      {
-        date: "2025-06-01",
-        location: "Lokasi A2",
-        gate: "Gate PK 1",
-        description: "Sistem pembayaran error",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi B1",
-        gate: "Gate PM 2",
-        description: "Palang pintu tidak berfungsi",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi C2",
-        gate: "Gate PM 3",
-        description: "Scanner kartu rusak",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi D3",
-        gate: "Gate PK 4",
-        description: "Lampu traffic light mati",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi E1",
-        gate: "Gate PM 5",
-        description: "CCTV tidak berfungsi",
-      },
-    ],
-    Fasilitas: [
-      {
-        date: "2025-06-01",
-        location: "Lokasi A",
-        gate: "Gate PK 1",
-        description: "Toilet kotor dan bau",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi B",
-        gate: "Gate PM 2",
-        description: "Penerangan kurang terang",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi C",
-        gate: "Gate PM 3",
-        description: "Tempat sampah penuh",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi D",
-        gate: "Gate PK 4",
-        description: "Jalur pejalan kaki rusak",
-      },
-      {
-        date: "2025-06-01",
-        location: "Lokasi E",
-        gate: "Gate PM 5",
-        description: "Kantin tidak bersih",
-      },
-    ],
-    Layanan: [
-      {
-        date: "2025-06-01",
-        location: "Lokasi a",
-        gate: "Gate PK 1",
-        description: "Pelayanan petugas lambat",
-      },
-      {
-        date: "2025-06-01",
-        location: "lokasi b",
-        gate: "Gate PM 2",
-        description: "Petugas keamanan tidak responsif",
-      },
-      {
-        date: "2025-06-01",
-        location: "lokasi c",
-        gate: "Gate PM 3",
-        description: "Respon perbaikan terlalu lama",
-      },
-      {
-        date: "2025-06-01",
-        location: "lokasi d",
-        gate: "Gate PM 4",
-        description: "Antrian terlalu panjang",
-      },
-      {
-        date: "2025-06-01",
-        location: "lokasi w",
-        gate: "Gate PK 5",
-        description: "Petugas kurang ramah",
-      },
-    ],
-  };
-
   // Function to fetch complaint data
-  const fetchComplaintData = async (category: string) => {
-    if (!category) return;
+  const fetchComplaintData = async (
+    selectedCategory: string,
+    pageNumber: number = 1,
+    limit: number = itemsPerPage
+  ) => {
+    if (!selectedCategory) return;
 
     setIsLoading(true);
     try {
-      if (fetchComplainCategory) {
-        const response = await fetchComplainCategory(category);
+      const res = await fetch(
+        `/api/issue/get-byCategory?category=${selectedCategory}&page=${pageNumber}&limit=${limit}`
+      );
+      const response = await res.json();
 
-        // Transform API response to match ComplaintDetail interface
-        // Adjust this mapping based on your actual API response structure
-        const transformedData: ComplaintDetail[] =
-          response.data?.map((item: any, index: number) => ({
-            nomor: (index + 1).toString(),
-            date: item.created_at || item.date || new Date().toISOString(),
-            location: item.location || `Lokasi ${index + 1}`,
-            gate: item.gate || `Gate ${index + 1}`,
-            description:
-              item.description || item.complaint || "Tidak ada deskripsi",
-          })) || [];
-
-        setComplaintDetails(transformedData);
+      if (response.code === 230002 && response.data) {
+        setComplaintDetails(response.data || []);
+        setCurrentPage(response.meta.page);
+        setItemsPerPage(response.meta.limit);
+        setTotalPages(response.meta.totalPages);
+        setTotalItems(response.meta.totalItems);
       } else {
-        // Fallback to dummy data if no fetch function provided
-        setComplaintDetails(dummyComplaintData[category] || []);
+        setComplaintDetails([]);
+        setCurrentPage(1);
+        setItemsPerPage(limit);
+        setTotalPages(0);
+        setTotalItems(0);
       }
     } catch (error) {
-      console.error("Error fetching complaint data");
-      // Fallback to dummy data on error
-      setComplaintDetails(dummyComplaintData[category] || []);
+      console.error("Error fetching complaint data", error);
+      setComplaintDetails([]);
+      setCurrentPage(1);
+      setTotalPages(0);
+      setTotalItems(0);
     } finally {
       setIsLoading(false);
     }
@@ -329,24 +87,17 @@ export const ComplaintModal: React.FC<ComplaintModalProps> = ({
     }
   }, [isOpen, selectedCategory, fetchComplainCategory]);
 
-  // Pagination calculations
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = complaintDetails.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
-  const totalPages = Math.ceil(complaintDetails.length / itemsPerPage);
-
-  // Pagination handlers
   const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
+    if (pageNumber < 1 || pageNumber > totalPages) return;
+    fetchComplaintData(selectedCategory, pageNumber, itemsPerPage);
   };
 
   const handleItemsPerPageChange = (newItemsPerPage: number) => {
     setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1);
+    fetchComplaintData(selectedCategory, 1, newItemsPerPage); // reset ke page 1
   };
+
+  const currentItems = complaintDetails;
 
   const getPaginationRange = () => {
     const range = [];
@@ -430,9 +181,9 @@ export const ComplaintModal: React.FC<ComplaintModalProps> = ({
               </div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
-              <div className="text-sm text-blue-100">Menampilkan</div>
+              <div className="text-sm text-blue-100">Halaman</div>
               <div className="text-2xl font-bold">
-                {currentItems.length} item
+                {complaintDetails.length} dari {totalItems} hasil
               </div>
             </div>
           </div>
@@ -441,54 +192,11 @@ export const ComplaintModal: React.FC<ComplaintModalProps> = ({
         {/* Controls Bar - FIXED HEIGHT */}
         <div className="bg-gray-50 dark:bg-[#1e2632] p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            {/* View Mode Toggle */}
-            {/* <div className="flex items-center space-x-2">
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Tampilan:</span>
-                            <div className="flex bg-white dark:bg-[#2a3441] rounded-lg p-1 border border-gray-200 dark:border-gray-600">
-                                <button
-                                    onClick={() => setViewMode('table')}
-                                    className={`cursor-pointer px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200 ${viewMode === 'table'
-                                        ? 'bg-blue-500 text-white shadow-sm'
-                                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
-                                        }`}
-                                >
-                                    <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 6h18m-9 8h9" />
-                                    </svg>
-                                    Tabel
-                                </button>
-                                <button
-                                    onClick={() => setViewMode('card')}
-                                    className={`cursor-pointer px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200 ${viewMode === 'card'
-                                        ? 'bg-blue-500 text-white shadow-sm'
-                                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
-                                        }`}
-                                >
-                                    <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-7H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2z" />
-                                    </svg>
-                                    Kartu
-                                </button>
-                            </div>
-                        </div> */}
-
             {/* Items per page selector */}
             <div className="flex items-center space-x-2">
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Tampilkan:
               </span>
-              {/* <select
-                value={itemsPerPage}
-                onChange={(e) =>
-                  handleItemsPerPageChange(Number(e.target.value))
-                }
-                className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#2a3441] text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-              </select> */}
               <CustomSelect
                 options={viewSets.map((size) => ({
                   id: size,
@@ -561,23 +269,17 @@ export const ComplaintModal: React.FC<ComplaintModalProps> = ({
                       {currentItems.map((complaint, index) => {
                         const nomorUrut =
                           (currentPage - 1) * itemsPerPage + index + 1;
-
+                        console.log("complaint", complaint);
                         return (
                           <tr
-                            key={index}
+                            key={complaint.id}
                             className="hover:bg-gray-50 dark:hover:bg-[#2a3441] transition-colors duration-200"
                           >
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center">
-                                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mr-3">
-                                  <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                                    {nomorUrut}
-                                  </span>
-                                </div>
-                              </div>
+                              {nomorUrut}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                              {new Date(complaint.date).toLocaleDateString(
+                              {new Date(complaint.createdAt).toLocaleDateString(
                                 "id-ID",
                                 {
                                   year: "numeric",
@@ -587,7 +289,7 @@ export const ComplaintModal: React.FC<ComplaintModalProps> = ({
                               )}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                              {complaint.location}
+                              {complaint.lokasi}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
@@ -642,9 +344,9 @@ export const ComplaintModal: React.FC<ComplaintModalProps> = ({
               {/* Pagination Info */}
               <div className="text-sm text-gray-700 dark:text-gray-300">
                 Menampilkan{" "}
-                <span className="font-medium">{indexOfFirstItem + 1}</span> -{" "}
+                <span className="font-medium">{currentPage + 1}</span> -{" "}
                 <span className="font-medium">
-                  {Math.min(indexOfLastItem, complaintDetails.length)}
+                  {Math.min(currentPage, complaintDetails.length)}
                 </span>{" "}
                 dari{" "}
                 <span className="font-medium">{complaintDetails.length}</span>{" "}

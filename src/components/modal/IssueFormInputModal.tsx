@@ -1,8 +1,11 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "react-toastify";
 import SearchableSelect from "@/components/input/SearchableSelect";
+import Image from "next/image";
+import { fetchLocationById } from "@/hooks/useLocation";
 
 interface FieldOption {
   value: string;
@@ -12,7 +15,14 @@ interface FieldOption {
 export interface Field {
   id: string;
   label: string;
-  type: "text" | "number" | "select" | "textarea" | "radio" | "time";
+  type:
+    | "text"
+    | "number"
+    | "select"
+    | "textarea"
+    | "radio"
+    | "time"
+    | "datetime-local";
   value: string;
   placeholder?: string;
   options?: FieldOption[];
@@ -52,6 +62,11 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
   cancelText = "Cancel",
 }) => {
   const [formValues, setFormValues] = useState<Record<string, string>>({});
+  const [photos, setPhotos] = useState<{ label: string; src: string }[]>([]);
+  const [photoIntercome, setPhotoIntercome] = useState<string | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [isLoadingLpr, setIsLoadingLpr] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
@@ -96,6 +111,117 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
     },
     [licenseValidationTimeout, validateLicensePlate]
   );
+
+  // 🔹 Ambil snapshot dari API
+  const handleSnapshot = async () => {
+    try {
+      setIsLoadingLpr(true);
+      if (formValues.idLocation === "")
+        return toast.error("Pilih lokasi terlebih dahulu");
+      if (formValues.idGate === "")
+        return toast.error("Pilih gate terlebih dahulu");
+
+      const locationDetail = await fetchLocationById(
+        Number(formValues.idLocation)
+      );
+      if (!locationDetail) return toast.error("Lokasi tidak ditemukan");
+
+      const urlServer = locationDetail.data?.UrlServer;
+      const encodedUrlServer = encodeURIComponent(urlServer);
+
+      const data = await fetch(
+        `/api/snapshot-proxy/${formValues.idGate}?urlServer=${encodedUrlServer}`
+      ).then((res) => res.json());
+
+      if (data?.snapshots) {
+        const lprBase64 = data.snapshots.lpr || null;
+        const faceBase64 = data.snapshots.face || null;
+
+        // === Jalankan plate recognition hanya jika ada LPR ===
+        if (lprBase64) {
+          const plateRecognizeRes = await fetch(`/api/plate-recognize`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              image_base64: lprBase64,
+              cameraId: locationDetail.code,
+            }),
+          });
+
+          const plateRecognize = await plateRecognizeRes.json();
+          if (plateRecognize?.result?.results?.length > 0) {
+            const detectedPlate =
+              plateRecognize.result.results[0].plate?.toUpperCase() || "";
+
+            const NoTransaction = await fetch(
+              `${
+                process.env.NEXT_PUBLIC_API_BASE_URL
+              }/api/message/getTransactionPOST?plateNumber=${detectedPlate}&locationId=${Number(
+                formValues.idLocation
+              )}`
+            );
+
+            const NoTransactionJson = await NoTransaction.json();
+            const trxNo = NoTransactionJson.data.data.transactionNo;
+            handleInputChange("TrxNo", trxNo);
+            handleInputChange("number_plate", detectedPlate);
+          }
+        }
+
+        // === Tambahkan label pada foto ===
+        const newPhotos = [
+          lprBase64 ? { label: "LPR", src: lprBase64 } : null,
+          faceBase64 ? { label: "Face", src: faceBase64 } : null,
+        ].filter(Boolean) as { label: string; src: string }[];
+
+        setPhotos(newPhotos);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Gagal mengambil snapshot");
+    } finally {
+      setIsLoadingLpr(false);
+    }
+  };
+
+  const handleIntercome = async () => {
+    try {
+      setIsLoading(true);
+      if (formValues.idLocation === "")
+        return toast.error("Pilih lokasi terlebih dahulu");
+      if (formValues.idGate === "")
+        return toast.error("Pilih gate terlebih dahulu");
+
+      const locationDetail = await fetchLocationById(
+        Number(formValues.idLocation)
+      );
+      if (!locationDetail) return toast.error("Lokasi tidak ditemukan");
+
+      const urlServer = locationDetail.data?.UrlServer;
+      const encodedUrlServer = encodeURIComponent(urlServer);
+
+      const res = await fetch(
+        `/api/capture-intercome/${formValues.idGate}?urlServer=${encodedUrlServer}`
+      );
+
+      const data = await res.json();
+
+      if (data?.snapshots) {
+        const faceBase64 = data.snapshots.face || null;
+
+        setPhotoIntercome(faceBase64);
+
+        setIsLoading(false);
+      } else {
+        toast.error("Snapshot tidak ditemukan");
+        setIsLoading(false);
+      }
+    } catch (err) {
+      toast.error("Gagal mengambil snapshot");
+      console.error(err);
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     return () => {
@@ -281,6 +407,28 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
           </div>
         );
 
+      case "datetime-local":
+        return (
+          <div>
+            <input
+              type="datetime-local"
+              value={value}
+              onChange={(e) => handleInputChange(field.id, e.target.value)}
+              placeholder={field.placeholder}
+              className={`${inputClassName}`}
+              readOnly={isReadonly}
+              disabled={isDisabled}
+              required={field.required}
+              step="1"
+            />
+            {hasError && (
+              <div className="mt-1 text-sm text-red-600 dark:text-red-400 transition-opacity duration-200">
+                {validationErrors[field.id]}
+              </div>
+            )}
+          </div>
+        );
+
       default:
         return (
           <div>
@@ -418,8 +566,22 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
       return;
     }
 
-    onSubmit(formValues);
+    console.log("Form submitted:", formValues);
+    const lprPhoto = photos.find((p) => p.label === "LPR")?.src || "";
+    const facePhoto = photos.find((p) => p.label === "Face")?.src || "";
+    const intercomePhoto = photoIntercome || "";
+
+    const formWithPhotos = {
+      ...formValues,
+      foto_lpr: lprPhoto,
+      foto_face: facePhoto,
+      foto_bukti_pembayaran: intercomePhoto,
+    };
+
+    onSubmit(formWithPhotos);
     onClose();
+    setPhotoIntercome("");
+    setPhotos([]);
   };
 
   if (!isOpen) return null;
@@ -434,6 +596,12 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
       rightColumnFields.push(field);
     }
   });
+
+  const handleCloseModal = () => {
+    onClose();
+    setPhotoIntercome("");
+    setPhotos([]);
+  };
 
   return (
     <div className="fixed inset-0 backdrop-blur-md bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -485,11 +653,113 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
               </div>
             </div>
 
+            <div className="flex justify-between items-center w-full gap-x-10">
+              <div className="mt-8 border-t pt-6 w-full">
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                    Foto Plat Nomor dan Wajah
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={handleSnapshot}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                    disabled={isLoadingLpr}
+                  >
+                    {isLoadingLpr ? "Mengambil..." : "Ambil Gambar"}
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
+                  {photos.length > 0 ? (
+                    photos.map((photo, idx) => (
+                      <div
+                        key={idx}
+                        className="relative border rounded-lg overflow-hidden shadow cursor-pointer hover:scale-105 transition"
+                        onClick={() => photo && setSelectedPhoto(photo.src)}
+                      >
+                        <div className="absolute top-1 left-1 bg-black/60 text-white text-xs px-2 py-0.5 rounded">
+                          {photo.label}
+                        </div>
+
+                        <Image
+                          src={
+                            photo.src || "/images/no-image-found-360x250.png"
+                          }
+                          alt={`snapshot-${idx}`}
+                          className="w-full h-32 object-cover"
+                          width={200}
+                          height={200}
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    // ✅ fallback jika tidak ada foto
+                    <>
+                      {[...Array(2)].map((_, idx) => (
+                        <div
+                          key={idx}
+                          className="relative border rounded-lg overflow-hidden shadow cursor-pointer hover:scale-105 transition"
+                        >
+                          <div className="absolute top-1 left-1 bg-black/60 text-white text-xs px-2 py-0.5 rounded">
+                            {idx === 0 ? "LPR" : "Face"}
+                          </div>
+                          <Image
+                            src="/images/no-image-found-360x250.png"
+                            alt={`snapshot-empty-${idx}`}
+                            className="w-full h-32 object-cover"
+                            width={200}
+                            height={200}
+                          />
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-8 border-t pt-6 w-full">
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200">
+                    Bukti Bayar
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={handleIntercome}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Mengambil..." : "Ambil Gambar"}
+                  </button>
+                </div>
+                <div className="flex justify-between items-center w-full">
+                  <div className="grid grid-cols-2 md:grid-cols-1 gap-3">
+                    <div
+                      className="relative border rounded-lg overflow-hidden shadow cursor-pointer hover:scale-105 transition"
+                      onClick={() => {
+                        if (photoIntercome) setSelectedPhoto(photoIntercome);
+                      }}
+                    >
+                      <Image
+                        src={
+                          photoIntercome
+                            ? photoIntercome
+                            : "/images/no-image-found-360x250.png"
+                        }
+                        alt="snapshot"
+                        className="w-full h-32 object-cover"
+                        width={200}
+                        height={200}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Action Buttons */}
             <div className="flex justify-end space-x-3 mt-8 pt-4 border-t">
               <button
                 type="button"
-                onClick={onClose}
+                onClick={handleCloseModal}
                 className="cursor-pointer px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
               >
                 {cancelText}
@@ -504,6 +774,33 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
           </div>
         </form>
       </div>
+
+      {selectedPhoto && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          onClick={() => setSelectedPhoto(null)}
+        >
+          <div className="relative">
+            <button
+              onClick={() => setSelectedPhoto(null)}
+              className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-2 hover:bg-black"
+            >
+              ✕
+            </button>
+            <img
+              src={
+                selectedPhoto.startsWith("data:image")
+                  ? selectedPhoto
+                  : `data:image/jpeg;base64,${selectedPhoto}`
+              }
+              width={800}
+              height={800}
+              alt="Preview"
+              className="max-h-[90vh] max-w-[90vw] rounded-lg shadow-lg"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

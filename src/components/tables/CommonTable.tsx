@@ -3,19 +3,19 @@ import React from "react";
 import {
   ChevronLeft,
   ChevronRight,
-  // ChevronsLeft,
-  // ChevronsRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
 import { CustomSelect } from "../input/CustomSelect";
 
-export interface Column<T> {
+export type Column<T> = {
   header: string;
   accessor: keyof T;
   render?: (value: T[keyof T], row: T) => React.ReactNode;
-  width?: string | number;
-  minWidth?: string | number;
-  maxWidth?: string | number;
-}
+  width?: string | number; // <--- tambahkan
+  minWidth?: string | number; // <--- tambahkan
+  maxWidth?: string | number; // <--- tambahkan
+};
 
 interface TableProps<T> {
   data: T[];
@@ -158,14 +158,14 @@ export default function CommonTable<T>({
             <nav className="flex items-center justify-center">
               <div className="flex items-center space-x-1">
                 {/* First Page */}
-                {/* <button
+                <button
                   onClick={() => onPageChange(1)}
                   disabled={currentPage === 1}
                   className="cursor-pointer relative inline-flex items-center rounded-md px-2 py-1.5 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
                   title="First page"
                 >
                   <ChevronsLeft className="w-4 h-4" />
-                </button> */}
+                </button>
 
                 {/* Previous Page */}
                 <button
@@ -190,7 +190,7 @@ export default function CommonTable<T>({
                           onClick={() => onPageChange(page as number)}
                           className={`cursor-pointer relative inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-md ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:z-20 focus:outline-offset-0 transition-colors duration-200 ${
                             currentPage === page
-                              ? "bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                              ? "bg-blue-600 text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                               : "text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
                           }`}
                           title={`Go to page ${page}`}
@@ -213,14 +213,14 @@ export default function CommonTable<T>({
                 </button>
 
                 {/* Last Page */}
-                {/* <button
+                <button
                   onClick={() => onPageChange(totalPages)}
                   disabled={currentPage === totalPages}
                   className="cursor-pointer relative inline-flex items-center rounded-md px-2 py-1.5 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
                   title="Last page"
                 >
                   <ChevronsRight className="w-4 h-4" />
-                </button> */}
+                </button>
               </div>
             </nav>
           </div>
@@ -265,7 +265,7 @@ export default function CommonTable<T>({
               aria-label="Pagination"
             >
               {/* First Page */}
-              {/* <button
+              <button
                 onClick={() => onPageChange(1)}
                 disabled={currentPage === 1}
                 className="cursor-pointer relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
@@ -273,7 +273,7 @@ export default function CommonTable<T>({
               >
                 <span className="sr-only">First</span>
                 <ChevronsLeft className="w-4 h-4" />
-              </button> */}
+              </button>
 
               {/* Previous Page */}
               <button
@@ -298,7 +298,7 @@ export default function CommonTable<T>({
                       onClick={() => onPageChange(page as number)}
                       className={`cursor-pointer relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:z-20 focus:outline-offset-0 transition-colors duration-200 ${
                         currentPage === page
-                          ? "z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                          ? "bg-blue-600 text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                           : "text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
                       }`}
                       title={`Go to page ${page}`}
@@ -321,7 +321,7 @@ export default function CommonTable<T>({
               </button>
 
               {/* Last Page */}
-              {/* <button
+              <button
                 onClick={() => onPageChange(totalPages)}
                 disabled={currentPage === totalPages}
                 className="cursor-pointer relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
@@ -329,7 +329,7 @@ export default function CommonTable<T>({
               >
                 <span className="sr-only">Last</span>
                 <ChevronsRight className="w-4 h-4" />
-              </button> */}
+              </button>
             </nav>
           </div>
         </div>
@@ -345,24 +345,24 @@ export default function CommonTable<T>({
           {/* Table container - removed max height and vertical scroll for better fit */}
           <div className="max-h-120 overflow-y-auto">
             <table className="w-full min-w-full">
-              <thead className="sticky top-0 z-10">
+              <thead className="sticky top-0 z-10 bg-gray-300">
                 <tr className="text-left border-b border-gray-200 dark:border-gray-700">
-                  {columns.map((column, index) => (
+                  {columns.map((col, colIndex) => (
                     <th
-                      key={index}
-                      className="p-4 text-sm font-semibold text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 whitespace-nowrap"
+                      key={colIndex}
+                      className="px-4 py-3 font-semibold text-gray-700 dark:text-gray-300"
                       style={{
-                        width: column.width,
-                        minWidth: column.minWidth || "20px",
-                        maxWidth: column.maxWidth || "300px",
+                        width: col.width,
+                        minWidth: col.minWidth || "20px",
+                        maxWidth: col.maxWidth || "300px",
                       }}
                     >
-                      {column.header}
+                      {col.header}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700 items-center justify-start">
                 {data.map((item, rowIndex) => (
                   <tr
                     key={rowIndex}

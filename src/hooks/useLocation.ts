@@ -25,6 +25,8 @@ export interface LocationDetail {
   Region: string;
   Vendor: string;
   VendorParkingCode: string;
+  TID: string;
+  UrlServer: string;
   ShortName: string;
   Address: string;
   StartTime: string;

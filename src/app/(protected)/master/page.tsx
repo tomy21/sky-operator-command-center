@@ -3,8 +3,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useEffect, lazy, Suspense } from "react";
-import { FiEdit2, FiTrash2, FiX } from "react-icons/fi";
+import { useState, useEffect, Suspense } from "react";
+import { FiX } from "react-icons/fi";
 import {
   addCategory,
   Category,
@@ -23,40 +23,23 @@ import {
   editDescription,
   deleteDescription,
 } from "@/hooks/useDescriptions";
-import formatTanggalUTC from "@/utils/formatDate";
+
 import NoData from "@/components/NoData";
 import SearchableSelect from "@/components/input/SearchableSelect";
-
-const CommonTable = lazy(() => import("@/components/tables/CommonTable"));
+import {
+  TabContentLoader,
+  TableSkeleton,
+} from "./components/loader/TableSkeleton";
+import CommonTable from "@/components/tables/CommonTable";
+import { getCategoryColumns } from "./components/GetCategory";
+import { getDescriptionColumns } from "./components/GetDescriptionColumns";
+import InfoBox from "./components/InfoBox";
 
 interface Column<T> {
   header: string;
   accessor: keyof T;
   render?: (value: any, item: T) => React.ReactNode;
 }
-
-const TableSkeleton = () => (
-  <div className="animate-pulse">
-    <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
-    {[...Array(5)].map((_, i) => (
-      <div
-        key={i}
-        className="h-16 bg-gray-100 dark:bg-gray-800 rounded mb-2"
-      ></div>
-    ))}
-  </div>
-);
-
-const TabContentLoader = () => (
-  <div className="text-center py-8">
-    <div className="three-body">
-      <div className="three-body__dot"></div>
-      <div className="three-body__dot"></div>
-      <div className="three-body__dot"></div>
-    </div>
-    <p className="text-gray-600 dark:text-gray-300 mt-4">Memuat data...</p>
-  </div>
-);
 
 interface CategoryData {
   id: number | null;
@@ -226,15 +209,6 @@ export default function MasterPage() {
     }
   };
 
-  // const handleCategorySearch = (searchTerm: string) => {
-  //   setCategorySelectPagination((prev) => ({
-  //     ...prev,
-  //     currentPage: 1,
-  //     searchTerm: searchTerm,
-  //   }));
-  //   loadCategoryOptions(1, searchTerm, true);
-  // };
-
   const handleLoadMoreCategories = () => {
     if (
       categorySelectPagination.hasMore &&
@@ -371,108 +345,6 @@ export default function MasterPage() {
     setDeleteId(id);
     setIsConfirmationOpen(true);
   };
-
-  const getCategoryColumns = (): Column<Category>[] => [
-    {
-      header: "No",
-      accessor: "id",
-      render: (value, item) => {
-        const index = categories.findIndex((cat) => cat.id === item.id);
-        return (
-          (categoryPagination.currentPage - 1) *
-            categoryPagination.itemsPerPage +
-          index +
-          1
-        );
-      },
-    },
-    {
-      header: "Kategori",
-      accessor: "category",
-    },
-    {
-      header: "Dibuat Oleh",
-      accessor: "createdBy",
-    },
-    {
-      header: "Tanggal Dibuat",
-      accessor: "createdAt",
-      render: (value: any) => (value ? formatTanggalUTC(value.toString()) : ""),
-    },
-    {
-      header: "Aksi",
-      accessor: "id",
-      render: (value: any, item: Category) => (
-        <div className="flex space-x-2">
-          <button
-            className="cursor-pointer p-2 hover:bg-blue-500/10 dark:hover:bg-blue-500/20 rounded-lg text-blue-600 dark:text-blue-400"
-            onClick={() => handleEditCategory(item.id)}
-          >
-            <FiEdit2 size={16} />
-          </button>
-          <button
-            onClick={() => handleDelete(item.id)}
-            className="cursor-pointer  p-2 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-lg text-red-600 dark:text-red-400"
-          >
-            <FiTrash2 size={16} />
-          </button>
-        </div>
-      ),
-    },
-  ];
-
-  const getDescriptionColumns = (): Column<Description>[] => [
-    {
-      header: "No",
-      accessor: "id",
-      render: (value: any, item: Description) => {
-        const index = descriptions.findIndex((desc) => desc.id === item.id);
-        return (
-          (descriptionPagination.currentPage - 1) *
-            descriptionPagination.itemsPerPage +
-          index +
-          1
-        );
-      },
-    },
-    {
-      header: "Name",
-      accessor: "object",
-    },
-    {
-      header: "Kategori",
-      accessor: "id_category",
-      render: (value: any, item: Description) => {
-        const category = categories.find((cat) => cat.id === item.id_category);
-        return category ? category.category : value;
-      },
-    },
-    {
-      header: "Tanggal Dibuat",
-      accessor: "createdAt",
-      render: (value: any) => (value ? formatTanggalUTC(value.toString()) : ""),
-    },
-    {
-      header: "Action",
-      accessor: "id",
-      render: (value: any, item: Description) => (
-        <div className="flex space-x-2">
-          <button
-            className="cursor-pointer p-2 hover:bg-blue-500/10 dark:hover:bg-blue-500/20 rounded-lg text-blue-600 dark:text-blue-400"
-            onClick={() => handleEditDescription(item.id)}
-          >
-            <FiEdit2 size={16} />
-          </button>
-          <button
-            onClick={() => handleDelete(item.id)}
-            className="cursor-pointer p-2 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-lg text-red-600 dark:text-red-400"
-          >
-            <FiTrash2 size={16} />
-          </button>
-        </div>
-      ),
-    },
-  ];
 
   const handleAddCategory = async () => {
     try {
@@ -648,31 +520,7 @@ export default function MasterPage() {
 
             {/* Description Text */}
             <div className="mb-6">
-              {activeTab === "category" ? (
-                <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded">
-                  <h2 className="text-lg font-medium text-blue-700 dark:text-blue-400 mb-2">
-                    Manajemen Kategori
-                  </h2>
-                  <p className="text-blue-600/80 dark:text-blue-300/80">
-                    Halaman ini digunakan untuk mengelola kategori permasalahan
-                    yang dapat terjadi di gerbang. Setiap kategori akan menjadi
-                    pengelompokan utama untuk berbagai jenis permasalahan yang
-                    mungkin dihadapi.
-                  </p>
-                </div>
-              ) : (
-                <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-4 rounded">
-                  <h2 className="text-lg font-medium text-green-700 dark:text-green-400 mb-2">
-                    Manajemen Deskripsi Permasalahan
-                  </h2>
-                  <p className="text-green-600/80 dark:text-green-300/80">
-                    Halaman ini memungkinkan Anda mengelola deskripsi detail
-                    dari setiap permasalahan. Setiap deskripsi terhubung dengan
-                    kategori tertentu dan memberikan penjelasan spesifik tentang
-                    jenis masalah yang dapat terjadi.
-                  </p>
-                </div>
-              )}
+              <InfoBox activeTab={activeTab} />
             </div>
           </div>
 
@@ -700,7 +548,12 @@ export default function MasterPage() {
                     <Suspense fallback={<TableSkeleton />}>
                       <CommonTable
                         data={categories}
-                        columns={getCategoryColumns() as any}
+                        columns={getCategoryColumns(
+                          categories,
+                          categoryPagination,
+                          handleEditCategory,
+                          handleDelete
+                        )}
                         showPagination={true}
                         currentPage={categoryPagination.currentPage}
                         totalPages={categoryPagination.totalPages}
@@ -722,7 +575,13 @@ export default function MasterPage() {
                   ) : (
                     <Suspense fallback={<TableSkeleton />}>
                       <CommonTable
-                        columns={getDescriptionColumns() as any}
+                        columns={getDescriptionColumns(
+                          descriptions,
+                          categories,
+                          descriptionPagination,
+                          handleEditDescription,
+                          handleDelete
+                        )}
                         data={descriptions}
                         showPagination={true}
                         currentPage={descriptionPagination.currentPage}

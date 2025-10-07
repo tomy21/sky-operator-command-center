@@ -80,9 +80,6 @@ const ModalSkeleton = () => (
 
 export default function LocationPage() {
   const router = useRouter();
-  // const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  // const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  // const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
@@ -137,16 +134,6 @@ export default function LocationPage() {
     );
     toast.success("Data lokasi aktif telah diperbarui");
   }, []);
-
-  // const handleConfirmDelete = useCallback(() => {
-  //   console.log("Deleting location:", selectedLocation);
-  //   setIsDeleteModalOpen(false);
-  // }, [selectedLocation]);
-
-  // const handleConfirmEdit = useCallback(() => {
-  //   console.log("Editing location:", selectedLocation);
-  //   setIsEditModalOpen(false);
-  // }, [selectedLocation]);
 
   const fetchLocationActiveData = useCallback(async (page = 1, limit = 5) => {
     try {
@@ -208,19 +195,6 @@ export default function LocationPage() {
     setIsConfirmationModalOpen(false);
     setIsAddModalOpen(true);
   }, []);
-
-  // // Debounced fetch function to prevent multiple rapid calls
-  // const fetchLocationData = useCallback(async (page = 1, limit = 5) => {
-  //   try {
-  //     setIsDataLoading(true);
-  //     const locationsData = await fetchLocation(page, limit);
-  //     console.log("DATA LOCATION : ", locationsData);
-  //   } catch (error) {
-  //     toast.error("Gagal memuat data lokasi");
-  //   } finally {
-  //     setIsDataLoading(false);
-  //   }
-  // }, []);
 
   // Optimized page change handler
   const handleLocationPageChange = useCallback(

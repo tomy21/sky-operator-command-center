@@ -131,6 +131,10 @@ function LocationDetailContent() {
 
       await fetchGatesData();
 
+      setTimeout(async () => {
+        await fetchGatesData();
+      }, 3000);
+
       setShowConfirmModal(false);
       setSelectedGate(null);
     } catch (error) {

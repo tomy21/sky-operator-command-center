@@ -5,18 +5,20 @@
 import { lazy, Suspense, useEffect, useState, useRef } from "react";
 import { useGlobalSocket } from "@/contexts/SocketContext";
 import dynamic from "next/dynamic";
-import { ApexOptions } from "apexcharts";
 import { useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import React from "react";
 import { fetchIssuesMonthly } from "@/hooks/useIssues";
-import { ComplaintModal } from "@/components/modal/ComplaintModal";
 import { fetchCall } from "@/hooks/useCall";
-
-const ReactApexChart = dynamic(() => import("react-apexcharts"), {
-  ssr: false,
-});
+import MonthlyComplaintChart from "./components/charts/MonthlyComplaintChart";
+import CategoryComplaintChart from "./components/charts/CategoryComplaintChart";
+import { MonthlyComplaintData } from "@/types/complains";
+import { ComplaintModal } from "@/components/modal/ComplaintModal";
+import { getAllUsers } from "@/hooks/useAuth";
+import { TableSkeleton } from "./master/components/loader/TableSkeleton";
+import CommonTable from "@/components/tables/CommonTable";
+import { getUsersColumns } from "@/components/user/getColumnUsers";
 
 const CallQuantityTable = lazy(
   () => import("@/components/tables/CallQuantityTable")
@@ -34,12 +36,6 @@ const TrafficCallTable = lazy(
   () => import("@/components/tables/TrafficCallTable")
 );
 
-interface MonthlyComplaintData {
-  month: string;
-  date: string;
-  complaints: number;
-}
-
 type TableType =
   | "call-quantity"
   | "call-by-time"
@@ -54,14 +50,48 @@ const tableOptions = [
   { value: "traffic-call", label: "Panggilan dan Traffic" },
 ] as const;
 
+interface PaginationInfo {
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  itemsPerPage: number;
+}
+
 export default function Dashboard() {
   const chartRef = useRef<any>(null);
   const { connectionStatus, userNumber } = useGlobalSocket();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [activeTable, setActiveTable] = useState<TableType>("call-quantity");
-
+  const [dataUser, setDataUser] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [totalPages, setTotalPages] = useState(5);
+  const [totalItems, setTotalItems] = useState(0);
   const searchParams = useSearchParams();
+
+  const [userPaginationTable, setUserPaginationTable] =
+    useState<PaginationInfo>({
+      totalItems: totalItems,
+      totalPages: totalPages,
+      currentPage: currentPage,
+      itemsPerPage: itemsPerPage,
+    });
+
+  const userPagination = { currentPage, itemsPerPage };
+
+  const fetchUsers = async (page: number = 1, limit: number = 5) => {
+    try {
+      const result = await getAllUsers({ page, limit });
+      setDataUser(result.data);
+      setItemsPerPage(result.meta.limit);
+      setCurrentPage(result.meta.page);
+      setTotalPages(result.meta.totalPages);
+      setTotalItems(result.meta.totalItems);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     if (searchParams.get("loginSuccess") === "1") {
@@ -70,253 +100,8 @@ export default function Dashboard() {
       url.searchParams.delete("loginSuccess");
       window.history.replaceState({}, "", url.toString());
     }
+    fetchUsers();
   }, [searchParams]);
-
-  const handlePieChartClick = (event: any, chartContext: any, config: any) => {
-    const category = categoryComplaintOptions.labels?.[
-      config.dataPointIndex
-    ] as string;
-    setSelectedCategory(category);
-    setIsModalOpen(true);
-  };
-
-  const categoryComplaintOptions: ApexOptions = {
-    chart: {
-      type: "pie",
-      background: "transparent",
-      foreColor: "inherit",
-      events: {
-        dataPointSelection: handlePieChartClick,
-      },
-    },
-    labels: ["Informasi", "Teknikal", "Fasilitas", "Layanan"],
-    colors: ["#3B82F6", "#F59E0B", "#10B981", "#EF4444"],
-    series: [15, 0, 25, 20],
-    title: {
-      text: "Komplain per Kategori",
-      align: "center",
-      style: {
-        fontSize: "16px",
-        fontWeight: "600",
-        color: "currentColor",
-      },
-      offsetY: 5,
-    },
-    legend: {
-      position: "bottom",
-      horizontalAlign: "center",
-      labels: {
-        colors: "currentColor",
-        useSeriesColors: false,
-      },
-      itemMargin: {
-        horizontal: 8,
-        vertical: 4,
-      },
-      formatter: function (seriesName, opts) {
-        return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}`;
-      },
-      fontSize: "12px",
-      offsetY: 5,
-    },
-    dataLabels: {
-      enabled: true,
-      style: {
-        colors: ["#ffffff"],
-        fontSize: "10px",
-        fontWeight: "bold",
-      },
-      dropShadow: {
-        enabled: false,
-      },
-      formatter: function (val: any, { seriesIndex, w }: any) {
-        return val > 5
-          ? `${w.config.series[seriesIndex]}\n(${Math.round(val)}%)`
-          : "";
-      },
-      textAnchor: "middle",
-      offsetY: 0,
-    },
-    plotOptions: {
-      pie: {
-        dataLabels: {
-          minAngleToShowLabel: 10,
-          offset: 0,
-        },
-        donut: {
-          labels: {
-            show: false,
-          },
-        },
-      },
-    },
-    responsive: [
-      {
-        breakpoint: 768,
-        options: {
-          chart: {
-            height: 300,
-          },
-          title: {
-            style: {
-              fontSize: "14px",
-            },
-          },
-          legend: {
-            fontSize: "10px",
-            itemMargin: {
-              horizontal: 5,
-              vertical: 2,
-            },
-          },
-          dataLabels: {
-            style: {
-              fontSize: "8px",
-            },
-          },
-        },
-      },
-    ],
-    tooltip: {
-      enabled: true,
-      y: {
-        formatter: (value: number) => `${value} komplain`,
-      },
-    },
-    states: {
-      hover: {
-        filter: {
-          type: "lighten",
-        },
-      },
-      active: {
-        allowMultipleDataPointsSelection: false,
-        filter: {
-          type: "none",
-        },
-      },
-    },
-  };
-
-  const monthlyComplaintOptions: ApexOptions = {
-    chart: {
-      type: "line",
-      height: 350,
-      background: "transparent",
-      foreColor: "currentColor",
-      toolbar: {
-        show: true,
-        tools: {
-          download: true,
-          selection: true,
-          zoom: true,
-          zoomin: true,
-          zoomout: true,
-          pan: true,
-          reset: true,
-        },
-        autoSelected: "zoom",
-      },
-    },
-    title: {
-      text: "Total Komplain per Bulan",
-      style: {
-        color: "currentColor",
-      },
-    },
-    xaxis: {
-      type: "datetime",
-      labels: {
-        style: {
-          colors: "currentColor",
-        },
-        format: "MMM yyyy",
-      },
-      axisBorder: {
-        color: "currentColor",
-      },
-      axisTicks: {
-        color: "currentColor",
-      },
-    },
-    yaxis: {
-      title: {
-        text: "Jumlah Komplain",
-        style: {
-          color: "currentColor",
-        },
-      },
-      labels: {
-        style: {
-          colors: "currentColor",
-        },
-      },
-    },
-    grid: {
-      borderColor: "currentColor",
-    },
-    legend: {
-      labels: {
-        colors: "currentColor",
-      },
-    },
-    stroke: {
-      curve: "smooth",
-      width: 3,
-    },
-    markers: {
-      size: 6,
-      colors: ["#1f77b4"],
-      strokeColors: "#fff",
-      strokeWidth: 2,
-    },
-    tooltip: {
-      theme: "dark",
-      x: {
-        format: "MMM yyyy",
-      },
-      y: {
-        formatter: (value: number) => `${value} komplain`,
-      },
-    },
-    responsive: [
-      {
-        breakpoint: 768,
-        options: {
-          chart: {
-            height: 250,
-            toolbar: {
-              show: false,
-            },
-          },
-          title: {
-            style: {
-              fontSize: "14px",
-            },
-          },
-          xaxis: {
-            labels: {
-              style: {
-                fontSize: "10px",
-              },
-            },
-          },
-          yaxis: {
-            labels: {
-              style: {
-                fontSize: "10px",
-              },
-            },
-            title: {
-              style: {
-                fontSize: "12px",
-              },
-            },
-          },
-        },
-      },
-    ],
-  };
 
   const [monthlyComplaintData, setMonthlyComplaintData] = useState<
     MonthlyComplaintData[]
@@ -338,25 +123,9 @@ export default function Dashboard() {
     try {
       const response = await fetchIssuesMonthly();
       const apiData = response.data;
-
-      const data: MonthlyComplaintData[] = apiData.map(
-        (item: { month: string; total: number }) => ({
-          month: item.month,
-          date: item.month + "-01",
-          complaints: item.total,
-        })
-      );
-
-      setMonthlyComplaintData(data);
+      setMonthlyComplaintData(apiData);
     } catch (error) {
-      setMonthlyComplaintData([
-        { month: "Jan 2024", date: "2024-01-01", complaints: 125 },
-        { month: "Feb 2024", date: "2024-02-01", complaints: 140 },
-        { month: "Mar 2024", date: "2024-03-01", complaints: 110 },
-        { month: "Apr 2024", date: "2024-04-01", complaints: 155 },
-        { month: "May 2024", date: "2024-05-01", complaints: 135 },
-        { month: "Jun 2024", date: "2024-06-01", complaints: 160 },
-      ]);
+      console.error("Failed to fetch monthly complaint data");
     } finally {
       setIsLoadingMonthlyData(false);
     }
@@ -367,39 +136,35 @@ export default function Dashboard() {
     fetchCountInCall();
   }, []);
 
-  const chartSeries = [
-    {
-      name: "Komplain",
-      data: monthlyComplaintData.map((item) => ({
-        x: new Date(item.date).getTime(),
-        y: item.complaints,
-      })),
-    },
-  ];
+  const handleEditUser = (id: number) => {
+    // Handle edit user logic here
+  };
 
-  const categoryComplaintSeries = [30, 25, 20, 15];
+  const handleDeleteUser = (id: number) => {
+    // Handle delete user logic here
+  };
 
-  const renderActiveTable = () => {
-    return (
-      <Suspense fallback={<LoadingSpinner />}>
-        {(() => {
-          switch (activeTable) {
-            case "call-quantity":
-              return <CallQuantityTable />;
-            case "call-by-time":
-              return <CallByTimeTable />;
-            case "call-by-gate":
-              return <CallByGateTable />;
-            case "call-by-incident":
-              return <CallByIncidentTable />;
-            case "traffic-call":
-              return <TrafficCallTable />;
-            default:
-              return null;
-          }
-        })()}
-      </Suspense>
-    );
+  const handleCategoryPageChange = (page: number) => {
+    setUserPaginationTable((prev) => ({ ...prev, currentPage: page }));
+    fetchUsers(page, userPaginationTable.itemsPerPage);
+  };
+
+  const handleItemsCategoryPerPageChange = (newItemsPerPage: number) => {
+    setUserPaginationTable((prev) => ({
+      ...prev,
+      itemsPerPage: newItemsPerPage,
+      currentPage: 1,
+    }));
+    fetchUsers(1, newItemsPerPage);
+  };
+
+  const handleItemsDescriptionPerPageChange = (newItemsPerPage: number) => {
+    setUserPaginationTable((prev) => ({
+      ...prev,
+      itemsPerPage: newItemsPerPage,
+      currentPage: 1,
+    }));
+    fetchUsers(1, newItemsPerPage);
   };
 
   return (
@@ -427,7 +192,7 @@ export default function Dashboard() {
               </div>
               <div className="text-sm">
                 <span className="text-gray-500">Total Panggilan: </span>
-                <span className="font-semibold">{countInCall}</span>
+                <span className="font-semibold">{countInCall ?? 0}</span>
               </div>
             </div>
           </div>
@@ -435,101 +200,34 @@ export default function Dashboard() {
 
         {/* Charts and Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
-          {/* Monthly Chart */}
-          <div className="bg-white dark:bg-[#222B36] p-3 sm:p-4 rounded-lg">
-            <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:justify-between sm:items-center">
-              <h3 className="text-base font-semibold">Statistik Bulanan</h3>
-              <button
-                onClick={fetchMonthlyComplaintData}
-                disabled={isLoadingMonthlyData}
-                className="cursor-pointer px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 rounded text-white transition-colors"
-              >
-                {isLoadingMonthlyData ? "Loading..." : "Refresh"}
-              </button>
-            </div>
+          <MonthlyComplaintChart
+            data={monthlyComplaintData}
+            isLoading={isLoadingMonthlyData}
+            onRefresh={fetchMonthlyComplaintData}
+          />
 
-            <div className="w-full h-[250px] sm:h-[300px]">
-              {isLoadingMonthlyData ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-                    <p className="text-sm text-gray-500">Memuat data...</p>
-                  </div>
-                </div>
-              ) : (
-                <ReactApexChart
-                  options={{
-                    ...monthlyComplaintOptions,
-                    chart: {
-                      ...monthlyComplaintOptions.chart,
-                      background: "transparent",
-                      height: "100%",
-                      width: "100%",
-                    },
-                  }}
-                  series={chartSeries}
-                  type="line"
-                  height="100%"
-                  width="100%"
-                />
-              )}
-            </div>
-          </div>
-
-          {/* Pie Chart */}
-          <div className="bg-white dark:bg-[#222B36] p-3 sm:p-4 rounded-lg">
-            <div className="w-full min-h-[250px] sm:h-[300px]">
-              <ReactApexChart
-                options={categoryComplaintOptions}
-                series={categoryComplaintSeries}
-                type="pie"
-                height="100%"
-                width="100%"
-              />
-            </div>
-          </div>
+          <CategoryComplaintChart
+            onSelectCategory={(category) => {
+              setSelectedCategory(category);
+              setIsModalOpen(true);
+            }}
+          />
         </div>
 
-        {/* Table Section with Horizontal Tab Bar */}
-        {/* <div className="bg-white dark:bg-[#222B36] rounded-lg p-3 sm:p-4 lg:p-6"> */}
-        {/* Horizontal Tab Bar (desktop/tablet) */}
-        {/* <div className="hidden md:flex flex-wrap gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
-            {tableOptions.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => setActiveTable(option.value)}
-                className={`cursor-pointer px-3 lg:px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-200 border-b-2 ${
-                  activeTable === option.value
-                    ? "text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20"
-                    : "text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
-                }`}
-              >
-                <span className="hidden lg:inline">{option.label}</span>
-                <span className="lg:hidden">{option.label.split(" ")[0]}</span>
-              </button>
-            ))}
-          </div> */}
-
-        {/* Select Input (mobile) */}
-        {/* <div className="mb-4 md:hidden">
-            <select
-              value={activeTable}
-              onChange={(e) => setActiveTable(e.target.value as TableType)}
-              className="w-full rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#222B36] text-gray-900 dark:text-gray-100 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
-            >
-              {tableOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div> */}
-
-        {/* Table Content */}
-        {/* <div className="min-h-[300px] sm:min-h-[400px]">
-            {renderActiveTable()}
-          </div>
-        </div> */}
+        <Suspense fallback={<TableSkeleton />}>
+          <CommonTable
+            data={dataUser}
+            columns={getUsersColumns(dataUser, userPagination)}
+            showPagination={true}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handleCategoryPageChange}
+            itemsPerPage={userPagination.itemsPerPage}
+            totalItems={totalItems}
+            onItemsPerPageChange={handleItemsCategoryPerPageChange}
+            className="text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
+          />
+        </Suspense>
       </div>
       <ComplaintModal
         isOpen={isModalOpen}

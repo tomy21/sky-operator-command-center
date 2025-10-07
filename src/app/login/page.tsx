@@ -65,7 +65,7 @@ export default function Login() {
         password: formData.password,
         remember: true,
       });
-      console.log(response.data.id);
+      console.log(response.data);
       setUser({ username: response.data.username });
       localStorage.setItem("username", response.data.username);
       localStorage.setItem("id", response.data.id);
@@ -74,6 +74,9 @@ export default function Login() {
       }
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
+      }
+      if (response.data.role) {
+        localStorage.setItem("role", response.data.role);
       }
 
       router.push("/?loginSuccess=1");

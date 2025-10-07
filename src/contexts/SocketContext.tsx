@@ -47,6 +47,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   const [activeCall, setActiveCall] = useState<GateStatusUpdate | null>(null);
   const [userNumber, setUserNumberState] = useState<number | null>(null);
   const [isDesktop, setIsDesktop] = useState(true);
+  const [roleActive, setRoleActive] = useState(0);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [, setCallInTime] = useState<Date | null>(null);
 
@@ -62,20 +63,24 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedUserNumber = localStorage.getItem("admin_user_number");
+      const roleActive = localStorage.getItem("role");
       if (savedUserNumber) {
         setUserNumberState(parseInt(savedUserNumber));
+      }
+      if (roleActive) {
+        setRoleActive(Number(roleActive));
       }
       if (isDesktop) {
         setAudio(new Audio("/sound/sound-effect-old-phone-191761.mp3"));
       }
     }
-  }, [isDesktop]);
+  }, [isDesktop, roleActive]);
 
   const setUserNumber = (num: number) => {
     setUserNumberState(num);
     localStorage.setItem("admin_user_number", num.toString());
 
-    if (socket && isDesktop) {
+    if (socket && isDesktop && roleActive === 1) {
       socket.emit("register", num);
     }
   };
@@ -120,7 +125,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
 
     const handleConnect = () => {
       setConnectionStatus("Connected");
-      if (userNumber && isDesktop) {
+      if (userNumber && isDesktop && roleActive === 1) {
         socket.emit("register", userNumber);
       }
     };
@@ -151,7 +156,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
 
     socket.on("connect", handleConnect);
     socket.on("disconnect", handleDisconnect);
-    
+
     if (isDesktop) {
       socket.on("gate-status-update", handleGateStatusUpdate);
     }
@@ -163,7 +168,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         socket.off("gate-status-update", handleGateStatusUpdate);
       }
     };
-  }, [socket, userNumber, audio, isDesktop]);
+  }, [socket, userNumber, audio, isDesktop, roleActive]);
 
   const contextValue: SocketContextType = {
     socket,
@@ -180,7 +185,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   return (
     <SocketContext.Provider value={contextValue}>
       {children}
-      {isDesktop && <GlobalCallPopup />}
+      {isDesktop && roleActive !== 1 && <GlobalCallPopup />}
     </SocketContext.Provider>
   );
 }

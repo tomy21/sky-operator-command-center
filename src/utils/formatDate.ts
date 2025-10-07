@@ -1,7 +1,8 @@
 export default function formatTanggalUTC(input: string): string {
   if (!input) return "";
   const date = new Date(input);
-
+  console.log(date);
+  if (isNaN(date.getTime())) return "";
   const day = date.getUTCDate();
   const monthNames = [
     "Jan",
@@ -27,7 +28,7 @@ export default function formatTanggalUTC(input: string): string {
   return `${day} ${month} ${year}, ${hours}:${minutes}:${seconds}`;
 }
 
-export function formatTanggalLocal(input: string): string {  
+export function formatTanggalLocal(input: string): string {
   if (!input || input === "" || input === "-") return "-";
 
   const date = new Date(input);
@@ -81,21 +82,38 @@ export function formatDateOnly(input: string): string {
   return `${day} ${month} ${year}`;
 }
 
-export function formatDayDateTime(input: string): { dayName: string; date: string; time: string } {
+export function formatDayDateTime(input: string): {
+  dayName: string;
+  date: string;
+  time: string;
+} {
   const date = new Date(input);
-  const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
   const day = days[date.getDay()];
   const dateNum = date.getDate();
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "Mei",
+    "Jun",
+    "Jul",
+    "Agu",
+    "Sep",
+    "Okt",
+    "Nov",
+    "Des",
+  ];
   const month = months[date.getMonth()];
   const year = date.getFullYear();
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  const seconds = date.getSeconds().toString().padStart(2, '0');
-  
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const seconds = date.getSeconds().toString().padStart(2, "0");
+
   return {
     dayName: day,
     date: `${dateNum} ${month} ${year}`,
-    time: `${hours}:${minutes}:${seconds}`
+    time: `${hours}:${minutes}:${seconds}`,
   };
 }

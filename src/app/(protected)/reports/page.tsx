@@ -10,6 +10,7 @@ import {
   Suspense,
   lazy,
   useCallback,
+  useRef,
 } from "react";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import DatePicker from "react-datepicker";
@@ -18,7 +19,7 @@ import { Column } from "@/components/tables/CommonTable";
 const CommonTable = lazy(() => import("@/components/tables/CommonTable"));
 import IsseFormInputModal from "@/components/modal/IssueFormInputModal";
 import { Field } from "@/components/modal/IssueFormInputModal";
-import { addIssue, fetchIssues } from "@/hooks/useIssues";
+import { addIssue, fetchIssues, updateDuration } from "@/hooks/useIssues";
 import { Category, fetchCategories } from "@/hooks/useCategories";
 import {
   addDescription,
@@ -37,10 +38,15 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { validateIndonesianLicensePlate } from "@/utils/validationNumberPlat";
 import { CalenderIcon, LocationIcon2, TicketIcon } from "@/public/icons/Icons";
 import ThreeDotsLoader from "@/components/ThreeDotsLoader";
-import { DownloadIcon, PlusIcon } from "lucide-react";
+import { DownloadIcon, PlusIcon, Upload, UploadCloud, X } from "lucide-react";
 import ExportModalProps from "@/components/modal/ExportModalProps";
+import { FileUploader } from "@/components/FileUploader";
+import Image from "next/image";
+import { PreviewableImage } from "@/components/ImagePreview";
+import { changeStatusGate } from "@/hooks/useIOT";
 
 interface Report {
+  id: number;
   no?: number;
   duration?: string;
   pk_id: string;
@@ -49,6 +55,7 @@ interface Report {
   description: string;
   solution: string;
   dayName: string;
+  foto_bukti_pembayaran: string;
   date: string;
   time: string;
   rawDate: Date;
@@ -67,11 +74,14 @@ interface NewReportData {
   idGate: number;
   description: string;
   action: string;
-  foto: string;
+  foto_face: string;
+  foto_lpr: string;
   number_plate: string;
   TrxNo: string;
+  foto_bukti_pembayaran: string;
   duration: string;
   solusi: string;
+  createdAt: string;
 }
 
 interface DataPagination {
@@ -115,6 +125,32 @@ export default function ReportsPage() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [error, setError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+      if (!allowedTypes.includes(file.type)) {
+        alert("File harus berupa JPG, JPEG, atau PNG!");
+        e.target.value = ""; // reset input
+        return;
+      }
+      setSelectedFile(file);
+    }
+  };
+
+  const handleRemove = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const [formFieldValues, setFormFieldValues] = useState<
     Record<string, string>
@@ -174,8 +210,9 @@ export default function ReportsPage() {
         const mappedReports: Report[] = issuesData.data.map((issue, index) => {
           const createdDate = new Date(issue.createdAt);
           const { dayName, date, time } = formatDayDateTime(issue.createdAt);
-
+          // console.log(issue);
           return {
+            id: issue.id,
             no:
               (issuesPagination.currentPage - 1) *
                 issuesPagination.itemsPerPage +
@@ -187,6 +224,7 @@ export default function ReportsPage() {
             rawDate: createdDate,
             duration: issue.duration ?? "-",
             pk_id: issue.gate,
+            foto_bukti_pembayaran: issue.foto_bukti_pembayaran || "-",
             location: issue.lokasi && issue.lokasi !== "" ? issue.lokasi : "-",
             category:
               issue.category && issue.category !== "" ? issue.category : "-",
@@ -521,14 +559,21 @@ export default function ReportsPage() {
         idGate: parseInt(values.idGate) || 0,
         description: finalDescription,
         action: values.action,
-        foto: values.foto || "-",
+        foto_face: values.foto_face || "-",
+        foto_lpr: values.foto_lpr || "-",
+        foto_bukti_pembayaran: values.foto_bukti_pembayaran || "-",
         number_plate: values.number_plate || "-",
         TrxNo: values.TrxNo || "-",
         duration: values.duration || "00:00:00",
         solusi: values.solusi || "-",
+        createdAt: values.createdAt || " ",
       };
 
       await addIssue(newReportData);
+
+      if (values.action === "OPEN_GATE") {
+        await changeStatusGate(parseInt(values.idGate), "OPEN");
+      }
 
       await fetchAllIssuesData();
       toast.success("Report Berhasil dibuat!");
@@ -589,10 +634,54 @@ export default function ReportsPage() {
 
   const columns: Column<Report>[] = [
     { header: "No.", accessor: "no" },
+
     {
-      header: "Hari",
-      accessor: "dayName",
+      header: "Action",
+      accessor: "foto_bukti_pembayaran",
+      render: (value, row) => {
+        if (value) {
+          // pastikan value adalah string dan awali dengan "/uploads/"
+          const relativePath = String(value).startsWith("/uploads")
+            ? String(value)
+            : `/uploads/${String(value)}`;
+
+          const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
+
+          // kalau env kosong, fallback ke localhost
+          const imageUrl = `${baseUrl}${relativePath}`;
+
+          return (
+            <div className="items-center justify-center">
+              {value !== "-" ? (
+                <PreviewableImage imageUrl={imageUrl} />
+              ) : (
+                <FileUploader
+                  rowId={row.id}
+                  onFileSelect={async (id, file) => {
+                    const formData = new FormData();
+                    formData.append("foto_bukti_pembayaran", file);
+
+                    const res = await fetch(
+                      `/api/issue/${id}/bukti-pembayaran`,
+                      {
+                        method: "PUT",
+                        body: formData,
+                      }
+                    );
+
+                    if (!res.ok) throw new Error("Upload gagal");
+                    const data = await res.json();
+
+                    return `${process.env.NEXT_PUBLIC_API_BASE_URL}${data.data.foto_bukti_pembayaran}`;
+                  }}
+                />
+              )}
+            </div>
+          );
+        }
+      },
     },
+
     {
       header: "Tanggal",
       accessor: "date",
@@ -601,7 +690,40 @@ export default function ReportsPage() {
       header: "Waktu",
       accessor: "time",
     },
-    { header: "Durasi", accessor: "duration" },
+
+    {
+      header: "Durasi",
+      accessor: "duration",
+      render: (value, row) => {
+        const handleKeyDown = async (
+          e: React.KeyboardEvent<HTMLInputElement>
+        ) => {
+          if (e.key === "Enter") {
+            try {
+              const val = (e.target as HTMLInputElement).value.trim();
+              // 🔥 Panggil API update dengan id row yang benar
+              const res = await updateDuration(Number(row.id), val);
+              console.log("Update sukses:", res);
+            } catch (err) {
+              console.error("Update gagal:", err);
+            }
+          }
+        };
+
+        return (
+          <div className="flex flex-col gap-3">
+            <input
+              type="text"
+              className="p-2 w-14 border rounded"
+              placeholder="00:00"
+              defaultValue={String(value ?? "")}
+              onKeyDown={handleKeyDown}
+            />
+          </div>
+        );
+      },
+    },
+
     { header: "PK/ID", accessor: "pk_id" },
     { header: "Lokasi", accessor: "location" },
     { header: "Kategori", accessor: "category" },
@@ -770,6 +892,15 @@ export default function ReportsPage() {
         ],
         required: true,
         onChange: (value) => handleFieldValueChange("action", value),
+      },
+      {
+        id: "createdAt",
+        label: "Tanggal Buat",
+        type: "datetime-local" as const,
+        value: formFieldValues.createdAt || "",
+        placeholder: "Masukkan solusi...",
+        required: false,
+        onChange: (value) => handleFieldValueChange("createdAt", value),
       }
     );
 
