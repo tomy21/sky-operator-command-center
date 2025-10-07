@@ -52,7 +52,7 @@ export default function Sidebar() {
     window.addEventListener("resize", checkScreenSize);
 
     return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
+  }, [mounted]);
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
