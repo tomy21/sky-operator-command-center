@@ -3,13 +3,11 @@ import LayoutWrapper from "@/components/main/LayoutWrapper";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
-import {
-  SocketProvider,
-
-} from "@/contexts/SocketContext";
+import { SocketProvider } from "@/contexts/SocketContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GlobalCallPopup } from "@/components/GlobalCallPopup";
+import SessionWatcher from "@/components/SessionWatcher";
 
 export default async function ProtectedLayout({
   children,
@@ -27,12 +25,12 @@ export default async function ProtectedLayout({
     jwt.verify(token, process.env.JWT_SECRET!);
   } catch (err) {
     redirect("/login");
-
   }
 
   return (
     <SocketProvider>
       <LayoutWrapper>
+        <SessionWatcher />
         <GlobalCallPopup />
         {children}
         <ToastContainer
