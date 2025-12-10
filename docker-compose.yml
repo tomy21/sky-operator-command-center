@@ -1,15 +1,10 @@
-version: "3.8"
-
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: https://api.command-center.web.id
-        NODE_ENV: production
-        JWT_SECRET: 158243e2-ccc0-4798-a944-2a5b0d1c90f3
-        PORT: 3000
+        NEXT_PUBLIC_API_BASE_URL: "https://api.command-center.web.id"
     ports:
       - "3000:3000"
     environment:
