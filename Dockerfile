@@ -1,32 +1,33 @@
-# Gunakan image resmi Node.js
 FROM node:20-alpine
 
-# Install dependensi tambahan yang dibutuhkan Prisma (openssl, libc6, dll.)
 RUN apk add --no-cache openssl
 
-RUN rm -rf node_modules
-
-# Set working directory
 WORKDIR /app
 
-# Salin file dependency terlebih dahulu (untuk cache layer efisien)
+# --- Tambah ARG supaya ENV dari docker-compose masuk ke tahap build ---
+ARG NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
+
+ARG NODE_ENV
+ENV NODE_ENV=${NODE_ENV}
+
+ARG JWT_SECRET
+ENV JWT_SECRET=${JWT_SECRET}
+
+ARG PORT
+ENV PORT=${PORT}
+
+# Copy dependency file
 COPY package.json yarn.lock ./
 
-# Install dependency
 RUN yarn install
 
-# Salin semua file project (setelah install dependency agar layer cache tidak rusak)
+# Copy all project files
 COPY . .
 
-# ✅ Generate Prisma Client (untuk 2 schema)
-# RUN npx prisma generate --schema=prisma/main/schema.prisma
-# RUN npx prisma generate --schema=prisma/secondary/schema.prisma
-# RUN yarn generate
-# ✅ Build TypeScript ke dist/
+# Build dengan ENV (penting!!)
 RUN yarn build
 
-# Optional: Expose port (ubah sesuai port kamu)
 EXPOSE 3000
 
-# ✅ Jalankan aplikasi
-CMD ["yarn","start"]
+CMD ["yarn", "start"]
