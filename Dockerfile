@@ -26,7 +26,7 @@ COPY . .
 RUN yarn build
 
 # Optional: Expose port (ubah sesuai port kamu)
-EXPOSE 3000
+EXPOSE 3005
 
 # ✅ Jalankan aplikasi
 CMD ["yarn","start"]
