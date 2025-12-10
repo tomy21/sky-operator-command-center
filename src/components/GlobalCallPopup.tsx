@@ -444,6 +444,7 @@ export function GlobalCallPopup() {
       }
     }
   };
+
   useEffect(() => {
     if (activeCall) {
       setLocalActiveCall(activeCall);
