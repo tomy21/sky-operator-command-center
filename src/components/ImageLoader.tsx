@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
@@ -29,6 +31,9 @@ const ImageWithLoader = ({
     setError(false);
     setCurrentSrc(src);
   }, [src]);
+
+  const safeSrc =
+    currentSrc && !currentSrc.endsWith("filename=") ? currentSrc : fallbackSrc;
 
   return (
     <div className={`relative ${className}`} style={{ width, height }}>
@@ -69,21 +74,21 @@ const ImageWithLoader = ({
       )}
 
       {/* Actual Image */}
-      <Image
-        src={error ? fallbackSrc : currentSrc || fallbackSrc}
+      <img
+        src={error ? fallbackSrc : safeSrc}
         alt={alt}
         width={width}
         height={height}
-        className={`rounded-lg object-cover ${
+        loading={priority ? "eager" : "lazy"}
+        className={`rounded-lg object-cover transition-opacity duration-300 ${
           loading || error ? "opacity-0" : "opacity-100"
         }`}
         style={{ width: "100%", height: "100%" }}
-        onLoadingComplete={() => setLoading(false)}
+        onLoad={() => setLoading(false)}
         onError={() => {
           setError(true);
           setLoading(false);
         }}
-        priority={priority}
       />
     </div>
   );

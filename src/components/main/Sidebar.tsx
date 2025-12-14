@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { HiOutlineBars3 } from "react-icons/hi2";
@@ -21,6 +22,7 @@ export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const { navigateTo, isNavigating } = usePageNavigation();
+  const router = useRouter();
 
   const menuItems = [
     { href: "/", label: "Dashboard", icon: DashboardIcon },
@@ -60,8 +62,13 @@ export default function Sidebar() {
 
   const handleLogout = async () => {
     // Show logout loading
-    await navigateTo("/login", "Keluar");
-    window.location.href = "/login";
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      await navigateTo("/login", "Keluar");
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout gagal");
+    }
   };
 
   const handleNavigation = async (
